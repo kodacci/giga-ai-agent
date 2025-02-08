@@ -43,6 +43,7 @@
 		<maven.project.info.reports.plugin.version>3.4.3</maven.project.info.reports.plugin.version>
 		<maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
 		<maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
+		<nxrm3.maven.plugin.version>1.0.6</nxrm3.maven.plugin.version>
 
 		<!--  Third party dependencies  -->
 		<assertj.version>3.24.2</assertj.version>
