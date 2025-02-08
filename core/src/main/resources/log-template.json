@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "time": {
+    "$resolver": "timestamp",
+    "pattern": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss,SSS+03:00",
+      "timeZone": "Europe/Moscow",
+      "locale": "en_US"
+    }
+  },
+  "level": {
+    "$resolver": "level",
+    "field": "name"
+  },
+  "thread": {
+    "$resolver": "thread",
+    "field": "name"
+  },
+  "class": {
+    "$resolver": "source",
+    "field": "className"
+  },
+  "method": {
+    "$resolver": "source",
+    "field": "methodName"
+  },
+  "line": {
+    "$resolver": "source",
+    "field": "lineNumber"
+  },
+  "message": {
+    "$resolver": "message",
+    "stringified": true
+  },
+  "exception": {
+    "$resolver": "exception",
+    "field": "stackTrace",
+    "stackTrace": {
+      "stringified": true
+    }
+  }
+}

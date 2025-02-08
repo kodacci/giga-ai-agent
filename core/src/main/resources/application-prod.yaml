@@ -1,0 +1,12 @@
+logging:
+  level:
+    root: ${ROOT_LOGGING_LEVEL:DEBUG}
+
+app:
+  giga-chat:
+    auth-api-base-url: ${GIGA_CHAT_AUTH_API_BASE_URL}
+    api-base-url: ${GIGA_CHAT_API_BASE_URL}
+    request-timeout-ms: ${GIGA_CHAT_API_REQUEST_TIMEOUT_MS}
+    max-retries: ${GIGA_CHAT_API_MAX_RETRIES}
+    client-id: ${GIGA_CHAT_CLIENT_ID}
+    auth-key: ${GIGA_CHAT_AUTH_KEY}

@@ -1,0 +1,41 @@
+{
+  "groups": [
+    {
+      "name": "app.giga-chat",
+      "description": "Application Giga Chat properties",
+      "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.GigaChatProps"
+    }
+  ],
+  "properties": [
+    {
+      "name": "app.giga-chat.auth-api-base-url",
+      "description": "Giga Chat API auth base URL",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.giga-chat.api-base-url",
+      "description": "Giga Chat API base URL",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.giga-chat.request-timeout-ms",
+      "description": "Giga Chat API request timeout",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.giga-chat.max-retries",
+      "description": "Max API request retries",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.giga-chat.client-id",
+      "description": "Giga Chat API client ID",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.giga-chat.auth-key",
+      "description": "Giga Chat API authorization key",
+      "type": "java.lang.String"
+    }
+  ]
+}

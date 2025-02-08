@@ -1,0 +1,46 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - prometheus
+          - health
+          - info
+          - metrics
+  endpoint:
+    health:
+      access: unrestricted
+      show-details: always
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include:
+            - livenessState
+        readiness:
+          include:
+            - readinessState
+    prometheus:
+      access: unrestricted
+      metrics:
+        export:
+          enabled: true
+  server:
+    port: 8081
+  metrics:
+    distribution:
+      percentiles-histogram[http.server.requests]: true
+      percentiles[http.server.request]: 0.5, 0.90, 0.95, 0.99
+      slo[http.server.requests]: 100ms, 250ms, 500ms, 1s, 2s, 5s
+    enable:
+      jvm: true
+
+spring:
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  servlet:
+    encoding:
+      force: true

@@ -1,0 +1,34 @@
+Configuration:
+  name: Default
+
+  Appenders:
+    Console:
+      name: Console
+      target: SYSTEM_OUT
+      PatternLayout:
+        pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight{[%level]} [%t] %c{5} %M - %msg%n%throwable"
+    RollingFile:
+      name: RollingFile
+      append: true
+      fileName: logs/giga-ai-agent-core.log
+      filePattern: logs/giga-ai-agent-core-%d{yyyy-MM-dd}-%i.log.zip
+      JsonTemplateLayout:
+        eventTemplateUri: classpath:log-template.json
+      Policies:
+        OnStartupTriggeringPolicy:
+        SizeBasedTriggeringPolicy:
+          size: 10 MB
+        TimeBasedTriggeringPolicy:
+      DefaultRolloverStrategy:
+        max: 30
+    Async:
+      name: Async
+      AppenderRef:
+        - ref: RollingFile
+
+  Loggers:
+    Root:
+      level: info
+      AppenderRef:
+        - ref: Console
+        - ref: Async
