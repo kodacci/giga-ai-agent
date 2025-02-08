@@ -9,7 +9,7 @@
 		<version>3.4.2</version>
 	</parent>
 
-	<groupId>pro.ra-tech</groupId>
+	<groupId>ru.ra-tech.ai</groupId>
 	<artifactId>giga-ai-agent</artifactId>
 	<version>${revision}</version>
 	<packaging>pom</packaging>
