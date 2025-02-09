@@ -61,7 +61,7 @@ pipeline {
                     def logFileName = env.BUILD_TAG + '-build.log'
                     try {
                         withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
-                            sh "./mvnw --log-file \"$logFileName\" -DskipTests clean package"
+                            sh "./mvnw --global-settings \$GLOBAL_MVN_SETTINGS --log-file \"$logFileName\" -DskipTests clean package"
                         }
                     } finally {
                         archiveArtifacts(logFileName)
@@ -80,7 +80,7 @@ pipeline {
                     try {
                         withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
                             docker.withServer(DOCKER_HOST, 'jenkins-client-cert') {
-                                sh "./mvnw --log-file \"$logFileName\" verify"
+                                sh "./mvnw --global-settings \$GLOBAL_MVN_SETTINGS --log-file \"$logFileName\" verify"
                             }
                         }
                     } finally {
@@ -104,8 +104,7 @@ pipeline {
                     def logFileName = env.BUILD_TAG + '-deploy.log'
                     try {
                         withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
-                            sh "./mvnw -s \$GLOBAL_MVN_SETTINGS help:effective-settings"
-                            sh "./mvnw -X -s \$GLOBAL_MVN_SETTINGS --log-file \"$logFileName\" deploy -Drevision=$PROJECT_VERSION-$DEPLOY_GIT_SCOPE-SNAPSHOT -DskipTests"
+                            sh "./mvnw -X --global-settings \$GLOBAL_MVN_SETTINGS --log-file \"$logFileName\" deploy -Drevision=$PROJECT_VERSION-$DEPLOY_GIT_SCOPE-SNAPSHOT -DskipTests"
                         }
                     } finally {
                         archiveArtifacts(logFileName)
