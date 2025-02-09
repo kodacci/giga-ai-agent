@@ -91,7 +91,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.boot.version}</version>
                 <configuration>
-                    <mainClass>ru.ra_tech.garden_manager.core.MainApplication</mainClass>
+                    <mainClass>pro.ra_tech.giga_ai_agent.core.CoreApplication</mainClass>
                     <skip>false</skip>
                     <jvmArguments>${coverage.agent}</jvmArguments>
                     <layout>JAR</layout>
