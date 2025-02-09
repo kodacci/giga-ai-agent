@@ -12,4 +12,4 @@
 >>
 :: RA-Tech Software Solutions ::
 :: Spring Boot Version: ${spring-boot.version} ::
-:: Application: ${spring.application.name} ::
+:: Application: ${spring.application.name} Version ${spring.application.version}::

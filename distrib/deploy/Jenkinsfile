@@ -112,6 +112,8 @@ pipeline {
 
                     def solrApply = ""
                     def vaultApply = ""
+                    def gigaAuthApply = ""
+                    def gigaChatApply = ""
 
                     def coreImageTag = params.core_app_image ? params.core_app_image : generateImageTag('giga-ai-agent-core')
 
@@ -174,7 +176,9 @@ pipeline {
                                 '-f distrib/destination-rule.yaml ' +
                                 '-f distrib/egw-destination-rule.yaml ' +
                                 solrApply +
-                                vaultApply
+                                vaultApply +
+                                gigaAuthApply +
+                                gigaChatApply
 
                         // Deploying main app
                         sh 'kubectl apply -f distrib/deployment.yaml'
