@@ -64,12 +64,12 @@ spec:
 
       containers:
         - name: giga-ai-agent-core
-          image: {{ registry }}/{{ image_tag}}
+          image: {{ registry }}/{{ image_tag }}
           ports:
               - containerPort: 8080
                 name: core-rest-api
-                - containerPort: 8081
-                  name: core-actuator
+              - containerPort: 8081
+                name: core-actuator
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: prod
