@@ -104,6 +104,7 @@ pipeline {
                     def logFileName = env.BUILD_TAG + '-deploy.log'
                     try {
                         withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
+                            sh "./mvnw help:effective-settings"
                             sh "./mvnw -X --log-file \"$logFileName\" deploy -Drevision=$PROJECT_VERSION-$DEPLOY_GIT_SCOPE-SNAPSHOT -DskipTests"
                         }
                     } finally {
