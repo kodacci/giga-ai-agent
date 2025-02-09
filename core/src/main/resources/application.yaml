@@ -37,7 +37,7 @@ management:
 
 spring:
   application:
-    name: Garden Manager Core
+    name: GIGA AI Agent
   mvc:
     problemdetails:
       enabled: true
