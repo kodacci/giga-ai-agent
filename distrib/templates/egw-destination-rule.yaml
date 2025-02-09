@@ -11,5 +11,7 @@ spec:
   subsets:
     - name: solr
     - name: vault
+    - name: giga-auth
+    - name: giga-chat
   exportTo:
     - "."

@@ -21,7 +21,6 @@ import retrofit2.Response;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -32,8 +31,10 @@ public class GigaChatServiceImpl implements GigaChatService {
         }
     }
 
+    private final AuthApi authApi;
+    private final String authKey;
     private final GigaChatApi gigaApi;
-    private final FailsafeCall<AuthResponse> authFailsafe;
+    private final RetryPolicy<Response<AuthResponse>> authPolicy;
     private final RetryPolicy<Response<GetAiModelsResponse>> getAiModelsPolicy;
 
     private String authHeader = null;
@@ -46,12 +47,11 @@ public class GigaChatServiceImpl implements GigaChatService {
             GigaChatApi gigaApi,
             int maxRetries
     ) {
+        this.authApi = authApi;
         this.gigaApi = gigaApi;
+        this.authKey = authKey;
 
-        val call = authApi.authenticate(UUID.randomUUID().toString(), "Basic: " + authKey, AuthScope.GIGACHAT_API_PERS);
-        val policy = RetryPolicy.<Response<AuthResponse>>builder().withMaxRetries(maxRetries).build();
-        authFailsafe = FailsafeCall.with(policy).compose(call);
-
+        authPolicy = buildPolicy(maxRetries);
         getAiModelsPolicy = buildPolicy(maxRetries);
 
         log.info("Created Giga Chat service for client {}", clientId);
@@ -70,7 +70,9 @@ public class GigaChatServiceImpl implements GigaChatService {
     }
 
     private void authenticate() {
-        Try.of(authFailsafe::execute)
+        val call = authApi.authenticate(UUID.randomUUID().toString(), "Basic: " + authKey, AuthScope.GIGACHAT_API_PERS);
+
+        Try.of(() -> FailsafeCall.with(authPolicy).compose(call).execute())
                 .map(this::onResponse)
                 .onSuccess(res -> {
                     authHeader = "Bearer " + res.accessToken();
@@ -97,7 +99,7 @@ public class GigaChatServiceImpl implements GigaChatService {
             log.error("API request error with code: {} and body: {}", response.code(), message);
             throw new ApiException(String.format("Bad response with code %d, body: %s", response.code(), message));
         } catch (IOException e) {
-            throw new ApiException("Bad response with code " + Integer.toString(response.code()));
+            throw new ApiException("Bad response with code " + response.code());
         }
     }
 
