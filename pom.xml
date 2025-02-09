@@ -44,6 +44,8 @@
 		<maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
 		<maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
 		<nxrm3.maven.plugin.version>1.0.6</nxrm3.maven.plugin.version>
+		<maven.wrapper.plugin.version>3.3.2</maven.wrapper.plugin.version>
+		<sonar.maven.plugin.version>5.0.0.4389</sonar.maven.plugin.version>
 
 		<!--  Third party dependencies  -->
 		<assertj.version>3.24.2</assertj.version>
@@ -300,6 +302,11 @@
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
 					<version>${sonar.maven.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-wrapper-plugin</artifactId>
+					<version>${maven.wrapper.plugin.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
