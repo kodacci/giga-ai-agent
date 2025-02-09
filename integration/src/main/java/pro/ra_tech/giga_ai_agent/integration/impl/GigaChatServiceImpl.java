@@ -83,7 +83,7 @@ public class GigaChatServiceImpl implements GigaChatService {
     }
 
     private void checkIfAuthenticated() {
-        if (authHeader == null || authExpiresAt.isAfter(Instant.now().plus(1, ChronoUnit.SECONDS))) {
+        if (authHeader == null || authExpiresAt.isBefore(Instant.now().plus(1, ChronoUnit.SECONDS))) {
             log.info("Authenticating");
             authenticate();
         }

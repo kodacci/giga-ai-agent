@@ -1,7 +1,5 @@
 package pro.ra_tech.giga_ai_agent.integration.config;
 
-import dev.failsafe.RetryPolicy;
-import dev.failsafe.RetryPolicyConfig;
 import lombok.val;
 import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
