@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ namespace }}
+  name: core-fluentbit-config
+  labels:
+    app.kubernetes.io/name: core-fluentbit-config
+    app.kubernetes.io/component: core
+    app.kubernetes.io/part-of: giga-ai-agent
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+      HTTP_Server             On
+      HTTP_Listen             0.0.0.0
+      HTTP_Port               9090
+      Health_Check            On
+      HC_Errors_Count         10
+      HC_Retry_Failure_Count  10
+      HC_Period               10
+      Parsers_File            /fluent-bit/etc/parsers.conf
+      log_level               info
+    
+    [INPUT]
+      Name              tail
+      Tag               core.*
+      Path              /logs/*.log
+      Parser            log4j-json
+      DB                /fluent-bit/db/tail.db
+      Mem_Buf_Limit     10MB
+      Refresh_Interval  10
+    
+    [FILTER]
+      Name modify
+      Match *
+      Add pod           ${POD_NAME}
+      Add namespace     ${POD_NAMESPACE}
+      Add pod_ip        ${POD_IP}
+      Add node          ${NODE_NAME}
+    
+    [OUTPUT]
+      Name stdout
+      Match *
+    
+    [OUTPUT]
+      Name              http
+      Match             *
+      host              solr.ra-tech.pro
+      port              80
+      uri               /solr/{{ solr_collection }}/update/json/docs
+      format            json
+      json_date_key     false
+  
+
+  parsers.conf: |
+    [PARSER]
+      Name          log4j-json
+      Format        json
+      Time_Key      time
+      Time_Format   %Y-%m-%dT%H:%M:%S,%L%z
+      Time_Keep     On

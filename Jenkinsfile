@@ -130,19 +130,19 @@ pipeline {
             }
         }
 
-//        stage('Trigger deploy pipeline') {
-//            steps {
-//                script {
-//                    def path = BRANCH_NAME.replaceAll("/", "%2F")
-//                    build(
-//                            job: "Giga AI Agent Backend CD/$path",
-//                            wait: false,
-//                            parameters: [
-//                                    string(name: 'core_app_image', value: CORE_APP_IMAGE_TAG),
-//                            ]
-//                    )
-//                }
-//            }
-//        }
+        stage('Trigger deploy pipeline') {
+            steps {
+                script {
+                    def path = BRANCH_NAME.replaceAll("/", "%2F")
+                    build(
+                            job: "Giga AI Agent Backend CD/$path",
+                            wait: false,
+                            parameters: [
+                                    string(name: 'core_app_image', value: CORE_APP_IMAGE_TAG),
+                            ]
+                    )
+                }
+            }
+        }
     }
 }

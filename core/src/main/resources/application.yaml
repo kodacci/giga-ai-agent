@@ -36,6 +36,8 @@ management:
       jvm: true
 
 spring:
+  application:
+    name: Garden Manager Core
   mvc:
     problemdetails:
       enabled: true

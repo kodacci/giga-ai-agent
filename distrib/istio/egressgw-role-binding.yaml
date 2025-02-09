@@ -1,0 +1,18 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: giga-ai-agent-egressgw-sds
+  namespace: {{ namespace }}
+  labels:
+    app: giga-ai-agent-egressgw
+    app.kubernetes.io/name: giga-ai-agent-egressgw
+    app.kubernetes.io/component: istio-egressgw
+    app.kubernetes.io/part-of: giga-ai-agent
+    istio.io/rev: 1-18-2
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: giga-ai-agent-egressgw-sds
+subjects:
+  - kind: ServiceAccount
+    name: giga-ai-agent-egressgw-service-account
