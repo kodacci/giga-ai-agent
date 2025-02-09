@@ -148,7 +148,7 @@ pipeline {
 
                         // Giga Chat API
                         gigaAuthApply = generateExtHttp(namespace, 'giga-auth', gigaAuthHost, 9443)
-                        gigaApiApply = generateExtHttp(namespace, 'giga-chat', gigaChatHost, 443)
+                        gigaChatApply = generateExtHttp(namespace, 'giga-chat', gigaChatHost, 443)
                     }
 
                     withKubeConfig([credentialsId: 'jenkins-k8s-cert', serverUrl: KUBERNETES_API_URL, namespace: namespace]) {

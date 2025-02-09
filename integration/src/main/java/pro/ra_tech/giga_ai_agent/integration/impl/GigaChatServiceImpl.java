@@ -77,7 +77,7 @@ public class GigaChatServiceImpl implements GigaChatService {
                 .onSuccess(res -> {
                     authHeader = "Bearer " + res.accessToken();
                     authExpiresAt = Instant.ofEpochSecond(res.expiresAt());
-                    log.info("Got authentication header, expires at {}", authExpiresAt);
+                    log.info("Got authentication header, expires at {} ({})", res.expiresAt(), authExpiresAt);
                 })
                 .onFailure(cause -> log.error("Error authenticating:", cause));
     }
