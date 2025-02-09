@@ -31,7 +31,7 @@ spec:
         mode: PASSTHROUGH
     - port:
         number: 9443
-        name: https
+        name: https-9
         protocol: HTTPS
       hosts:
         - {{ giga_auth_host }}
