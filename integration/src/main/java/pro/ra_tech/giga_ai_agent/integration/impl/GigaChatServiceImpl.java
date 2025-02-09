@@ -115,7 +115,8 @@ public class GigaChatServiceImpl implements GigaChatService {
     @Override
     public Either<AppFailure, GetAiModelsResponse> listModels() {
         log.info("Getting ai models list");
-        return sendRequest(getAiModelsPolicy, gigaApi.getAiModels(authHeader));
+        return sendRequest(getAiModelsPolicy, gigaApi.getAiModels(authHeader))
+                .peekLeft(failure -> log.error("Error getting models list:", failure.getCause()));
     }
 
     @Override
