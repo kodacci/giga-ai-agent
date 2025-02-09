@@ -4,15 +4,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
 ### IntelliJ IDEA ###
 .idea
 *.iws
@@ -21,3 +12,10 @@ target/
 
 ### Local spring configs ###
 application-local.yaml
+
+### Application Logs ###
+logs/*
+core/logs/*
+
+### MacOS ###
+.DS_Store
