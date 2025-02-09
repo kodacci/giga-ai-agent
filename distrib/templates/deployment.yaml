@@ -52,9 +52,9 @@ spec:
             items:
               - key: vault-agent-config.hcl
                 path: vault-agent-config.hcl
-        - name: application-yaml
+        - name: application-config
           emptyDir:
-            sizeLimit: 1Mi
+            sizeLimit: 10Mi
         - name: vault-token
           emptyDir:
             sizeLimit: 1Mi
@@ -93,7 +93,7 @@ spec:
             - mountPath: /home/giga-ai-agent/logs
               name: logs-volume
             - mountPath: /application
-              name: application-data
+              name: application-config
               readOnly: true
           readinessProbe:
             httpGet:
@@ -179,7 +179,7 @@ spec:
             - mountPath: /vault/agent
               name: vault-agent-config
             - mountPath: /vault/secrets/application
-              name: application-data
+              name: application-config
             - mountPath: /vault/token
               name: vault-token
             - mountPath: /vault/role
