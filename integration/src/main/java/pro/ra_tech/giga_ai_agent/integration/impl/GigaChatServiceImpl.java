@@ -25,6 +25,8 @@ import java.util.UUID;
 
 @Slf4j
 public class GigaChatServiceImpl implements GigaChatService {
+    private static final int HTTP_STATUS_UNAUTHORIZED = 401;
+
     private static class ApiException extends RuntimeException {
         public ApiException(String message) {
             super(message);
@@ -78,7 +80,7 @@ public class GigaChatServiceImpl implements GigaChatService {
                 .map(this::onResponse)
                 .onSuccess(res -> {
                     authHeader = "Bearer " + res.accessToken();
-                    authExpiresAt = Instant.ofEpochSecond(res.expiresAt());
+                    authExpiresAt = Instant.ofEpochMilli(res.expiresAt());
                     log.info("Got authentication header, expires at {} ({})", res.expiresAt(), authExpiresAt);
                 })
                 .onFailure(cause -> log.error("Error authenticating:", cause));
@@ -94,6 +96,10 @@ public class GigaChatServiceImpl implements GigaChatService {
     private <R> R onResponse(Response<R> response) {
         if (response.isSuccessful()) {
             return response.body();
+        }
+
+        if (response.code() == HTTP_STATUS_UNAUTHORIZED) {
+            authHeader = null;
         }
 
         try (val body = response.errorBody()) {
