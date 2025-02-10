@@ -70,6 +70,8 @@ public class GigaChatServiceImpl implements GigaChatService {
     }
 
     private void authenticate() {
+        val uuid = UUID.randomUUID().toString();
+        log.info("Auth request with uuid: {}", uuid);
         val call = authApi.authenticate(UUID.randomUUID().toString(), "Basic: " + authKey, AuthScope.GIGACHAT_API_PERS);
 
         Try.of(() -> FailsafeCall.with(authPolicy).compose(call).execute())
