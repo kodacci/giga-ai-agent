@@ -1,7 +1,5 @@
 package pro.ra_tech.giga_ai_agent.core.controllers.dto;
 
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelInfo;
-
 import java.util.List;
 
 public record GetAiModelsResponse(List<String> models) {
