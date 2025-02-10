@@ -98,10 +98,6 @@ public class GigaChatServiceImpl implements GigaChatService {
             return response.body();
         }
 
-        if (response.code() == HTTP_STATUS_UNAUTHORIZED) {
-            authHeader = null;
-        }
-
         try (val body = response.errorBody()) {
             val message = body == null ? "Unknown error" : body.string();
             log.error("API request error with code: {} and body: {}", response.code(), message);
