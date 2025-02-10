@@ -1,0 +1,217 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: giga-ai-agent-egressgw
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/name: giga-ai-agent-egressgw
+    app.kubernetes.io/component: istio-egressgw
+    app.kubernetes.io/part-of: giga-ai-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: giga-ai-agent-egressgw
+      app.kubernetes.io/name: giga-ai-agent-egressgw
+      app.kubernetes.io/component: istio-egressgw
+      app.kubernetes.io/part-of: giga-ai-agent
+      istio: egressgateway
+      sidecar.istio.io/inject: "false"
+      istio.io/rev: 1-18-2
+      app.network.policy: egress
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+        istio.io/rev: 1-18-2
+      labels:
+        app: giga-ai-agent-egressgw
+        app.kubernetes.io/name: giga-ai-agent-egressgw
+        app.kubernetes.io/component: istio-egressgw
+        app.kubernetes.io/part-of: giga-ai-agent
+        istio: egressgateway
+        sidecar.istio.io/inject: "false"
+        istio.io/rev: 1-18-2
+        app.network.policy: egress
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution: null
+          requiredDuringSchedulingIgnoredDuringExecution: null
+      securityContext:
+        fsGroup: 1337
+        runAsGroup: 1337
+        runAsNonRoot: true
+        runAsUser: 1337
+      serviceAccountName: giga-ai-agent-egressgw-service-account
+      volumes:
+        - emptyDir: {}
+          name: workload-socket
+        - emptyDir: {}
+          name: credential-socket
+        - emptyDir: {}
+          name: workload-certs
+        - configMap:
+            name: istio-ca-root-cert
+          name: istiod-ca-cert
+        - downwardAPI:
+            items:
+              - fieldRef:
+                  fieldPath: metadata.labels
+                path: labels
+              - fieldRef:
+                  fieldPath: metadata.annotations
+                path: annotations
+          name: podinfo
+        - name: istio-envoy
+          emptyDir: {}
+        - name: istio-data
+          emptyDir: {}
+        - name: istio-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: istio-ca
+                  expirationSeconds: 43200
+                  path: istio-token
+        - name: config-volume
+          configMap:
+            name: istio-1-18-2
+            optional: true
+        - name: egressgateway-certs
+          secret:
+            optional: true
+            secretName: istio-egressgateway-certs
+        - name: egressgateway-ca-certs
+          secret:
+            optional: true
+            secretName: istio-egressgateway-ca-certs
+      containers:
+        - name: istio-proxy
+          image: docker.io/istio/proxyv2:1.18.2
+          resources:
+            limits:
+              cpu: 200m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          ports:
+            - containerPort: {{ egress_tcp_port }}
+              protocol: TCP
+            - containerPort: 18080
+              protocol: TCP
+            - containerPort: 10443
+              protocol: TCP
+            - containerPort: 15090
+              name: http-envoy-prom
+              protocol: TCP
+          args:
+            - proxy
+            - router
+            - --domain
+            - $(POD_NAMESPACE).svc.cluster.local
+            - --proxyLogLeve=warning
+            - --proxyComponentLogLevel=misc:error
+            - --log_output_level=default:info
+          env:
+            - name: JWT_POLICY
+              value: third-party-jwt
+            - name: PILOT_CERT_PROVIDER
+              value: istiod
+            - name: CA_ADDR
+              value: istiod.istio-system.svc:15012
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: INSTANCE_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
+            - name: ISTIO_CPU_LIMIT
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.cpu
+            - name: SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: ISTIO_META_WORKLOAD_NAME
+              value: giga-ai-agent-egressgw
+            - name: ISTIO_META_OWNER
+              value: kubernetes://apis/apps/v1/namespaces/{{ namespace }}/deployments/giga-ai-agent-egressgw
+            - name: ISTIO_META_MESH_ID
+              value: cluster.local
+            - name: TRUST_DOMAIN
+              value: cluster.local
+            - name: ISTIO_META_UNPRIVILEGED_POD
+              value: 'true'
+            - name: ISTIO_META_CLUSTER_ID
+              value: Kubernetes
+            - name: ISTIO_META_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          readinessProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /healthz/ready
+              port: 15021
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: workload-socket
+              mountPath: /var/run/secrets/workload-spiffe-uds
+            - name: credential-socket
+              mountPath: /var/run/secrets/credential-uds
+            - name: workload-certs
+              mountPath: /var/run/secrets/workload-spiffe-credentials
+            - name: istio-envoy
+              mountPath: /etc/istio/proxy
+            - name: config-volume
+              mountPath: /etc/istio/config
+            - name: istiod-ca-cert
+              mountPath: /var/run/secrets/istio
+            - name: istio-token
+              mountPath: /var/run/secrets/tokens
+              readOnly: true
+            - name: istio-data
+              mountPath: /etc/istio/data
+            - name: podinfo
+              mountPath: /etc/istio/pod
+            - name: egressgateway-certs
+              mountPath: /etc/istio/egressgateway-certs
+              readOnly: true
+            - name: egressgateway-ca-certs
+              mountPath: /etc/istio/egressgateway-ca-certs
+              readOnly: true

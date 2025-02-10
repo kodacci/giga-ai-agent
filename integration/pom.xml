@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>pro.ra-tech</groupId>
+        <groupId>pro.ra-tech.ai</groupId>
         <artifactId>giga-ai-agent</artifactId>
         <version>${revision}</version>
     </parent>
@@ -22,7 +22,7 @@
     <dependencies>
         <!--    Internal    -->
         <dependency>
-            <groupId>pro.ra-tech</groupId>
+            <groupId>pro.ra-tech.ai</groupId>
             <artifactId>giga-ai-agent-failure</artifactId>
             <version>${revision}</version>
         </dependency>

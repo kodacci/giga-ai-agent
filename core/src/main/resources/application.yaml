@@ -36,6 +36,9 @@ management:
       jvm: true
 
 spring:
+  application:
+    name: GIGA AI Agent
+    version: @revision@
   mvc:
     problemdetails:
       enabled: true

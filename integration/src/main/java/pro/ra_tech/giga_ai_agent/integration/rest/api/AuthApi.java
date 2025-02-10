@@ -8,8 +8,6 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
 
-import java.util.UUID;
-
 public interface AuthApi {
     @FormUrlEncoded
     @POST("/api/v2/oauth")

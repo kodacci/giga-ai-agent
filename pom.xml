@@ -9,7 +9,7 @@
 		<version>3.4.2</version>
 	</parent>
 
-	<groupId>pro.ra-tech</groupId>
+	<groupId>pro.ra-tech.ai</groupId>
 	<artifactId>giga-ai-agent</artifactId>
 	<version>${revision}</version>
 	<packaging>pom</packaging>
@@ -43,6 +43,9 @@
 		<maven.project.info.reports.plugin.version>3.4.3</maven.project.info.reports.plugin.version>
 		<maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
 		<maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
+		<nxrm3.maven.plugin.version>1.0.6</nxrm3.maven.plugin.version>
+		<maven.wrapper.plugin.version>3.3.2</maven.wrapper.plugin.version>
+		<sonar.maven.plugin.version>5.0.0.4389</sonar.maven.plugin.version>
 
 		<!--  Third party dependencies  -->
 		<assertj.version>3.24.2</assertj.version>
@@ -207,71 +210,147 @@
 	</dependencies>
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>${maven.clean.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>${maven.resources.plugin.version}</version>
+					<configuration>
+						<encoding>UTF-8</encoding>
+						<propertiesEncoding>UTF-8</propertiesEncoding>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven.compiler.plugin.version}</version>
+					<configuration>
+						<release>${java.version}</release>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven.surefire.plugin.version}</version>
+					<configuration>
+						<skipTests>${skipTests}</skipTests>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>${maven.failsafe.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${maven.jar.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>${maven.install.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>${maven.deploy.plugin.version}</version>
+					<configuration>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>${maven.site.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-project-info-reports-plugin</artifactId>
+					<version>${maven.project.info.reports.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>${maven.release.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+					<version>${spring.boot.version}</version>
+					<configuration>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco.maven.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nxrm3-maven-plugin</artifactId>
+					<version>${nxrm3.maven.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.liquibase</groupId>
+					<artifactId>liquibase-maven-plugin</artifactId>
+					<version>${liquibase.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.sonarsource.jacoco</groupId>
+					<artifactId>sonar-jacoco-plugin</artifactId>
+					<version>${sonar.jacoco.plugin}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.sonarsource.scanner.maven</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>${sonar.maven.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-wrapper-plugin</artifactId>
+					<version>${maven.wrapper.plugin.version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
 		<plugins>
-			<plugin>
-				<artifactId>maven-clean-plugin</artifactId>
-				<version>${maven.clean.plugin.version}</version>
-			</plugin>
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>${maven.resources.plugin.version}</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-					<propertiesEncoding>UTF-8</propertiesEncoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven.compiler.plugin.version}</version>
-				<configuration>
-					<release>${java.version}</release>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven.surefire.plugin.version}</version>
-				<configuration>
-					<skipTests>${skipTests}</skipTests>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>${maven.failsafe.plugin.version}</version>
-			</plugin>
-			<plugin>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>${maven.jar.plugin.version}</version>
-			</plugin>
-			<plugin>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>${maven.install.plugin.version}</version>
-			</plugin>
-			<plugin>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>${maven.deploy.plugin.version}</version>
 				<configuration>
-					<skip>true</skip>
+					<skipTests>${skipTests}</skipTests>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
-				<artifactId>maven-site-plugin</artifactId>
-				<version>${maven.site.plugin.version}</version>
-			</plugin>
-			<plugin>
-				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>${maven.project.info.reports.plugin.version}</version>
-			</plugin>
-			<plugin>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>${maven.release.plugin.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${spring.boot.version}</version>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nxrm3-maven-plugin</artifactId>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>default-prepare-deploy</id>
+						<goals>
+							<goal>prepare-deploy</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-deploy</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
-					<skip>true</skip>
+					<serverId>nexus</serverId>
+					<nexusUrl>https://nexus.ra-tech.pro</nexusUrl>
+					<repository>maven-releases</repository>
+					<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: core-vault-agent
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/name: core-vault-agent-config
+    app.kubernetes.io/part-of: giga-ai-agent
+    app.kubernetes.io/component: core
+data:
+  vault-agent-config.hcl: |
+    exit_after_auth = false
+    vault {
+      address = "{{ vault_addr }}"
+    }
+    
+    pid_file = "/vault/pidfile"
+    
+    auto_auth {
+      method {
+        type = "approle"
+    
+        config = {
+          role_id_file_path = "/vault/role/role_id"
+          secret_id_file_path = "/vault/role/.secret_id"
+          remove_secret_id_file_after_reading = false
+        }
+      }
+    
+      sink "file" {
+        config {
+          path = "/vault/token/.token"
+        }
+      }
+    }
+    
+    listener "tcp" {
+      address = "0.0.0.0:8200"
+      tls_disable = true
+      role = "metrics_only"
+    }
+    
+    # Render env file from vault
+    template {
+      left_delimiter = "[["
+      right_delimiter = "]]"
+      destination = "/vault/secrets/application/.env"
+      error_on_missing_key = true
+      contents = <<EOT
+    [[- with secret "ra-tech-kv/data/{{namespace}}/environment" ]]
+    [[- range $key, $value := .Data.data ]]
+    [[ $key ]]="[[ $value ]]"
+    [[- end ]]
+    [[- end ]]
+    EOT
+    }

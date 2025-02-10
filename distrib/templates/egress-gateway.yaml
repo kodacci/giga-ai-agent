@@ -1,0 +1,39 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: giga-ai-agent-egress-gateway
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/part-of: giga-ai-agent
+    app.kubernetes.io/component: core
+spec:
+  selector:
+    istio: egressgateway
+  servers:
+    - port:
+        number: 80
+        name:  http
+        protocol: HTTP
+      hosts:
+        - {{ solr_host }}
+        - {{ vault_host }}
+        - {{ giga_auth_host }}
+        - {{ giga_chat_host }}
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - {{ solr_host }}
+        - {{ vault_host }}
+        - {{ giga_chat_host }}
+      tls:
+        mode: PASSTHROUGH
+    - port:
+        number: 9443
+        name: https-9
+        protocol: HTTPS
+      hosts:
+        - {{ giga_auth_host }}
+      tls:
+        mode: PASSTHROUGH

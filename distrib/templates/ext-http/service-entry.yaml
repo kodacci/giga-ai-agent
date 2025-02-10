@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: {{ name }}
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/name: giga-ai-agent-{{ name }}-service-entry
+    app.kubernetes.io/part-of: giga-ai-agent
+    app.kubernetes.io/component: core
+spec:
+  exportTo:
+    - "."
+  hosts:
+    - {{ host }}
+  ports:
+    - number: 80
+      name: http
+      protocol: HTTP
+    - number: {{ ext_https_port }}
+      name: https
+      protocol: HTTPS
+  resolution: DNS
+  location: MESH_EXTERNAL

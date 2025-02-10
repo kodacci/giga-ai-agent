@@ -1,0 +1,197 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: giga-ai-agent-core
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/name: giga-ai-agent-core
+    app.kubernetes.io/component: core
+    app.kubernetes.io/part-of: giga-ai-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: giga-ai-agent-core
+      app.kubernetes.io/name: giga-ai-agent-core
+      app.kubernetes.io/component: core
+      app.kubernetes.io/part-of: giga-ai-agent
+      app.network.policy: restricted
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: giga-ai-agent-core
+        app.kubernetes.io/name: giga-ai-agent-core
+        app.kubernetes.io/component: core
+        app.kubernetes.io/part-of: giga-ai-agent
+        app.network.policy: restricted
+        sidecar.istio.io/proxyCPU: '100m'
+        sidecar.istio.io/proxyCPULimit: '150m'
+        sidecar.istio.io/proxyMemory: '128Mi'
+        sidecar.istio.io/proxyMemoryLimit: '256Mi'
+    spec:
+      volumes:
+        - name: logs-volume
+          emptyDir:
+            sizeLimit: 250Mi
+        - name: fluentbit-config
+          configMap:
+            name: core-fluentbit-config
+            items:
+              - key: fluent-bit.conf
+                path: fluent-bit.conf
+              - key: parsers.conf
+                path: parsers.conf
+        - name: fluentbit-db
+          emptyDir:
+            sizeLimit: 50Mi
+        - name: vault-agent-config
+          configMap:
+            name: core-vault-agent
+            items:
+              - key: vault-agent-config.hcl
+                path: vault-agent-config.hcl
+        - name: application-config
+          emptyDir:
+            sizeLimit: 10Mi
+        - name: vault-token
+          emptyDir:
+            sizeLimit: 1Mi
+        - name: vault-role
+          secret:
+            secretName: vault-role
+
+      containers:
+        - name: giga-ai-agent-core
+          image: {{ registry }}/{{ image_tag }}
+          ports:
+              - containerPort: 8080
+                name: core-rest-api
+              - containerPort: 8081
+                name: core-actuator
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - mountPath: /home/giga-ai-agent/logs
+              name: logs-volume
+            - mountPath: /application
+              name: application-config
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 3
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            failureThreshold: 10
+          resources:
+            requests:
+              cpu: 1
+              memory: 2Gi
+            limits:
+              cpu: 1.5
+              memory: 3Gi
+
+        - name: fluentbit
+          image: fluent/fluent-bit:3.1.4
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 150m
+              memory: 200Mi
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - mountPath: /logs
+              name: logs-volume
+            - mountPath: /fluent-bit/etc
+              name: fluentbit-config
+              readOnly: true
+            - mountPath: /fluent-bit/db
+              name: fluentbit-db
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 9090
+            initialDelaySeconds: 20
+            periodSeconds: 3
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 9090
+            initialDelaySeconds: 25
+            periodSeconds: 5
+            failureThreshold: 10
+
+        - name: vault-agent
+          image: hashicorp/vault:1.18
+          args:
+            - agent
+            - -config=/vault/agent/vault-agent-config.hcl
+            - -log-level=info
+          env:
+            - name: VAULT_ADDR
+              value: {{ vault_address }}
+          volumeMounts:
+            - mountPath: /vault/agent
+              name: vault-agent-config
+            - mountPath: /vault/secrets/application
+              name: application-config
+            - mountPath: /vault/token
+              name: vault-token
+            - mountPath: /vault/role
+              name: vault-role
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 150m
+              memory: 150Mi
+
+      imagePullSecrets:
+        - name: docker-registry-creds

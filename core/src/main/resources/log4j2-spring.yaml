@@ -15,10 +15,10 @@ Configuration:
       JsonTemplateLayout:
         eventTemplateUri: classpath:log-template.json
       Policies:
-        OnStartupTriggeringPolicy:
+        OnStartupTriggeringPolicy: {}
         SizeBasedTriggeringPolicy:
           size: 10 MB
-        TimeBasedTriggeringPolicy:
+        TimeBasedTriggeringPolicy: {}
       DefaultRolloverStrategy:
         max: 30
     Async:

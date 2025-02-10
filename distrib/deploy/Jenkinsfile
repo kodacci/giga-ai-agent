@@ -1,0 +1,192 @@
+def DEPLOY_GIT_SCOPE
+def DEPLOY_NAMESPACE
+def NAMESPACE_APP_HOST
+def REGISTRY_HOST
+
+def generateExtHttp(namespace, name, host, extHttpsPort) {
+    sh "jinja2 -D namespace=${namespace} -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/service-entry.yaml > distrib/${name}-service-entry.yaml"
+    sh "jinja2 -D namespace=${namespace} -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/virtual-service.yaml > distrib/${name}-virtual-service.yaml"
+    sh "jinja2 -D namespace=${namespace} -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/destination-rule.yaml > distrib/${name}-destination-rule.yaml"
+    sh "jinja2 -D namespace=${namespace} -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/service.yaml > distrib/${name}-service.yaml"
+
+    return "-f distrib/${name}-service.yaml " +
+            "-f distrib/${name}-service-entry.yaml " +
+            "-f distrib/${name}-virtual-service.yaml " +
+            "-f distrib/${name}-destination-rule.yaml "
+}
+
+def generateImageTag(container) {
+    def scope = sh(encoding: 'UTF-8', returnStdout: true, script: 'git name-rev --name-only HEAD')
+            .trim()
+            .tokenize('/')
+            .last()
+            .toLowerCase()
+
+    return 'pro.ra-tech/giga-ai-agent/' + scope + '/' + container + ':latest'
+}
+
+static def removeProtocol(url) {
+    return url.substring('https://'.length())
+}
+
+pipeline {
+    agent { label 'jenkins-agent1' }
+
+    parameters {
+        string(name: 'core_app_image', description: 'Core image tag to use in deploy')
+    }
+
+    stages {
+        stage('Determine git scope') {
+            steps {
+                script {
+                    DEPLOY_GIT_SCOPE = BRANCH_NAME.tokenize('/').last().toLowerCase()
+                    println "Git branch scope: '${DEPLOY_GIT_SCOPE}'"
+                }
+            }
+        }
+
+        stage('Determine stand specific params') {
+            steps {
+                script {
+                    if (BRANCH_NAME.startsWith('release/')) {
+                        DEPLOY_NAMESPACE = 'giga-ai-agent'
+                        NAMESPACE_APP_HOST = 'api.giga-ai-agent.cloud.ra-tech.pro'
+                        REGISTRY_HOST = removeProtocol(DOCKER_REGISTRY_HOST)
+                    } else {
+                        DEPLOY_NAMESPACE = 'giga-ai-agent-test'
+                        NAMESPACE_APP_HOST = 'api.giga-ai-agent.test.cloud.ra-tech.pro'
+                        REGISTRY_HOST = removeProtocol(SNAPSHOTS_DOCKER_REGISTRY_HOST)
+                    }
+                    println "Namespace to deploy app: $DEPLOY_NAMESPACE"
+                    println "App host: $NAMESPACE_APP_HOST"
+                }
+            }
+        }
+
+        stage('Cleanup k8s namespace') {
+            steps {
+                script {
+                    def namespace = DEPLOY_NAMESPACE
+                    withKubeConfig([credentialsId: 'jenkins-k8s-cert', serverUrl: KUBERNETES_API_URL, namespace: namespace]) {
+                        sh 'kubectl version'
+
+                        println "Deleting istio components"
+                        sh "kubectl delete deployment -l app.kubernetes.io/component=istio-egressgw -n $namespace"
+                        sh "kubectl wait --for=delete pod -l app=giga-ai-agent-egressgw -n $namespace"
+                        sh "kubectl delete service -l app.kubernetes.io/component=istio-egressgw -n $namespace"
+                        sh "kubectl delete role -l app.kubernetes.io/component=istio-egressgw -n $namespace"
+                        sh "kubectl delete rolebinding -l app.kubernetes.io/component=istio-egressgw -n $namespace"
+                        sh "kubectl delete serviceaccount -l app.kubernetes.io/component=istio-egressgw -n $namespace"
+                        sh "kubectl delete networkpolicy -l app.kubernetes.io/component=istio -n $namespace"
+
+                        println "Deleting core deployment and pods"
+                        sh "kubectl delete deployment -l app.kubernetes.io/component=core -n $namespace"
+                        sh "kubectl wait --for=delete pod -l app=giga-ai-agent-core --timeout 10m -n $namespace"
+
+                        println "Deleting other core manifests"
+                        sh "kubectl delete service -l app.kubernetes.io/component=core -n $namespace"
+                        sh "kubectl delete virtualservice -l app.kubernetes.io/component=core -n $namespace"
+                        sh "kubectl delete destinationrule -l app.kubernetes.io/component=core -n $namespace"
+                        sh "kubectl delete gateway -l app.kubernetes.io/component=core -n $namespace"
+                        sh "kubectl delete networkpolicy -l app.kubernetes.io/component=core -n $namespace"
+                        sh "kubectl delete configmap -l app.kubernetes.io/component=core -n $namespace"
+                        sh "kubectl delete job -l app.kubernetes.io/component=core -n $namespace"
+                        sh "kubectl delete serviceentry -l app.kubernetes.io/component=core -n $namespace"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to k8s') {
+            steps {
+                script {
+                    def namespace = DEPLOY_NAMESPACE
+                    def host = NAMESPACE_APP_HOST
+                    def egressTcpPort = '9999'
+                    def solrHost = 'solr.ra-tech.pro'
+                    def vaultHost = 'vault.ra-tech.pro'
+                    def gigaAuthHost = GIGA_AUTH_HOST
+                    def gigaChatHost = GIGA_CHAT_HOST
+                    def registry = REGISTRY_HOST
+
+                    def solrApply = ""
+                    def vaultApply = ""
+                    def gigaAuthApply = ""
+                    def gigaChatApply = ""
+
+                    def coreImageTag = params.core_app_image ? params.core_app_image : generateImageTag('giga-ai-agent-core')
+
+                    withPythonEnv('Python-3') {
+                        sh 'pip install -U jinja2-cli'
+
+                        // Istio egress gateway
+                        sh "jinja2 -D namespace=$namespace -D egress_tcp_port=$egressTcpPort distrib/templates/istio/egressgw-deployment.yaml > distrib/egressgw-deployment.yaml"
+                        sh "jinja2 -D namespace=$namespace -D egress_tcp_port=$egressTcpPort distrib/templates/istio/egressgw-service.yaml > distrib/egressgw-service.yaml"
+                        sh "jinja2 -D namespace=$namespace distrib/templates/network-policy-egress.yaml > distrib/network-policy-egress.yaml"
+                        sh "jinja2 -D namespace=$namespace distrib/templates/istio/egressgw-service-account.yaml > distrib/egressgw-service-account.yaml"
+                        sh "jinja2 -D namespace=$namespace distrib/templates/istio/egressgw-role.yaml > distrib/egressgw-role.yaml"
+                        sh "jinja2 -D namespace=$namespace distrib/templates/istio/egressgw-role-binding.yaml > distrib/egressgw-role-binding.yaml"
+
+                        // main app
+                        sh "jinja2 -D namespace=$namespace -D registry=$registry -D image_tag=$coreImageTag -Dvault_address=http://${vaultHost} distrib/templates/deployment.yaml > distrib/deployment.yaml"
+                        sh "jinja2 -D namespace=$namespace distrib/templates/service.yaml > distrib/service.yaml"
+                        sh "jinja2 -D namespace=$namespace distrib/templates/network-policy-restricted.yaml > distrib/network-policy-restricted.yaml"
+                        sh "jinja2 -D namespace=$namespace -D host=$host distrib/templates/ingress-gateway.yaml > distrib/ingress-gateway.yaml"
+                        sh "jinja2 -D namespace=$namespace -D solr_host=$solrHost -D vault_host=$vaultHost -D giga_auth_host=$gigaAuthHost -D giga_chat_host=$gigaChatHost distrib/templates/egress-gateway.yaml > distrib/egress-gateway.yaml"
+                        sh "jinja2 -D namespace=$namespace -D host=$host distrib/templates/virtual-service.yaml > distrib/virtual-service.yaml"
+                        sh "jinja2 -D namespace=$namespace distrib/templates/destination-rule.yaml > distrib/destination-rule.yaml"
+                        sh "jinja2 -D namespace=$namespace -D solr_collection=$namespace distrib/templates/configmaps/core-fluentbit.yaml > distrib/core-fluentbit.yaml"
+                        sh "jinja2 -D namespace=$namespace distrib/templates/egw-destination-rule.yaml > distrib/egw-destination-rule.yaml"
+
+                        // Solr
+                        solrApply = generateExtHttp(namespace, 'solr', solrHost, 443)
+
+                        // Vault
+                        vaultApply = generateExtHttp(namespace, 'vault', vaultHost, 443)
+                        sh "jinja2 -D namespace=$namespace -Dvault_addr=http://${vaultHost} distrib/templates/configmaps/core-vault-agent.yaml > distrib/core-vault-agent.yaml"
+
+                        // Giga Chat API
+                        gigaAuthApply = generateExtHttp(namespace, 'giga-auth', gigaAuthHost, 9443)
+                        gigaChatApply = generateExtHttp(namespace, 'giga-chat', gigaChatHost, 443)
+                    }
+
+                    withKubeConfig([credentialsId: 'jenkins-k8s-cert', serverUrl: KUBERNETES_API_URL, namespace: namespace]) {
+                        println "Applying istio egress gateway manifests"
+                        sh 'kubectl apply ' +
+                                '-f distrib/network-policy-egress.yaml ' +
+                                '-f distrib/egressgw-service.yaml ' +
+                                '-f distrib/egressgw-service-account.yaml ' +
+                                '-f distrib/egressgw-role.yaml ' +
+                                '-f distrib/egressgw-role-binding.yaml ' +
+                                '-f distrib/egressgw-deployment.yaml'
+
+                        sleep time: 3, unit: 'SECONDS'
+                        sh "kubectl wait --for=condition=ready --timeout=5m -n $namespace pods -l app=giga-ai-agent-egressgw"
+
+                        println "Applying core manifests"
+                        sh 'kubectl apply ' +
+                                '-f distrib/core-fluentbit.yaml ' +
+                                '-f distrib/core-vault-agent.yaml ' +
+                                '-f distrib/network-policy-restricted.yaml ' +
+                                '-f distrib/service.yaml ' +
+                                '-f distrib/ingress-gateway.yaml ' +
+                                '-f distrib/egress-gateway.yaml ' +
+                                '-f distrib/virtual-service.yaml ' +
+                                '-f distrib/destination-rule.yaml ' +
+                                '-f distrib/egw-destination-rule.yaml ' +
+                                solrApply +
+                                vaultApply +
+                                gigaAuthApply +
+                                gigaChatApply
+
+                        // Deploying main app
+                        sh 'kubectl apply -f distrib/deployment.yaml'
+                        sleep time: 3, unit: 'SECONDS'
+                        sh "kubectl wait --for=condition=ready --timeout=5m -n $namespace pods -l app=giga-ai-agent-core"
+                    }
+                }
+            }
+        }
+    }
+}
