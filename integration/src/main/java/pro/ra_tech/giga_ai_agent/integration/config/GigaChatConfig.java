@@ -6,7 +6,6 @@ import okhttp3.OkHttpClient;
 import org.springframework.boot.task.ThreadPoolTaskSchedulerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.impl.GigaAuthServiceImpl;
@@ -40,7 +39,7 @@ public class GigaChatConfig {
         val retryPolicy = RetryPolicy.<Response<AuthResponse>>builder().withMaxRetries(props.maxRetries()).build();
 
         val scheduler = new ThreadPoolTaskSchedulerBuilder().poolSize(1)
-                .threadNamePrefix("giga-auth")
+                .threadNamePrefix("giga-auth-")
                 .build();
 
         scheduler.initialize();

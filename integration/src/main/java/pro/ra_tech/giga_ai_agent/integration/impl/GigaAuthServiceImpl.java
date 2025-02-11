@@ -117,7 +117,7 @@ public class GigaAuthServiceImpl extends BaseService implements GigaAuthService 
                             "Got authentication header for client {}, expires at {} ({})",
                             clientId,
                             res.expiresAt(),
-                            authExpiresAt
+                            Instant.ofEpochMilli(res.expiresAt())
                     );
                 })
                 .onFailure(cause -> log.error("Error authenticating:", cause))
