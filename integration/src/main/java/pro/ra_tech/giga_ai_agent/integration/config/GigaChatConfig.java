@@ -43,6 +43,8 @@ public class GigaChatConfig {
                 .threadNamePrefix("giga-auth")
                 .build();
 
+        scheduler.initialize();
+
         return new GigaAuthServiceImpl(
                 props.clientId(),
                 props.authKey(),
