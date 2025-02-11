@@ -10,11 +10,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import pro.ra_tech.giga_ai_agent.core.controllers.dto.AskAiModelRequest;
 import pro.ra_tech.giga_ai_agent.core.controllers.dto.AskAiModelResponse;
 import pro.ra_tech.giga_ai_agent.core.controllers.dto.GetAiModelsResponse;
-import retrofit2.http.Body;
 
 @Validated
 @Tag(name = "AiModel")
@@ -47,6 +47,6 @@ public interface AiModelApi {
     ResponseEntity<Object> askModel(
             @RequestHeader("RqUID") String rqUid,
             @RequestHeader("X-Session-ID") @Nullable String sessionID,
-            @Body AskAiModelRequest data
+            @RequestBody AskAiModelRequest data
     );
 }
