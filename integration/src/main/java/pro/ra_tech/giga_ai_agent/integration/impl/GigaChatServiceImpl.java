@@ -1,62 +1,34 @@
 package pro.ra_tech.giga_ai_agent.integration.impl;
 
 import dev.failsafe.RetryPolicy;
-import dev.failsafe.retrofit.FailsafeCall;
 import io.vavr.control.Either;
-import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
+import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
-import pro.ra_tech.giga_ai_agent.integration.rest.api.AuthApi;
 import pro.ra_tech.giga_ai_agent.integration.rest.api.GigaChatApi;
 import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelAnswerResponse;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AuthResponse;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AuthScope;
 import pro.ra_tech.giga_ai_agent.integration.rest.model.GetAiModelsResponse;
-import retrofit2.Call;
 import retrofit2.Response;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.UUID;
-
 @Slf4j
-public class GigaChatServiceImpl implements GigaChatService {
-    private static final int HTTP_STATUS_UNAUTHORIZED = 401;
-
-    private static class ApiException extends RuntimeException {
-        public ApiException(String message) {
-            super(message);
-        }
-    }
-
-    private final AuthApi authApi;
-    private final String authKey;
+public class GigaChatServiceImpl extends BaseService implements GigaChatService {
+    private final GigaAuthService authService;
     private final GigaChatApi gigaApi;
-    private final RetryPolicy<Response<AuthResponse>> authPolicy;
     private final RetryPolicy<Response<GetAiModelsResponse>> getAiModelsPolicy;
 
-    private String authHeader = null;
-    private Instant authExpiresAt = Instant.now();
-
     public GigaChatServiceImpl(
-            String clientId,
-            String authKey,
-            AuthApi authApi,
+            GigaAuthService authService,
             GigaChatApi gigaApi,
             int maxRetries
     ) {
-        this.authApi = authApi;
+        this.authService = authService;
         this.gigaApi = gigaApi;
-        this.authKey = authKey;
 
-        authPolicy = buildPolicy(maxRetries);
         getAiModelsPolicy = buildPolicy(maxRetries);
 
-        log.info("Created Giga Chat service for client {}", clientId);
+        log.info("Created Giga Chat service for client {}", authService.getClientId());
     }
 
     private static <T> RetryPolicy<Response<T>> buildPolicy(int maxRetries) {
@@ -64,62 +36,25 @@ public class GigaChatServiceImpl implements GigaChatService {
     }
 
     private AppFailure toFailure(Throwable cause) {
-        return new IntegrationFailure(
+        return toFailure(
                 IntegrationFailure.Code.GIGA_CHAT_INTEGRATION_FAILURE,
                 getClass().getName(),
                 cause
         );
     }
 
-    private void authenticate() {
-        val uuid = UUID.randomUUID().toString();
-        log.info("Auth request with uuid: {}", uuid);
-        val call = authApi.authenticate(UUID.randomUUID().toString(), "Basic: " + authKey, AuthScope.GIGACHAT_API_PERS);
-
-        Try.of(() -> FailsafeCall.with(authPolicy).compose(call).execute())
-                .map(this::onResponse)
-                .onSuccess(res -> {
-                    authHeader = "Bearer " + res.accessToken();
-                    authExpiresAt = Instant.ofEpochMilli(res.expiresAt());
-                    log.info("Got authentication header, expires at {} ({})", res.expiresAt(), authExpiresAt);
-                })
-                .onFailure(cause -> log.error("Error authenticating:", cause));
-    }
-
-    private void checkIfAuthenticated() {
-        if (authHeader == null || authExpiresAt.isBefore(Instant.now().plus(1, ChronoUnit.SECONDS))) {
-            log.info("Authenticating");
-            authenticate();
-        }
-    }
-
-    private <R> R onResponse(Response<R> response) {
-        if (response.isSuccessful()) {
-            return response.body();
-        }
-
-        try (val body = response.errorBody()) {
-            val message = body == null ? "Unknown error" : body.string();
-            log.error("API request error with code: {} and body: {}", response.code(), message);
-            throw new ApiException(String.format("Bad response with code %d, body: %s", response.code(), message));
-        } catch (IOException e) {
-            throw new ApiException("Bad response with code " + response.code());
-        }
-    }
-
-    private <R> Either<AppFailure, R> sendRequest(RetryPolicy<Response<R>> retryPolicy, Call<R> call) {
-        checkIfAuthenticated();
-
-        return Try.of(() -> FailsafeCall.with(retryPolicy).compose(call).execute())
-                .map(this::onResponse)
-                .toEither()
-                .mapLeft(this::toFailure);
-    }
-
     @Override
     public Either<AppFailure, GetAiModelsResponse> listModels() {
         log.info("Getting ai models list");
-        return sendRequest(getAiModelsPolicy, gigaApi.getAiModels(authHeader))
+
+        return authService.getAuthHeader()
+                .flatMap(
+                        authHeader -> sendRequest(
+                                getAiModelsPolicy,
+                                gigaApi.getAiModels(authHeader),
+                                this::toFailure
+                        )
+                )
                 .peekLeft(failure -> log.error("Error getting models list:", failure.getCause()));
     }
 

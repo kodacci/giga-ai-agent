@@ -6,6 +6,11 @@ public class IntegrationFailure extends AbstractFailure {
     private static final String DETAIL = "Giga chat API error";
     private final Code code;
 
+    public IntegrationFailure(Code code, String source, String message) {
+        super(source, message);
+        this.code = code;
+    }
+
     public IntegrationFailure(Code code, String source, Throwable cause) {
         super(source, cause);
         this.code = code;
@@ -23,6 +28,7 @@ public class IntegrationFailure extends AbstractFailure {
 
     @RequiredArgsConstructor
     public enum Code {
+        GIGA_CHAT_INTEGRATION_AUTH_FAILURE("GIGA_CHAT_INTEGRATION_AUTH_FAILURE"),
         GIGA_CHAT_INTEGRATION_FAILURE("GIGA_CHAT_INTEGRATION_FAILURE");
 
         private final String value;
