@@ -3,20 +3,28 @@ package pro.ra_tech.giga_ai_agent.integration.impl;
 import dev.failsafe.RetryPolicy;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.rest.api.GigaChatApi;
+import pro.ra_tech.giga_ai_agent.integration.rest.model.AiAskMessage;
 import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelAnswerResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelAskRequest;
+import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelType;
+import pro.ra_tech.giga_ai_agent.integration.rest.model.AiRole;
 import pro.ra_tech.giga_ai_agent.integration.rest.model.GetAiModelsResponse;
 import retrofit2.Response;
+
+import java.util.List;
 
 @Slf4j
 public class GigaChatServiceImpl extends BaseService implements GigaChatService {
     private final GigaAuthService authService;
     private final GigaChatApi gigaApi;
     private final RetryPolicy<Response<GetAiModelsResponse>> getAiModelsPolicy;
+    private final RetryPolicy<Response<AiModelAnswerResponse>> askAiModelPolicy;
 
     public GigaChatServiceImpl(
             GigaAuthService authService,
@@ -27,6 +35,7 @@ public class GigaChatServiceImpl extends BaseService implements GigaChatService 
         this.gigaApi = gigaApi;
 
         getAiModelsPolicy = buildPolicy(maxRetries);
+        askAiModelPolicy = buildPolicy(maxRetries);
 
         log.info("Created Giga Chat service for client {}", authService.getClientId());
     }
@@ -59,7 +68,38 @@ public class GigaChatServiceImpl extends BaseService implements GigaChatService 
     }
 
     @Override
-    public Either<AppFailure, AiModelAnswerResponse> askModel(String prompt) {
-        return null;
+    public Either<AppFailure, AiModelAnswerResponse> askModel(
+            String rqUid,
+            AiModelType model,
+            String prompt,
+            @Nullable String sessionId
+    ) {
+        log.info("Asking model {} with prompt {}", model, prompt);
+        return authService.getAuthHeader()
+                .flatMap(
+                        authHeader -> sendRequest(
+                                askAiModelPolicy,
+                                gigaApi.askModel(
+                                        authHeader,
+                                        authService.getClientId(),
+                                        rqUid,
+                                        sessionId,
+                                        AiModelAskRequest.builder()
+                                                .model(model)
+                                                .messages(List.of(
+                                                        new AiAskMessage(
+                                                                AiRole.USER,
+                                                                prompt,
+                                                                null,
+                                                                null
+                                                        )
+                                                ))
+                                                .build()
+                                ),
+                                this::toFailure
+                        )
+                )
+                .peek(res -> log.info("Successfully got model response on {}: {}", rqUid, res))
+                .peekLeft(failure -> log.error("Error asking model {}: ", model, failure.getCause()));
     }
 }

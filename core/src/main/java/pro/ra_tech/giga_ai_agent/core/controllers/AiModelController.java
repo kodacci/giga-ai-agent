@@ -3,9 +3,12 @@ package pro.ra_tech.giga_ai_agent.core.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pro.ra_tech.giga_ai_agent.core.controllers.dto.AskAiModelRequest;
 import pro.ra_tech.giga_ai_agent.core.controllers.dto.GetAiModelsResponse;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 
@@ -23,5 +26,11 @@ public class AiModelController extends BaseController implements AiModelApi {
     @GetMapping(value = "/models", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<Object> createGarden() {
         return toResponse(gigaService.listModels().map(GetAiModelsResponse::of));
+    }
+
+    @Override
+    @PostMapping("/ask")
+    public ResponseEntity<Object> askModel(String rqUid, @Nullable String sessionID, AskAiModelRequest data) {
+        return toResponse(gigaService.askModel(rqUid, data.model(), data.prompt(), sessionID));
     }
 }
