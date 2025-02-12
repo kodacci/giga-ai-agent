@@ -4,6 +4,7 @@ import dev.failsafe.RetryPolicy;
 import io.micrometer.core.annotation.Timed;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.lang.Nullable;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
@@ -88,6 +89,19 @@ public class GigaChatServiceImpl extends BaseService implements GigaChatService 
             @Nullable String sessionId
     ) {
         log.info("Asking model {} with prompt {}", model, prompt);
+        val request = AiModelAskRequest.builder()
+                .model(model)
+                .messages(List.of(
+                        new AiAskMessage(
+                                AiRole.USER,
+                                prompt,
+                                null,
+                                null
+                        )
+                ))
+                .build();
+
+        log.info("Sending chat completions request {}", request);
         return authService.getAuthHeader()
                 .flatMap(
                         authHeader -> sendRequest(
@@ -97,17 +111,7 @@ public class GigaChatServiceImpl extends BaseService implements GigaChatService 
                                         authService.getClientId(),
                                         rqUid,
                                         sessionId,
-                                        AiModelAskRequest.builder()
-                                                .model(model)
-                                                .messages(List.of(
-                                                        new AiAskMessage(
-                                                                AiRole.USER,
-                                                                prompt,
-                                                                null,
-                                                                null
-                                                        )
-                                                ))
-                                                .build()
+                                        request
                                 ),
                                 this::toFailure
                         )
