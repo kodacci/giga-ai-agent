@@ -28,7 +28,6 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 public class GigaAuthServiceImpl extends BaseService implements GigaAuthService {
     private final static int EXPIRES_TIMEOUT_CORRECTION_SEC = 5;
-    private final static int AUTH_RETRY_TIMEOUT_SEC = 1;
 
     @RequiredArgsConstructor
     private class AuthUpdater implements Runnable {
@@ -39,7 +38,6 @@ public class GigaAuthServiceImpl extends BaseService implements GigaAuthService 
             authenticate().peek(res -> {
                 authHeader = "Bearer " + res.accessToken();
                 val exp = Instant.ofEpochMilli(res.expiresAt());
-                authExpiresAt = exp;
                 taskScheduler.schedule(
                         new AuthUpdater(mutex),
                         exp.minus(EXPIRES_TIMEOUT_CORRECTION_SEC, ChronoUnit.SECONDS)
@@ -47,10 +45,9 @@ public class GigaAuthServiceImpl extends BaseService implements GigaAuthService 
             })
                     .peekLeft(failure -> {
                         authHeader = null;
-                        authExpiresAt = null;
                         taskScheduler.schedule(
                                     new AuthUpdater(mutex),
-                                    Instant.now().plus(AUTH_RETRY_TIMEOUT_SEC, ChronoUnit.SECONDS)
+                                    Instant.now().plus(authRetryTimeoutMs, ChronoUnit.MILLIS)
                                 );
                     });
         }
@@ -63,6 +60,7 @@ public class GigaAuthServiceImpl extends BaseService implements GigaAuthService 
     private final RetryPolicy<Response<AuthResponse>> retryPolicy;
     private final AuthApi api;
     private final ThreadPoolTaskScheduler taskScheduler;
+    private final int authRetryTimeoutMs;
 
     @PostConstruct
     public void scheduleAuth() {
@@ -72,7 +70,6 @@ public class GigaAuthServiceImpl extends BaseService implements GigaAuthService 
     @Nullable
     private String authHeader = null;
     @Nullable
-    private Instant authExpiresAt = null;
 
     @Override
     public String getClientId() {
@@ -112,14 +109,14 @@ public class GigaAuthServiceImpl extends BaseService implements GigaAuthService 
 
         return Try.of(() -> FailsafeCall.with(retryPolicy).compose(call).execute())
                 .map(this::onResponse)
-                .onSuccess(res -> {
+                .onSuccess(res ->
                     log.info(
                             "Got authentication header for client {}, expires at {} ({})",
                             clientId,
                             res.expiresAt(),
                             Instant.ofEpochMilli(res.expiresAt())
-                    );
-                })
+                    )
+                )
                 .onFailure(cause -> log.error("Error authenticating:", cause))
                 .toEither()
                 .mapLeft(this::toFailure);

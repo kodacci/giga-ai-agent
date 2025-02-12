@@ -49,7 +49,8 @@ public class GigaChatConfig {
                 props.authKey(),
                 retryPolicy,
                 authApi.create(AuthApi.class),
-                scheduler
+                scheduler,
+                props.authRetryTimeoutMs()
         );
     }
 

@@ -9,6 +9,7 @@ public record GigaChatProps (
     int requestTimeoutMs,
     int maxRetries,
     String clientId,
-    String authKey
+    String authKey,
+    int authRetryTimeoutMs
 ) {
 }

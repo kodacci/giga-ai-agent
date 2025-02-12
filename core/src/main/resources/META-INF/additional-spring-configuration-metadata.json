@@ -36,6 +36,11 @@
       "name": "app.giga-chat.auth-key",
       "description": "Giga Chat API authorization key",
       "type": "java.lang.String"
+    },
+    {
+      "name": "app.giga-chat.auth-retry-timeout-ms",
+      "description": "Giga Chat API authorization retry timeout in seconds",
+      "type": "java.lang.Integer"
     }
   ]
 }

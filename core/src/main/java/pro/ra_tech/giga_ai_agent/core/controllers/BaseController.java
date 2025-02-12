@@ -19,7 +19,7 @@ public abstract class BaseController {
         problem.setType(URI.create("auto:blank"));
         problem.setProperty("code", failure.getCode());
         problem.setProperty("source", failure.getSource());
-        problem.setProperty("message", Optional.ofNullable(failure.getCause()).map(Throwable::getMessage).orElse("Unknown error"));
+        problem.setProperty("message", failure.getMessage());
         problem.setProperty("trace", Optional.ofNullable(failure.getCause()).map(Throwable::getStackTrace).orElse(null));
 
         return problem;
