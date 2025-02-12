@@ -6,7 +6,7 @@ import java.util.List;
 
 public record AiModelAnswerResponse(
         @JsonProperty("choices") List<AiModelChoice> choices,
-        @JsonProperty("created_at") Long createdAt,
+        @JsonProperty("created") Long created,
         @JsonProperty("model") AiModelType model,
         @JsonProperty("usage") AiModelUsage usage,
         @JsonProperty("object") String object
