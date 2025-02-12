@@ -111,7 +111,7 @@ public class GigaAuthServiceImpl extends BaseService implements GigaAuthService 
         val call = api.authenticate(
                 UUID.randomUUID().toString(),
                 "Basic: " + authKey,
-                AuthScope.GIGACHAT_API_PERS
+                AuthScope.GIGA_CHAT_API_PERS
         );
 
         return Try.of(() -> FailsafeCall.with(retryPolicy).compose(call).execute())
