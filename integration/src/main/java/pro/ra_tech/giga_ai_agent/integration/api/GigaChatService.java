@@ -3,9 +3,9 @@ package pro.ra_tech.giga_ai_agent.integration.api;
 import io.vavr.control.Either;
 import org.springframework.lang.Nullable;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelAnswerResponse;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelType;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.GetAiModelsResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetAiModelsResponse;
 
 public interface GigaChatService {
     Either<AppFailure, GetAiModelsResponse> listModels();

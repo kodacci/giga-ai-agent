@@ -1,9 +1,9 @@
-package pro.ra_tech.giga_ai_agent.integration.rest.api;
+package pro.ra_tech.giga_ai_agent.integration.rest.giga.api;
 
 import org.springframework.lang.Nullable;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelAnswerResponse;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelAskRequest;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.GetAiModelsResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAskRequest;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetAiModelsResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;

@@ -1,7 +1,7 @@
-package pro.ra_tech.giga_ai_agent.integration.rest.api;
+package pro.ra_tech.giga_ai_agent.integration.rest.giga.api;
 
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AuthResponse;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AuthScope;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AuthResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AuthScope;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;

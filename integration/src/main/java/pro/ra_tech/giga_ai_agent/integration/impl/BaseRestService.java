@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class BaseService {
+public abstract class BaseRestService {
     protected static class ApiException extends RuntimeException {
         public ApiException(String message) {
             super(message);

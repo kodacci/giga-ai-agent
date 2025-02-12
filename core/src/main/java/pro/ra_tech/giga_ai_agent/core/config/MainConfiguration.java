@@ -9,11 +9,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import pro.ra_tech.giga_ai_agent.integration.config.GigaChatConfig;
+import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatConfig;
+import pro.ra_tech.giga_ai_agent.integration.config.telegram.TelegramBotConfig;
 
 @Configuration
 @Slf4j
-@Import(GigaChatConfig.class)
+@Import({GigaChatConfig.class, TelegramBotConfig.class})
 @EnableConfigurationProperties(AppMonitoringProps.class)
 public class MainConfiguration {
     @Bean

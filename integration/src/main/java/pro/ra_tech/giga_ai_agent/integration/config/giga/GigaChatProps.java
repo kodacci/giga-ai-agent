@@ -1,4 +1,4 @@
-package pro.ra_tech.giga_ai_agent.integration.config;
+package pro.ra_tech.giga_ai_agent.integration.config.giga;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

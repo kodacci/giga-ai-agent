@@ -1,4 +1,4 @@
-package pro.ra_tech.giga_ai_agent.integration.config;
+package pro.ra_tech.giga_ai_agent.integration.config.giga;
 
 import dev.failsafe.RetryPolicy;
 import lombok.val;
@@ -10,9 +10,9 @@ import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.impl.GigaAuthServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.impl.GigaChatServiceImpl;
-import pro.ra_tech.giga_ai_agent.integration.rest.api.AuthApi;
-import pro.ra_tech.giga_ai_agent.integration.rest.api.GigaChatApi;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AuthResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.api.AuthApi;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.api.GigaChatApi;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AuthResponse;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;

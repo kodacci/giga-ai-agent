@@ -6,7 +6,7 @@ public record AiModelUsage(
         Integer precachedPromptTokens,
         Integer totalTokens
 ) {
-    public static AiModelUsage of(pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelUsage usage) {
+    public static AiModelUsage of(pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelUsage usage) {
         return new AiModelUsage(
                 usage.promptTokens(),
                 usage.completionTokens(),
