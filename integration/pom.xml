@@ -68,6 +68,10 @@
             <artifactId>vavr</artifactId>
             <version>${vavr.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

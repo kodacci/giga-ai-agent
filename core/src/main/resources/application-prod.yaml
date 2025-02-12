@@ -10,3 +10,4 @@ app:
     max-retries: ${GIGA_CHAT_API_MAX_RETRIES}
     client-id: ${GIGA_CHAT_CLIENT_ID}
     auth-key: ${GIGA_CHAT_AUTH_KEY}
+    auth-retry-timeout-ms: ${GIGA_CHAT_AUTH_RETRY_TIMEOUT_MS}

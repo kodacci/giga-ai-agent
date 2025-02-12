@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.integration.rest.api;
 
+import org.springframework.lang.Nullable;
 import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelAnswerResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelAskRequest;
 import pro.ra_tech.giga_ai_agent.integration.rest.model.GetAiModelsResponse;
@@ -18,7 +19,7 @@ public interface GigaChatApi {
             @Header("Authorization") String auth,
             @Header("X-Client-ID") String clientId,
             @Header("X-Request-ID") String requestID,
-            @Header("X-SessionID") String sessionId,
+            @Nullable @Header("X-SessionID") String sessionId,
             @Body AiModelAskRequest request
     );
 }

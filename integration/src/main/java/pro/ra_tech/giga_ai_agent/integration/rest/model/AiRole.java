@@ -1,5 +1,8 @@
 package pro.ra_tech.giga_ai_agent.integration.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -12,7 +15,18 @@ public enum AiRole {
     public final String value;
 
     @Override
+    @JsonValue
     public String toString() {
         return value;
+    }
+
+    @JsonCreator
+    public static AiRole of(@JsonProperty("role") String role) {
+        return switch (role) {
+            case "system" -> SYSTEM;
+            case "user" -> USER;
+            case "function" -> FUNCTION;
+            default -> ASSISTANT;
+        };
     }
 }
