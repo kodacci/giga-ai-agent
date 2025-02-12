@@ -3,7 +3,7 @@
     {
       "name": "app.monitoring",
       "description": "Application monitoring properties",
-      "sourceType": "ru.ra_tech.garden_manager.core.configuration.AppMonitoringProps"
+      "sourceType": "pro.ra_tech.giga_ai_agent.core.config.AppMonitoringProps"
     },
     {
       "name": "app.giga-chat",
