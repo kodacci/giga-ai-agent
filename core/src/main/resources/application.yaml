@@ -47,3 +47,10 @@ server:
   servlet:
     encoding:
       force: true
+app:
+  monitoring:
+    app-name: @name@
+    app-version: @revision@
+    pod-name: ${POD_NAME:core-local-test}
+    pod-namespace: ${POD_NAMESPACE:core-local-test}
+    node-name: ${NODE_NAME:core-local-test}

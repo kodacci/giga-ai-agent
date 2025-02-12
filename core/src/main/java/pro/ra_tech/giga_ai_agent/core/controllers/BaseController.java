@@ -29,9 +29,9 @@ public abstract class BaseController {
         return result.fold(
                 failure -> {
                     log.error("Request error:", failure.getCause());
-                    return new ResponseEntity<Object>(toProblemDetail(failure), HttpStatus.INTERNAL_SERVER_ERROR);
+                    return new ResponseEntity<>(toProblemDetail(failure), HttpStatus.INTERNAL_SERVER_ERROR);
                 },
-                data -> new ResponseEntity<Object>(data, HttpStatus.OK)
+                data -> new ResponseEntity<>(data, HttpStatus.OK)
         );
     }
 }

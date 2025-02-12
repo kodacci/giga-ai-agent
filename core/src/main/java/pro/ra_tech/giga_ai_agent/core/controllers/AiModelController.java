@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pro.ra_tech.giga_ai_agent.core.controllers.dto.AskAiModelRequest;
+import pro.ra_tech.giga_ai_agent.core.controllers.dto.AskAiModelResponse;
 import pro.ra_tech.giga_ai_agent.core.controllers.dto.GetAiModelsResponse;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 
@@ -37,6 +38,9 @@ public class AiModelController extends BaseController implements AiModelApi {
             @RequestHeader("X-Session-ID") @Nullable String sessionID,
             @RequestBody AskAiModelRequest data
     ) {
-        return toResponse(gigaService.askModel(rqUid, data.model(), data.prompt(), sessionID));
+        return toResponse(
+                gigaService.askModel(rqUid, data.model(), data.prompt(), sessionID)
+                        .map(AskAiModelResponse::of)
+        );
     }
 }

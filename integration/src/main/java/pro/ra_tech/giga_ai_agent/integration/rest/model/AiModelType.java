@@ -6,9 +6,10 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum AiModelType {
-    GIGA_CHAT("GigaChat"),
     GIGA_CHAT_PRO("GigaChat-Pro"),
-    GIGA_CHAT_MAX("GigaChat-Max");
+    GIGA_CHAT_MAX("GigaChat-Max"),
+    GIGA_CHAT_DASH_LITE("GigaChat-Lite"),
+    GIGA_CHAT_LITE("GitaChat Lite");
 
     private final String value;
 
@@ -20,7 +21,8 @@ public enum AiModelType {
         return switch (value) {
             case "GigaChat-Pro" -> GIGA_CHAT_PRO;
             case "GigaChat-Max" -> GIGA_CHAT_MAX;
-            default -> GIGA_CHAT;
+            case "GigaChat-Lite" -> GIGA_CHAT_DASH_LITE;
+            default -> GIGA_CHAT_LITE;
         };
     }
 }

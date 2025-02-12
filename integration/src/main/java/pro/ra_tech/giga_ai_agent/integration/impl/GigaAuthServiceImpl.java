@@ -2,6 +2,7 @@ package pro.ra_tech.giga_ai_agent.integration.impl;
 
 import dev.failsafe.RetryPolicy;
 import dev.failsafe.retrofit.FailsafeCall;
+import io.micrometer.core.annotation.Timed;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import jakarta.annotation.PostConstruct;
@@ -98,6 +99,12 @@ public class GigaAuthServiceImpl extends BaseService implements GigaAuthService 
         );
     }
 
+    @Timed(
+            value = "integration.call",
+            extraTags = {"integration.service", "giga-auth", "integration.method", "authenticate"},
+            histogram = true,
+            percentiles ={0.9, 0.95, 0.99}
+    )
     private Either<AppFailure, AuthResponse> authenticate() {
         val uuid = UUID.randomUUID().toString();
         log.info("Auth request for client {} with uuid: {}", clientId, uuid);

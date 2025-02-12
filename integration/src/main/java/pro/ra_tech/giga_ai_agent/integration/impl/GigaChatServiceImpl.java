@@ -1,6 +1,7 @@
 package pro.ra_tech.giga_ai_agent.integration.impl;
 
 import dev.failsafe.RetryPolicy;
+import io.micrometer.core.annotation.Timed;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
@@ -53,6 +54,12 @@ public class GigaChatServiceImpl extends BaseService implements GigaChatService 
     }
 
     @Override
+    @Timed(
+            value = "integration.call",
+            extraTags = {"integration.service", "giga-chat", "integration.method", "get-models"},
+            histogram = true,
+            percentiles ={0.9, 0.95, 0.99}
+    )
     public Either<AppFailure, GetAiModelsResponse> listModels() {
         log.info("Getting ai models list");
 
@@ -68,6 +75,12 @@ public class GigaChatServiceImpl extends BaseService implements GigaChatService 
     }
 
     @Override
+    @Timed(
+            value = "integration.call",
+            extraTags = {"integration.service", "giga-chat", "integration.method", "chat-completions"},
+            histogram = true,
+            percentiles ={0.9, 0.95, 0.99}
+    )
     public Either<AppFailure, AiModelAnswerResponse> askModel(
             String rqUid,
             AiModelType model,

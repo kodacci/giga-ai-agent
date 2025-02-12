@@ -1,12 +1,42 @@
 {
   "groups": [
     {
+      "name": "app.monitoring",
+      "description": "Application monitoring properties",
+      "sourceType": "ru.ra_tech.garden_manager.core.configuration.AppMonitoringProps"
+    },
+    {
       "name": "app.giga-chat",
       "description": "Application Giga Chat properties",
       "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.GigaChatProps"
     }
   ],
   "properties": [
+    {
+      "name": "app.monitoring.app-name",
+      "type": "java.lang.String",
+      "description": "Application name monitoring common tag"
+    },
+    {
+      "name": "app.monitoring.app-version",
+      "type": "java.lang.String",
+      "description": "Application version monitoring common tag"
+    },
+    {
+      "name": "app.monitoring.pod-name",
+      "type": "java.lang.String",
+      "description": "Application pod name monitoring common tag"
+    },
+    {
+      "name": "app.monitoring.pod-namespace",
+      "type": "java.lang.String",
+      "description": "Application pod namespace monitoring common tag"
+    },
+    {
+      "name": "app.monitoring.node-name",
+      "type": "java.lang.String",
+      "description": "Application node name monitoring common tag"
+    },
     {
       "name": "app.giga-chat.auth-api-base-url",
       "description": "Giga Chat API auth base URL",
