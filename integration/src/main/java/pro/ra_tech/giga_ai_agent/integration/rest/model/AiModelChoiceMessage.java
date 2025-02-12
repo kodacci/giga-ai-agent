@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.Nullable;
 
 public record AiModelChoiceMessage(
+        @JsonProperty("role") @Nullable AiRole role,
         @JsonProperty("content") @Nullable String content,
         @JsonProperty("created") @Nullable Long created,
         @JsonProperty("name") @Nullable String name,
