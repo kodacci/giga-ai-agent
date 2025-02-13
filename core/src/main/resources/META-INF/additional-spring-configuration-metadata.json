@@ -96,6 +96,20 @@
       "name": "app.telegram-bot.update-timeout-sec",
       "description": "Telegram bot update API long polling timeout seconds",
       "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.telegram-bot.request-timeout-ms",
+      "description": "Telegram bot API request timeout in milliseconds",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.telegram-bot.max-retries",
+      "description": "Telegram bot API request max retries on failure",
+      "type": "java.lang.Integer"
+    },{
+      "name": "app.telegram-bot.updates-queue-capacity",
+      "description": "Telegram bot update queue capacity",
+      "type": "java.lang.Integer"
     }
   ]
 }

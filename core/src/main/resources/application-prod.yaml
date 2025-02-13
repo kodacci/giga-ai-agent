@@ -16,3 +16,6 @@ app:
     api-token: ${TELEGRAM_BOT_TOKEN}
     update-limit: ${TELEGRAM_BOT_API_UPDATE_LIMIT}
     update-timeout-sec: ${TELEGRAM_BOT_UPDATE_TIMEOUT_SEC}
+    request-timeout-ms: ${TELEGRAM_BOT_API_REQUEST_TIMEOUT_MS}
+    max-retries: ${TELEGRAM_BOT_API_REQUEST_MAX_RETRIES}
+    updates-queue-capacity: ${TELEGRAM_BOT_UPDATES_QUEUE_CAPACITY}

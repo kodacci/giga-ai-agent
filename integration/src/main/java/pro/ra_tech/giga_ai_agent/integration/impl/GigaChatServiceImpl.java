@@ -42,10 +42,6 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
         log.info("Created Giga Chat service for client {}", authService.getClientId());
     }
 
-    private static <T> RetryPolicy<Response<T>> buildPolicy(int maxRetries) {
-        return RetryPolicy.<Response<T>>builder().withMaxRetries(maxRetries).build();
-    }
-
     private AppFailure toFailure(Throwable cause) {
         return toFailure(
                 IntegrationFailure.Code.GIGA_CHAT_INTEGRATION_FAILURE,

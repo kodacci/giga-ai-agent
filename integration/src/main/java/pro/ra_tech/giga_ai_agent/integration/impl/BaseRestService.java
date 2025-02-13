@@ -23,6 +23,10 @@ public abstract class BaseRestService {
         }
     }
 
+    protected static <T> RetryPolicy<Response<T>> buildPolicy(int maxRetries) {
+        return RetryPolicy.<Response<T>>builder().withMaxRetries(maxRetries).build();
+    }
+
     protected AppFailure toFailure(IntegrationFailure.Code code, String source, @Nullable Throwable cause) {
         return new IntegrationFailure(code, source, cause);
     }

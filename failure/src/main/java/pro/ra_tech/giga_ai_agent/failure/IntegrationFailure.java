@@ -29,7 +29,8 @@ public class IntegrationFailure extends AbstractFailure {
     @RequiredArgsConstructor
     public enum Code {
         GIGA_CHAT_INTEGRATION_AUTH_FAILURE("GIGA_CHAT_INTEGRATION_AUTH_FAILURE"),
-        GIGA_CHAT_INTEGRATION_FAILURE("GIGA_CHAT_INTEGRATION_FAILURE");
+        GIGA_CHAT_INTEGRATION_FAILURE("GIGA_CHAT_INTEGRATION_FAILURE"),
+        TELEGRAM_BOT_INTEGRATION_FAILURE("TELEGRAM_BOT_INTEGRATION_FAILURE");
 
         private final String value;
 

@@ -6,7 +6,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record TelegramBotProps(
         String restApiBaseUrl,
         String apiToken,
-        Integer eLimit,
-        Integer updateTimeoutSec
+        int updateLimit,
+        int updateTimeoutSec,
+        int requestTimeoutMs,
+        int maxRetries,
+        int updatesQueueCapacity
 ) {
 }

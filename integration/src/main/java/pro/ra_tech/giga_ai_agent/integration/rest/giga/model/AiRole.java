@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum AiRole {
     SYSTEM("system"),
-    USER("user"),
+    USER("from"),
     ASSISTANT("assistant"),
     FUNCTION("function");
 
@@ -24,7 +24,7 @@ public enum AiRole {
     public static AiRole of(@JsonProperty("role") String role) {
         return switch (role) {
             case "system" -> SYSTEM;
-            case "user" -> USER;
+            case "from" -> USER;
             case "function" -> FUNCTION;
             default -> ASSISTANT;
         };
