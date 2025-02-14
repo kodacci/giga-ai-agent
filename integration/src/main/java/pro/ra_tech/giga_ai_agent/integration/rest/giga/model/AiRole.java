@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum AiRole {
     SYSTEM("system"),
-    USER("from"),
+    USER("user"),
     ASSISTANT("assistant"),
     FUNCTION("function");
 
