@@ -56,7 +56,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
 
     private String toUsageMessage(AiModelUsage usage) {
         return String.format(
-                "Потрачено токенов: \nВходящее сообщение - %d\nНа генерацию моделью: %d\nНа кэш:%d\nИтого: %d",
+                "Потрачено токенов: \nВходящее сообщение - %d\nНа генерацию моделью - %d\nНа кэш - %d\nИтого - %d",
                 usage.promptTokens(),
                 usage.completionTokens(),
                 usage.precachedPromptTokens(),
