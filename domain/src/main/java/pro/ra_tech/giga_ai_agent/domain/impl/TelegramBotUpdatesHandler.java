@@ -11,6 +11,9 @@ import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramMessage
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 
+import static pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageEntityType.MENTION;
+import static pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramChatType.PRIVATE;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -18,9 +21,33 @@ public class TelegramBotUpdatesHandler implements Runnable {
     private final BlockingQueue<BotUpdate> botUpdatesQueue;
     private final TelegramBotService service;
 
+    private boolean isMentioned(TelegramMessage message, String userName) {
+        val text = message.text();
+        if (message.entities() == null || message.entities().isEmpty() || text == null || userName.isEmpty()) {
+            return false;
+        }
+
+        log.info("Processing message entities: {}", message.entities());
+
+        return message.entities().stream()
+                .filter(entity -> entity.type() == MENTION)
+                .map(entity -> text.substring(entity.offset() + 1, entity.length()))
+                .anyMatch(userName::equals);
+    }
+
     @Override
     public void run() {
         log.info("Started bot updates handler");
+
+        val name = service.getMe().fold(
+                failure -> {
+                    log.error("Error getting bot info: {}", failure.getMessage());
+                    return "";
+                },
+                user -> Optional.ofNullable(user.userName()).orElse("")
+        );
+
+        log.info("Received bot name: {}", name);
 
         for (;;) {
             try {
@@ -36,7 +63,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
                 log.info("Update object: {}", update);
 
                 val message = update.message();
-                if (message != null) {
+                if (message != null && (message.chat().type() == PRIVATE || isMentioned(message, name))) {
                     service.sendMessage(message.chat().id(), "Ha ha! I'v got your message", message.messageId())
                             .peekLeft(failure -> log.error("Error sending reply: {}", failure.getMessage()));
                 }

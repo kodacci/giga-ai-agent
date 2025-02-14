@@ -16,6 +16,7 @@ import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.ReplyParameters
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.SendMessageRequest;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramApiResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramMessage;
+import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramUser;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -27,6 +28,7 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
     private final TelegramBotApi pollApi;
     private final int updateLimit;
     private final int updateTimeout;
+    private final RetryPolicy<Response<TelegramApiResponse<TelegramUser>>> getMePolicy;
     private final RetryPolicy<Response<TelegramApiResponse<List<BotUpdate>>>> getUpdatesPolicy;
     private final RetryPolicy<Response<TelegramApiResponse<TelegramMessage>>> sendMessagePolicy;
 
@@ -46,6 +48,7 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
 
         getUpdatesPolicy = buildPolicy(maxRetries);
         sendMessagePolicy = buildPolicy(maxRetries);
+        getMePolicy = buildPolicy(maxRetries);
     }
 
     private AppFailure toFailure(Throwable cause) {
@@ -69,6 +72,11 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
                             res.ok() ? "Empty response" : res.error()
                     ));
                 });
+    }
+
+    @Override
+    public Either<AppFailure, TelegramUser> getMe() {
+        return sendTelegramRequest(getMePolicy, api.getMe());
     }
 
     @Override

@@ -5,9 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.Nullable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record TelegramChat (
-        @JsonProperty("id") long id,
-        @JsonProperty("type") TelegramChatType type,
-        @JsonProperty("title") @Nullable String title
+public record MessageEntity(
+        @JsonProperty("type") MessageEntityType type,
+        @JsonProperty("offset") int offset,
+        @JsonProperty("length") int length,
+        @JsonProperty("language") @Nullable String language
 ) {
 }

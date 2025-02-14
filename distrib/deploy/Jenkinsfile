@@ -71,15 +71,6 @@ pipeline {
                     withKubeConfig([credentialsId: 'jenkins-k8s-cert', serverUrl: KUBERNETES_API_URL, namespace: namespace]) {
                         sh 'kubectl version'
 
-                        println "Deleting istio components"
-                        sh "kubectl delete deployment -l app.kubernetes.io/component=istio-egressgw -n $namespace"
-                        sh "kubectl wait --for=delete pod -l app=giga-ai-agent-egressgw -n $namespace"
-                        sh "kubectl delete service -l app.kubernetes.io/component=istio-egressgw -n $namespace"
-                        sh "kubectl delete role -l app.kubernetes.io/component=istio-egressgw -n $namespace"
-                        sh "kubectl delete rolebinding -l app.kubernetes.io/component=istio-egressgw -n $namespace"
-                        sh "kubectl delete serviceaccount -l app.kubernetes.io/component=istio-egressgw -n $namespace"
-                        sh "kubectl delete networkpolicy -l app.kubernetes.io/component=istio -n $namespace"
-
                         println "Deleting core deployment and pods"
                         sh "kubectl delete deployment -l app.kubernetes.io/component=core -n $namespace"
                         sh "kubectl wait --for=delete pod -l app=giga-ai-agent-core --timeout 10m -n $namespace"
@@ -93,6 +84,15 @@ pipeline {
                         sh "kubectl delete configmap -l app.kubernetes.io/component=core -n $namespace"
                         sh "kubectl delete job -l app.kubernetes.io/component=core -n $namespace"
                         sh "kubectl delete serviceentry -l app.kubernetes.io/component=core -n $namespace"
+
+                        println "Deleting istio components"
+                        sh "kubectl delete deployment -l app.kubernetes.io/component=istio-egressgw -n $namespace"
+                        sh "kubectl wait --for=delete pod -l app=giga-ai-agent-egressgw -n $namespace"
+                        sh "kubectl delete service -l app.kubernetes.io/component=istio-egressgw -n $namespace"
+                        sh "kubectl delete role -l app.kubernetes.io/component=istio-egressgw -n $namespace"
+                        sh "kubectl delete rolebinding -l app.kubernetes.io/component=istio-egressgw -n $namespace"
+                        sh "kubectl delete serviceaccount -l app.kubernetes.io/component=istio-egressgw -n $namespace"
+                        sh "kubectl delete networkpolicy -l app.kubernetes.io/component=istio -n $namespace"
                     }
                 }
             }
