@@ -15,9 +15,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
-import pro.ra_tech.giga_ai_agent.integration.rest.api.AuthApi;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AuthResponse;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AuthScope;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.api.AuthApi;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AuthResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AuthScope;
 import retrofit2.Response;
 
 import java.time.Instant;
@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @RequiredArgsConstructor
 @Slf4j
-public class GigaAuthServiceImpl extends BaseService implements GigaAuthService {
+public class GigaAuthServiceImpl extends BaseRestService implements GigaAuthService {
     private final static int EXPIRES_TIMEOUT_CORRECTION_SEC = 5;
 
     @RequiredArgsConstructor

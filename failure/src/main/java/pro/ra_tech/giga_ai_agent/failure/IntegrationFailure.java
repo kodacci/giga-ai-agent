@@ -1,12 +1,13 @@
 package pro.ra_tech.giga_ai_agent.failure;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.Nullable;
 
 public class IntegrationFailure extends AbstractFailure {
     private static final String DETAIL = "Giga chat API error";
     private final Code code;
 
-    public IntegrationFailure(Code code, String source, String message) {
+    public IntegrationFailure(Code code, String source, @Nullable String message) {
         super(source, message);
         this.code = code;
     }
@@ -29,7 +30,8 @@ public class IntegrationFailure extends AbstractFailure {
     @RequiredArgsConstructor
     public enum Code {
         GIGA_CHAT_INTEGRATION_AUTH_FAILURE("GIGA_CHAT_INTEGRATION_AUTH_FAILURE"),
-        GIGA_CHAT_INTEGRATION_FAILURE("GIGA_CHAT_INTEGRATION_FAILURE");
+        GIGA_CHAT_INTEGRATION_FAILURE("GIGA_CHAT_INTEGRATION_FAILURE"),
+        TELEGRAM_BOT_INTEGRATION_FAILURE("TELEGRAM_BOT_INTEGRATION_FAILURE");
 
         private final String value;
 

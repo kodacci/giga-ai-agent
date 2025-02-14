@@ -10,19 +10,19 @@ import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
-import pro.ra_tech.giga_ai_agent.integration.rest.api.GigaChatApi;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AiAskMessage;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelAnswerResponse;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelAskRequest;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AiModelType;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.AiRole;
-import pro.ra_tech.giga_ai_agent.integration.rest.model.GetAiModelsResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.api.GigaChatApi;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiAskMessage;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAskRequest;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiRole;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetAiModelsResponse;
 import retrofit2.Response;
 
 import java.util.List;
 
 @Slf4j
-public class GigaChatServiceImpl extends BaseService implements GigaChatService {
+public class GigaChatServiceImpl extends BaseRestService implements GigaChatService {
     private final GigaAuthService authService;
     private final GigaChatApi gigaApi;
     private final RetryPolicy<Response<GetAiModelsResponse>> getAiModelsPolicy;
@@ -40,10 +40,6 @@ public class GigaChatServiceImpl extends BaseService implements GigaChatService 
         askAiModelPolicy = buildPolicy(maxRetries);
 
         log.info("Created Giga Chat service for client {}", authService.getClientId());
-    }
-
-    private static <T> RetryPolicy<Response<T>> buildPolicy(int maxRetries) {
-        return RetryPolicy.<Response<T>>builder().withMaxRetries(maxRetries).build();
     }
 
     private AppFailure toFailure(Throwable cause) {

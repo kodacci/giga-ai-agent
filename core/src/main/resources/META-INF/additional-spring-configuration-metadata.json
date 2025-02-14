@@ -9,6 +9,16 @@
       "name": "app.giga-chat",
       "description": "Application Giga Chat properties",
       "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.GigaChatProps"
+    },
+    {
+      "name": "app.telegram.api",
+      "description": "Application telegram api configuration",
+      "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.telegram.TelegramApiProps"
+    },
+    {
+      "name": "app.telegram.bot",
+      "description": "Application telegram bot configuration",
+      "sourceType": "pro.ra_tech.giga_ai_agent.domain.config.TelegramBotConfig"
     }
   ],
   "properties": [
@@ -70,6 +80,41 @@
     {
       "name": "app.giga-chat.auth-retry-timeout-ms",
       "description": "Giga Chat API authorization retry timeout in seconds",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.telegram.api.rest-api-base-url",
+      "description": "Telegram bot API rest base URL",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.telegram.api.api-token",
+      "description": "Telegram bot API token",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.telegram.api.update-limit",
+      "description": "Telegram bot max messages to get on update (0 - 100)",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.telegram.api.update-timeout-sec",
+      "description": "Telegram bot update API long polling timeout seconds",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.telegram.api.request-timeout-ms",
+      "description": "Telegram bot API request timeout in milliseconds",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.telegram.api.max-retries",
+      "description": "Telegram bot API request max retries on failure",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.telegram.bot.updates-queue-capacity",
+      "description": "Telegram bot update queue capacity",
       "type": "java.lang.Integer"
     }
   ]

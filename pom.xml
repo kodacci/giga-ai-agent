@@ -21,6 +21,7 @@
 		<module>core</module>
 		<module>integration</module>
         <module>failure</module>
+        <module>domain</module>
     </modules>
 
 	<properties>
