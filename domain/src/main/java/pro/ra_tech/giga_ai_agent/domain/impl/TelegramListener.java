@@ -1,4 +1,4 @@
-package pro.ra_tech.giga_ai_agent.integration.impl;
+package pro.ra_tech.giga_ai_agent.domain.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

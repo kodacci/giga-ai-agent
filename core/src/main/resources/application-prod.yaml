@@ -11,11 +11,13 @@ app:
     client-id: ${GIGA_CHAT_CLIENT_ID}
     auth-key: ${GIGA_CHAT_AUTH_KEY}
     auth-retry-timeout-ms: ${GIGA_CHAT_AUTH_RETRY_TIMEOUT_MS}
-  telegram-bot:
-    rest-api-base-url: ${TELEGRAM_BOT_REST_BASE_URL}
-    api-token: ${TELEGRAM_BOT_TOKEN}
-    update-limit: ${TELEGRAM_BOT_API_UPDATE_LIMIT}
-    update-timeout-sec: ${TELEGRAM_BOT_UPDATE_TIMEOUT_SEC}
-    request-timeout-ms: ${TELEGRAM_BOT_API_REQUEST_TIMEOUT_MS}
-    max-retries: ${TELEGRAM_BOT_API_REQUEST_MAX_RETRIES}
-    updates-queue-capacity: ${TELEGRAM_BOT_UPDATES_QUEUE_CAPACITY}
+  telegram:
+    api:
+      rest-api-base-url: ${TELEGRAM_BOT_REST_BASE_URL}
+      api-token: ${TELEGRAM_BOT_TOKEN}
+      update-limit: ${TELEGRAM_BOT_API_UPDATE_LIMIT}
+      update-timeout-sec: ${TELEGRAM_BOT_UPDATE_TIMEOUT_SEC}
+      request-timeout-ms: ${TELEGRAM_BOT_API_REQUEST_TIMEOUT_MS}
+      max-retries: ${TELEGRAM_BOT_API_REQUEST_MAX_RETRIES}
+    bot:
+      updates-queue-capacity: ${TELEGRAM_BOT_UPDATES_QUEUE_CAPACITY}

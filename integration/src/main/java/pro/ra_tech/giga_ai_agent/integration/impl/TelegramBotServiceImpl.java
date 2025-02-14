@@ -58,6 +58,7 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
     ) {
         return sendRequest(policy, call, this::toFailure)
                 .flatMap(res -> {
+                    log.debug("Telegram response: {}", res);
                     if (res.ok() && res.result() != null) {
                         return Either.right(res.result());
                     }

@@ -1,4 +1,4 @@
-package pro.ra_tech.giga_ai_agent.integration.impl;
+package pro.ra_tech.giga_ai_agent.domain.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramMessage;
-import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramUser;
 
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;

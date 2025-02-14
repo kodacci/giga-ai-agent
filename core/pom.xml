@@ -35,6 +35,12 @@
             <version>${revision}</version>
         </dependency>
 
+        <dependency>
+            <groupId>pro.ra-tech.ai</groupId>
+            <artifactId>giga-ai-agent-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!--    Third party    -->
 
         <dependency>
