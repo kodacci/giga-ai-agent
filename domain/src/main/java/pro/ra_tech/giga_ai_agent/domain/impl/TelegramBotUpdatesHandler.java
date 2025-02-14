@@ -33,12 +33,16 @@ public class TelegramBotUpdatesHandler implements Runnable {
                         Optional.ofNullable(update.message()).map(TelegramMessage::text).orElse("")
                 );
 
+                log.info("Update object: {}", update);
+
                 val message = update.message();
                 if (message != null) {
                     service.sendMessage(message.chat().id(), "Ha ha! I'v got your message", message.messageId())
                             .peekLeft(failure -> log.error("Error sending reply: {}", failure.getMessage()));
                 }
             } catch (InterruptedException ex) {
+                log.info("Interrupting bot updates handler");
+                Thread.currentThread().interrupt();
                 return;
             }
         }
