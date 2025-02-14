@@ -10,7 +10,7 @@ public abstract class AbstractFailure implements AppFailure {
     private final @Nullable Throwable cause;
     private String message = null;
 
-    public AbstractFailure(String source, String message) {
+    public AbstractFailure(String source, @Nullable String message) {
         this.source = source;
         this.message = message;
         cause = null;

@@ -10,6 +10,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.impl.TelegramBotServiceImpl;
+import pro.ra_tech.giga_ai_agent.integration.impl.TelegramBotUpdatesHandler;
 import pro.ra_tech.giga_ai_agent.integration.impl.TelegramListener;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.api.TelegramBotApi;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
@@ -58,14 +59,25 @@ public class TelegramBotConfig {
         return new LinkedBlockingDeque<>(props.updatesQueueCapacity());
     }
 
-//    @Bean
-//    public TaskExecutor botListenerExecutor(TelegramListener listener) {
-//        val executor = new ThreadPoolTaskExecutor();
-//        executor.setMaxPoolSize(1);
-//        executor.setThreadNamePrefix("telegram-bot-listener-");
-//        executor.initialize();
-//        executor.execute(listener);
-//
-//        return executor;
-//    }
+    @Bean
+    public TaskExecutor botListenerExecutor(TelegramListener listener) {
+        val executor = new ThreadPoolTaskExecutor();
+        executor.setMaxPoolSize(1);
+        executor.setThreadNamePrefix("telegram-bot-listener-");
+        executor.initialize();
+        executor.execute(listener);
+
+        return executor;
+    }
+
+    @Bean
+    public TaskExecutor botUpdateHandlerExecutor(TelegramBotUpdatesHandler handler) {
+        val executor = new ThreadPoolTaskExecutor();
+        executor.setMaxPoolSize(1);
+        executor.setThreadNamePrefix("telegram-bot-updates-handler-");
+        executor.initialize();
+        executor.execute(handler);
+
+        return executor;
+    }
 }

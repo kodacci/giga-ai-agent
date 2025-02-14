@@ -8,7 +8,7 @@ import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
 
 import java.util.concurrent.BlockingQueue;
 
-//@Component
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class TelegramListener implements Runnable {

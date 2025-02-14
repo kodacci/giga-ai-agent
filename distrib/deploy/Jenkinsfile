@@ -104,16 +104,18 @@ pipeline {
                     def namespace = DEPLOY_NAMESPACE
                     def host = NAMESPACE_APP_HOST
                     def egressTcpPort = '9999'
-                    def solrHost = 'solr.ra-tech.pro'
+                    def solrHost = SOLR_HOST
                     def vaultHost = 'vault.ra-tech.pro'
                     def gigaAuthHost = GIGA_AUTH_HOST
                     def gigaChatHost = GIGA_CHAT_HOST
+                    def telegramHost = TELEGRAM_HOST
                     def registry = REGISTRY_HOST
 
                     def solrApply = ""
                     def vaultApply = ""
                     def gigaAuthApply = ""
                     def gigaChatApply = ""
+                    def telegramApply = ""
 
                     def coreImageTag = params.core_app_image ? params.core_app_image : generateImageTag('giga-ai-agent-core')
 
@@ -149,6 +151,9 @@ pipeline {
                         // Giga Chat API
                         gigaAuthApply = generateExtHttp(namespace, 'giga-auth', gigaAuthHost, 9443)
                         gigaChatApply = generateExtHttp(namespace, 'giga-chat', gigaChatHost, 443)
+
+                        // Telegram API
+                        telegramApply = generateExtHttp(namespace, 'telegram-bot', telegramHost, 443)
                     }
 
                     withKubeConfig([credentialsId: 'jenkins-k8s-cert', serverUrl: KUBERNETES_API_URL, namespace: namespace]) {
@@ -178,7 +183,8 @@ pipeline {
                                 solrApply +
                                 vaultApply +
                                 gigaAuthApply +
-                                gigaChatApply
+                                gigaChatApply +
+                                telegramApply
 
                         // Deploying main app
                         sh 'kubectl apply -f distrib/deployment.yaml'
