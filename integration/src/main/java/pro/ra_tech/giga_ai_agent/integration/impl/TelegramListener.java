@@ -26,7 +26,7 @@ public class TelegramListener implements Runnable {
         while (!exit) {
             service.getUpdates()
                     .peek(updates -> {
-                        log.info("Got {} new updates", updates.size());
+                        log.debug("Got {} new updates", updates.size());
                         updates.forEach(update -> {
                             if (!botUpdatesQueue.offer(update)) {
                                 log.warn("Could not add update, message queue is full");
