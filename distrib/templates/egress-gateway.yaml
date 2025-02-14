@@ -19,6 +19,7 @@ spec:
         - {{ vault_host }}
         - {{ giga_auth_host }}
         - {{ giga_chat_host }}
+        - {{ telegram_api_host }}
     - port:
         number: 443
         name: https
@@ -27,6 +28,7 @@ spec:
         - {{ solr_host }}
         - {{ vault_host }}
         - {{ giga_chat_host }}
+        - {{ telegram_api_host }}
       tls:
         mode: PASSTHROUGH
     - port:
