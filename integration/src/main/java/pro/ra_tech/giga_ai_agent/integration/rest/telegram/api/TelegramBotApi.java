@@ -20,7 +20,7 @@ public interface TelegramBotApi {
             @Body GetUpdatesRequest request
     );
 
-    @POST("getName")
+    @POST("getMe")
     @Headers("Content-type: application/json")
     Call<TelegramApiResponse<TelegramUser>> getMe();
 
