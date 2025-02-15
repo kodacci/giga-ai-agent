@@ -21,3 +21,4 @@ app:
       max-retries: ${TELEGRAM_BOT_API_REQUEST_MAX_RETRIES}
     bot:
       updates-queue-capacity: ${TELEGRAM_BOT_UPDATES_QUEUE_CAPACITY}
+      ai-model-type: ${TELEGRAM_BOT_AI_MODEL_TYPE}

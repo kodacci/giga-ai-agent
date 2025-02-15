@@ -116,6 +116,34 @@
       "name": "app.telegram.bot.updates-queue-capacity",
       "description": "Telegram bot update queue capacity",
       "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.telegram.bot.ai-model-type",
+      "description": "AI model type to use in bot requests to Giga Chat",
+      "type": "pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType"
+    }
+  ],
+  "hints": [
+    {
+      "name": "app.telegram.bot.ai-model-type",
+      "values": [
+        {
+          "value": "GIGA_CHAT",
+          "description": "Giga Chat light"
+        },
+        {
+          "value": "GIGA_CHAT_PRO",
+          "description": "Giga Chat Pro"
+        },
+        {
+          "value": "GIGA_CHAT_PLUS",
+          "description": "Giga Chat Plus"
+        },
+        {
+          "value": "GIGA_CHAT_MAX",
+          "description": "Giga Chat Max"
+        }
+      ]
     }
   ]
 }
