@@ -45,6 +45,7 @@ public class TelegramBotConfig {
             GigaChatService gigaChatService
     ) {
         val executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(props.updatesHandlersCount());
         executor.setMaxPoolSize(props.updatesHandlersCount());
         executor.setThreadNamePrefix("telegram-bot-updates-handler-");
         executor.initialize();
