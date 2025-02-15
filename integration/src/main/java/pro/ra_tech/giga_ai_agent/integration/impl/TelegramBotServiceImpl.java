@@ -12,6 +12,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.api.TelegramBotApi;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.GetUpdatesRequest;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
+import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageParseMode;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.ReplyParameters;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.SendMessageRequest;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramApiResponse;
@@ -103,8 +104,13 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
             percentiles = {0.9, 0.95, 0.99}
     )
     public Either<AppFailure, TelegramMessage> sendMessage(long chatId, String text, Integer replyMessageId) {
+        return sendMessage(chatId, text, replyMessageId, null);
+    }
+
+    @Override
+    public Either<AppFailure, TelegramMessage> sendMessage(long chatId, String text, Integer replyMessageId, MessageParseMode parseMode) {
         val reply = replyMessageId == null ? null : new ReplyParameters(replyMessageId);
-        val request = new SendMessageRequest(chatId, text, false, reply);
+        val request = new SendMessageRequest(chatId, text, parseMode,false, reply);
 
         return sendTelegramRequest(sendMessagePolicy, api.sendMessage(request));
     }

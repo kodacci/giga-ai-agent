@@ -10,6 +10,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelUsage;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
+import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageParseMode;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramMessage;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramUser;
 
@@ -29,21 +30,24 @@ public class TelegramBotUpdatesHandler implements Runnable {
     private final GigaChatService gigaService;
     private final TelegramBotProps props;
 
-    private boolean isMentioned(TelegramMessage message, String userName) {
+    private String findPrompt(TelegramMessage message, String userName) {
         val text = message.text();
         if (message.entities() == null || message.entities().isEmpty() || text == null || userName.isEmpty()) {
-            return false;
+            return "";
         }
 
         log.info("Processing message entities: {}", message.entities());
 
         return message.entities().stream()
                 .filter(entity -> entity.type() == MENTION)
-                .map(entity -> text.substring(entity.offset() + 1, entity.length()))
-                .anyMatch(userName::equals);
+                .filter(entity -> userName.equals(text.substring(entity.offset() + 1, entity.length())))
+                .findAny()
+                .map(entity -> text.substring(entity.offset() + entity.length()))
+                .map(String::trim)
+                .orElse("");
     }
 
-    private AiModelUsage sendResponses(AiModelAnswerResponse res, long chatId, int replyTo) {
+    private AiModelUsage sendAnswerParts(AiModelAnswerResponse res, long chatId, int replyTo) {
         res.choices().stream()
                 .filter(choice -> choice.message() != null)
                 .forEach(
@@ -56,7 +60,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
 
     private String toUsageMessage(AiModelUsage usage) {
         return String.format(
-                "Потрачено токенов: \nВходящее сообщение - %d\nНа генерацию моделью - %d\nНа кэш - %d\nИтого - %d",
+                "*Потрачено*: \nВходящее сообщение - %d\nНа генерацию моделью - %d\nНа кэш - %d\n\n*Итого* - %d токенов",
                 usage.promptTokens(),
                 usage.completionTokens(),
                 usage.precachedPromptTokens(),
@@ -64,15 +68,15 @@ public class TelegramBotUpdatesHandler implements Runnable {
         );
     }
 
-    private void sendResponse(TelegramMessage message, String user) {
+    private void sendResponse(TelegramMessage message, String prompt, String user) {
         val id = UUID.randomUUID().toString();
         val chatId = message.chat().id();
         val replyTo = message.messageId();
-        log.info("Asking AI model rq: {}, session: {}, with: {}", id, user, message.text());
+        log.info("Asking AI model rq: {}, session: {}, with: {}", id, user, prompt);
 
-        gigaService.askModel(id, props.aiModelType(), message.text(), user)
-                .map(res -> sendResponses(res, chatId, replyTo))
-                .flatMap(usage -> botService.sendMessage(chatId, toUsageMessage(usage), null))
+        gigaService.askModel(id, props.aiModelType(), prompt, user)
+                .map(res -> sendAnswerParts(res, chatId, replyTo))
+                .flatMap(usage -> botService.sendMessage(chatId, toUsageMessage(usage), null, MessageParseMode.MARKDOWN))
                 .peekLeft(failure -> log.error("Error while asking model and sending answer: {}", failure.getMessage()));
     }
 
@@ -104,9 +108,17 @@ public class TelegramBotUpdatesHandler implements Runnable {
                 log.info("Update object: {}", update);
 
                 val message = update.message();
-                if (message != null && (message.chat().type() == PRIVATE || isMentioned(message, name))) {
+                if (message != null) {
                     val user = Optional.ofNullable(update.user()).map(TelegramUser::userName).orElse(null);
-                    sendResponse(message, user);
+                    if (message.chat().type() == PRIVATE) {
+                        sendResponse(message, message.text(), user);
+                        continue;
+                    }
+
+                    val prompt = findPrompt(message, name);
+                    if(!prompt.isEmpty()) {
+                        sendResponse(message, prompt, user);
+                    }
                 }
             } catch (InterruptedException ex) {
                 log.info("Interrupting bot updates handler");
