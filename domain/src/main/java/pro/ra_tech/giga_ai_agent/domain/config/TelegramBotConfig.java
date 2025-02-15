@@ -9,10 +9,13 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import pro.ra_tech.giga_ai_agent.domain.impl.TelegramBotUpdatesHandler;
 import pro.ra_tech.giga_ai_agent.domain.impl.TelegramListener;
+import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
+import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.IntStream;
 
 @Configuration
 @EnableConfigurationProperties(TelegramBotProps.class)
@@ -35,12 +38,26 @@ public class TelegramBotConfig {
     }
 
     @Bean
-    public TaskExecutor botUpdateHandlerExecutor(TelegramBotUpdatesHandler handler) {
+    public TaskExecutor botUpdateHandlerExecutor(
+            TelegramBotProps props,
+            BlockingQueue<BotUpdate> botUpdatesQueue,
+            TelegramBotService botService,
+            GigaChatService gigaChatService
+    ) {
         val executor = new ThreadPoolTaskExecutor();
-        executor.setMaxPoolSize(1);
+        executor.setMaxPoolSize(props.updatesHandlersCount());
         executor.setThreadNamePrefix("telegram-bot-updates-handler-");
         executor.initialize();
-        executor.execute(handler);
+
+        IntStream.range(0, props.updatesHandlersCount())
+                .forEach(idx -> {
+                    executor.execute(new TelegramBotUpdatesHandler(
+                            botUpdatesQueue,
+                            botService,
+                            gigaChatService,
+                            props.aiModelType()
+                    ));
+                });
 
         return executor;
     }

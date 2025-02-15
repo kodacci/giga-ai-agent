@@ -121,6 +121,11 @@
       "name": "app.telegram.bot.ai-model-type",
       "description": "AI model type to use in bot requests to Giga Chat",
       "type": "pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType"
+    },
+    {
+      "name": "app.telegram.bot.updates-handlers-count",
+      "description": "Telegram bot updates handlers count",
+      "type": "java.lang.Integer"
     }
   ],
   "hints": [

@@ -22,3 +22,4 @@ app:
     bot:
       updates-queue-capacity: ${TELEGRAM_BOT_UPDATES_QUEUE_CAPACITY}
       ai-model-type: ${TELEGRAM_BOT_AI_MODEL_TYPE}
+      updates-handlers-count: ${TELEGRAM_BOT_UPDATE_HANDLERS_COUNT}
