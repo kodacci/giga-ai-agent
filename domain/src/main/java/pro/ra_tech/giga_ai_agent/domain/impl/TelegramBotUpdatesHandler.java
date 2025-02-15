@@ -3,11 +3,10 @@ package pro.ra_tech.giga_ai_agent.domain.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.stereotype.Component;
-import pro.ra_tech.giga_ai_agent.domain.config.TelegramBotProps;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelUsage;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageParseMode;
@@ -21,14 +20,13 @@ import java.util.concurrent.BlockingQueue;
 import static pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageEntityType.MENTION;
 import static pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramChatType.PRIVATE;
 
-@Component
 @RequiredArgsConstructor
 @Slf4j
 public class TelegramBotUpdatesHandler implements Runnable {
     private final BlockingQueue<BotUpdate> botUpdatesQueue;
     private final TelegramBotService botService;
     private final GigaChatService gigaService;
-    private final TelegramBotProps props;
+    private final AiModelType aiModelType;
 
     private String findPrompt(TelegramMessage message, String userName) {
         val text = message.text();
@@ -74,7 +72,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
         val replyTo = message.messageId();
         log.info("Asking AI model rq: {}, session: {}, with: {}", id, user, prompt);
 
-        gigaService.askModel(id, props.aiModelType(), prompt, user)
+        gigaService.askModel(id, aiModelType, prompt, user)
                 .map(res -> sendAnswerParts(res, chatId, replyTo))
                 .flatMap(usage -> botService.sendMessage(chatId, toUsageMessage(usage), null, MessageParseMode.MARKDOWN))
                 .peekLeft(failure -> log.error("Error while asking model and sending answer: {}", failure.getMessage()));

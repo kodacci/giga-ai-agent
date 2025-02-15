@@ -8,6 +8,7 @@ import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 @ConfigurationProperties("app.telegram.bot")
 public record TelegramBotProps(
         int updatesQueueCapacity,
-        AiModelType aiModelType
+        AiModelType aiModelType,
+        int updatesHandlersCount
 ) {
 }

@@ -84,7 +84,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
             String prompt,
             @Nullable String sessionId
     ) {
-        log.info("Asking model {} with prompt {}", model, prompt);
+        log.info("Asking model {} with prompt: `{}`", model, prompt);
         val request = AiModelAskRequest.builder()
                 .model(model)
                 .messages(List.of(
