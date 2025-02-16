@@ -15,6 +15,7 @@ import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageParseMod
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramMessage;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramUser;
 
+import java.text.DecimalFormat;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -29,6 +30,8 @@ public class TelegramBotUpdatesHandler implements Runnable {
     private final TelegramBotService botService;
     private final GigaChatService gigaService;
     private final AiModelType aiModelType;
+
+    private final DecimalFormat balanceFormatter = new DecimalFormat("###,###,###");
 
     private String findPrompt(TelegramMessage message, String userName) {
         val text = message.text();
@@ -74,7 +77,11 @@ public class TelegramBotUpdatesHandler implements Runnable {
         return res.balance().stream()
                 .filter(balance -> balance.usage().equals(aiModelType.toString()))
                 .findAny()
-                .map(balance -> String.format("*Баланс (модель %s):* %d токенов", balance.usage(), balance.value()))
+                .map(balance -> String.format(
+                        "*Баланс (модель %s):* %s токенов",
+                        balance.usage(),
+                        balanceFormatter.format(balance.value())
+                ))
                 .orElse(null);
     }
 
