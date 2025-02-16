@@ -26,6 +26,7 @@ public interface GigaChatApi {
 
     @POST("/api/v1/balance")
     Call<GetBalanceResponse> getBalance(
+            @Header("Authorization") String auth,
             @Header("X-Request-ID") @Nullable String requestId,
             @Header("X-Session-ID") @Nullable String sessionId
     );

@@ -122,6 +122,11 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
 
     @Override
     public Either<AppFailure, GetBalanceResponse> getBalance(@Nullable String sessionId) {
-        return sendRequest(getBalancePolicy, gigaApi.getBalance(UUID.randomUUID().toString(), sessionId), this::toFailure);
+        return authService.getAuthHeader()
+                .flatMap(auth -> sendRequest(
+                        getBalancePolicy,
+                        gigaApi.getBalance(auth, UUID.randomUUID().toString(), sessionId),
+                        this::toFailure
+                ));
     }
 }
