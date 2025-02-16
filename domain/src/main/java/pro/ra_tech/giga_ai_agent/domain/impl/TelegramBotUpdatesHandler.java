@@ -8,6 +8,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelUsage;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageParseMode;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramMessage;
@@ -66,6 +67,16 @@ public class TelegramBotUpdatesHandler implements Runnable {
         );
     }
 
+    private String toBalanceMessage(GetBalanceResponse res) {
+        log.info("Got AI model balance: {}", res);
+
+        return res.balance().stream()
+                .filter(balance -> balance.usage().equals(aiModelType.toString()))
+                .findAny()
+                .map(balance -> String.format("*Баланс (модель %s):* %d токенов", balance.usage(), balance.value()))
+                .orElse(null);
+    }
+
     private void sendResponse(TelegramMessage message, String prompt, String user) {
         val id = UUID.randomUUID().toString();
         val chatId = message.chat().id();
@@ -75,6 +86,12 @@ public class TelegramBotUpdatesHandler implements Runnable {
         gigaService.askModel(id, aiModelType, prompt, user)
                 .map(res -> sendAnswerParts(res, chatId, replyTo))
                 .flatMap(usage -> botService.sendMessage(chatId, toUsageMessage(usage), null, MessageParseMode.MARKDOWN))
+                .flatMap(sent -> gigaService.getBalance(null))
+                .flatMap(balance ->
+                        Optional.ofNullable(toBalanceMessage(balance))
+                                .map(text -> botService.sendMessage(chatId, text, null, MessageParseMode.MARKDOWN))
+                                .orElse(null)
+                )
                 .peekLeft(failure -> log.error("Error while asking model and sending answer: {}", failure.getMessage()));
     }
 
