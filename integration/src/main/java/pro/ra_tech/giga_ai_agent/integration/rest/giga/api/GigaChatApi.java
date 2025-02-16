@@ -24,7 +24,7 @@ public interface GigaChatApi {
             @Body AiModelAskRequest request
     );
 
-    @POST("/api/v1/balance")
+    @GET("/api/v1/balance")
     Call<GetBalanceResponse> getBalance(
             @Header("Authorization") String auth,
             @Header("X-Request-ID") @Nullable String requestId,
