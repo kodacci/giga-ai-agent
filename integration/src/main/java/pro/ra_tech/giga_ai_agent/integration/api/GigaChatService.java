@@ -6,6 +6,7 @@ import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetAiModelsResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
 
 public interface GigaChatService {
     Either<AppFailure, GetAiModelsResponse> listModels();
@@ -15,4 +16,6 @@ public interface GigaChatService {
             String prompt,
             @Nullable String sessionId
     );
+
+    Either<AppFailure, GetBalanceResponse> getBalance(@Nullable String sessionId);
 }

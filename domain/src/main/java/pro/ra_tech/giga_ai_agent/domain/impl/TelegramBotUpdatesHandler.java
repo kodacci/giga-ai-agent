@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -8,11 +9,13 @@ import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelUsage;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageParseMode;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramMessage;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramUser;
 
+import java.text.DecimalFormat;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -27,6 +30,8 @@ public class TelegramBotUpdatesHandler implements Runnable {
     private final TelegramBotService botService;
     private final GigaChatService gigaService;
     private final AiModelType aiModelType;
+
+    private final DecimalFormat balanceFormatter = new DecimalFormat("###,###,###");
 
     private String findPrompt(TelegramMessage message, String userName) {
         val text = message.text();
@@ -66,6 +71,20 @@ public class TelegramBotUpdatesHandler implements Runnable {
         );
     }
 
+    private @Nullable String toBalanceMessage(GetBalanceResponse res) {
+        log.info("Got AI model balance: {}", res);
+
+        return res.balance().stream()
+                .filter(balance -> balance.usage().equals(aiModelType.toString()))
+                .findAny()
+                .map(balance -> String.format(
+                        "*Баланс (модель %s):* %s токенов",
+                        balance.usage(),
+                        balanceFormatter.format(balance.value())
+                ))
+                .orElse(null);
+    }
+
     private void sendResponse(TelegramMessage message, String prompt, String user) {
         val id = UUID.randomUUID().toString();
         val chatId = message.chat().id();
@@ -75,6 +94,12 @@ public class TelegramBotUpdatesHandler implements Runnable {
         gigaService.askModel(id, aiModelType, prompt, user)
                 .map(res -> sendAnswerParts(res, chatId, replyTo))
                 .flatMap(usage -> botService.sendMessage(chatId, toUsageMessage(usage), null, MessageParseMode.MARKDOWN))
+                .flatMap(sent -> gigaService.getBalance(null))
+                .flatMap(balance ->
+                        Optional.ofNullable(toBalanceMessage(balance))
+                                .map(text -> botService.sendMessage(chatId, text, null, MessageParseMode.MARKDOWN))
+                                .orElse(null)
+                )
                 .peekLeft(failure -> log.error("Error while asking model and sending answer: {}", failure.getMessage()));
     }
 

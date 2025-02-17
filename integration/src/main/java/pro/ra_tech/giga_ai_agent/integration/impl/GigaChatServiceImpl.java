@@ -17,9 +17,11 @@ import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAskRequest;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiRole;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetAiModelsResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
 import retrofit2.Response;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 public class GigaChatServiceImpl extends BaseRestService implements GigaChatService {
@@ -27,6 +29,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
     private final GigaChatApi gigaApi;
     private final RetryPolicy<Response<GetAiModelsResponse>> getAiModelsPolicy;
     private final RetryPolicy<Response<AiModelAnswerResponse>> askAiModelPolicy;
+    private final RetryPolicy<Response<GetBalanceResponse>> getBalancePolicy;
 
     public GigaChatServiceImpl(
             GigaAuthService authService,
@@ -38,6 +41,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
 
         getAiModelsPolicy = buildPolicy(maxRetries);
         askAiModelPolicy = buildPolicy(maxRetries);
+        getBalancePolicy = buildPolicy(maxRetries);
 
         log.info("Created Giga Chat service for client {}", authService.getClientId());
     }
@@ -114,5 +118,15 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                 )
                 .peek(res -> log.info("Successfully got model response on {}: {}", rqUid, res))
                 .peekLeft(failure -> log.error("Error asking model {}: ", model, failure.getCause()));
+    }
+
+    @Override
+    public Either<AppFailure, GetBalanceResponse> getBalance(@Nullable String sessionId) {
+        return authService.getAuthHeader()
+                .flatMap(auth -> sendRequest(
+                        getBalancePolicy,
+                        gigaApi.getBalance(auth, UUID.randomUUID().toString(), sessionId),
+                        this::toFailure
+                ));
     }
 }
