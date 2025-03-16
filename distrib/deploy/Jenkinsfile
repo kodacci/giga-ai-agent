@@ -105,7 +105,7 @@ pipeline {
                     def host = NAMESPACE_APP_HOST
                     def egressTcpPort = '9999'
                     def solrHost = SOLR_HOST
-                    def vaultHost = 'vault.ra-tech.pro'
+                    def vaultHost = removeProtocol(VAULT_HOST)
                     def gigaAuthHost = GIGA_AUTH_HOST
                     def gigaChatHost = GIGA_CHAT_HOST
                     def telegramHost = TELEGRAM_API_HOST
