@@ -1,4 +1,4 @@
-package pro.ra_tech.giga_ai_agent.core.controllers.dto;
+package pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto;
 
 public record AiModelUsage(
         Integer promptTokens,
