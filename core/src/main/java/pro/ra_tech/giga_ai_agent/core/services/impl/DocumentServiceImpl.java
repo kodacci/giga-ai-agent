@@ -3,6 +3,7 @@ package pro.ra_tech.giga_ai_agent.core.services.impl;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pro.ra_tech.giga_ai_agent.core.controllers.pdf_upload.dto.PdfUploadResponse;
@@ -13,6 +14,7 @@ import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DocumentServiceImpl implements DocumentService {
     private final PdfService pdfService;
 
@@ -28,6 +30,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public Either<AppFailure, PdfUploadResponse> handlePdf(MultipartFile file) {
+        log.info("Handling pdf file {} of size {} bytes", file.getName(), file.getSize());
+
         return toBytes(file).flatMap(pdfService::handlePdf).map(PdfUploadResponse::of);
     }
 }

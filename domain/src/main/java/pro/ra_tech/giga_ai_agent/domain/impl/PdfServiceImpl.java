@@ -3,6 +3,7 @@ package pro.ra_tech.giga_ai_agent.domain.impl;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -15,6 +16,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.LlmTextProcessorService;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PdfServiceImpl implements PdfService {
     private final LlmTextProcessorService llmService;
 
@@ -29,7 +31,9 @@ public class PdfServiceImpl implements PdfService {
     @Override
     public Either<AppFailure, PdfProcessingInfo> handlePdf(byte[] contents) {
         return toText(contents)
+                .peek(text -> log.info("Got text with length {} from pdf", text.length()))
                 .flatMap(llmService::splitText)
+                .peek(chunks -> log.info("Got {} chunks from llm text processor", chunks.size()))
                 .map(PdfProcessingInfo::new);
     }
 
