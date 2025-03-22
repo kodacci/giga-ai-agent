@@ -20,6 +20,11 @@ app:
       request-timeout-ms: ${TELEGRAM_BOT_API_REQUEST_TIMEOUT_MS}
       max-retries: ${TELEGRAM_BOT_API_REQUEST_MAX_RETRIES}
     bot:
+      enabled: true
       updates-queue-capacity: ${TELEGRAM_BOT_UPDATES_QUEUE_CAPACITY}
       ai-model-type: ${TELEGRAM_BOT_AI_MODEL_TYPE}
       updates-handlers-count: ${TELEGRAM_BOT_UPDATE_HANDLERS_COUNT}
+  llm-text-processor:
+    base-url: ${LLM_TEXT_PROCESSOR_BASE_URL}
+    request-timeout-ms: ${LLM_TEXT_PROCESSOR_REQUEST_TIMEOUT_MS}
+    max-retries: ${LLM_TEXT_PROCESSOR_MAX_RETRIES}

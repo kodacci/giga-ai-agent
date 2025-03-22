@@ -14,8 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 import pro.ra_tech.giga_ai_agent.core.controllers.pdf_upload.dto.PdfUploadResponse;
 
 @Validated
-@Tag(name = "PDF Upload")
-public interface PdfUploadApi {
+@Tag(name = "Documents upload")
+public interface DocumentsUploadApi {
     @Operation(summary = "Upload pdf and enbed to AI model")
     @ApiResponses(
             @ApiResponse(

@@ -1,7 +1,9 @@
 package pro.ra_tech.giga_ai_agent.integration.impl;
 
+import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import dev.failsafe.retrofit.FailsafeCall;
+import io.micrometer.core.instrument.Timer;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +53,18 @@ public abstract class BaseRestService {
             Function<Throwable, AppFailure> toFailure
     ) {
         return Try.of(() -> FailsafeCall.with(retryPolicy).compose(call).execute())
+                .map(this::onResponse)
+                .toEither()
+                .mapLeft(toFailure);
+    }
+
+    protected <R> Either<AppFailure, R> sendMeteredRequest(
+            RetryPolicy<Response<R>> retryPolicy,
+            Timer timer,
+            Call<R> call,
+            Function<Throwable, AppFailure> toFailure
+    ) {
+        return Try.of(() -> Failsafe.with(retryPolicy).get(() -> timer.recordCallable(call::execute)))
                 .map(this::onResponse)
                 .toEither()
                 .mapLeft(toFailure);
