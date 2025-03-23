@@ -49,6 +49,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         val validations = BindErrorUtils.resolve(ex.getAllErrors()).values().stream().toList();
         problem.setProperty("validationErrors", validations);
 
+        log.error("Validation error", ex);
+
         return handleExceptionInternal(ex, problem, getProblemHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 

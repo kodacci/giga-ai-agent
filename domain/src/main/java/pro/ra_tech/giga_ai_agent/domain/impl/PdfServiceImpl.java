@@ -14,11 +14,14 @@ import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.LlmTextProcessorService;
 
+import java.text.DecimalFormat;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PdfServiceImpl implements PdfService {
     private final LlmTextProcessorService llmService;
+    private final DecimalFormat format = new DecimalFormat("###,###,###");
 
     private AppFailure toFailure(Throwable cause) {
         return new DocumentProcessingFailure(
@@ -31,7 +34,7 @@ public class PdfServiceImpl implements PdfService {
     @Override
     public Either<AppFailure, PdfProcessingInfo> handlePdf(byte[] contents) {
         return toText(contents)
-                .peek(text -> log.info("Got text with length {} from pdf", text.length()))
+                .peek(text -> log.info("Got text with length {} from pdf", format.format(text.length())))
                 .flatMap(llmService::splitText)
                 .peek(chunks -> log.info("Got {} chunks from llm text processor", chunks.size()))
                 .map(PdfProcessingInfo::new);

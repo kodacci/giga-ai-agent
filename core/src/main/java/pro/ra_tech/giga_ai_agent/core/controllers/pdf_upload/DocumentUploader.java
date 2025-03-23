@@ -1,14 +1,17 @@
 package pro.ra_tech.giga_ai_agent.core.controllers.pdf_upload;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pro.ra_tech.giga_ai_agent.core.controllers.BaseController;
+import pro.ra_tech.giga_ai_agent.core.controllers.pdf_upload.dto.DocumentMetadata;
 import pro.ra_tech.giga_ai_agent.core.services.api.DocumentService;
 
 @RestController
@@ -23,7 +26,10 @@ public class DocumentUploader extends BaseController implements DocumentsUploadA
 
     @Override
     @PostMapping("/pdf")
-    public ResponseEntity<Object> uploadPdf(@RequestParam("file") MultipartFile pdf) {
-        return toResponse(service.handlePdf(pdf));
+    public ResponseEntity<Object> uploadPdf(
+            @Valid @RequestPart("file") @NotNull MultipartFile pdf,
+            @Valid @RequestPart("metadata") @NotNull DocumentMetadata metadata
+    ) {
+        return toResponse(service.handlePdf(pdf, metadata));
     }
 }
