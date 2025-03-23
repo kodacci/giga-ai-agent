@@ -1,4 +1,4 @@
-package pro.ra_tech.giga_ai_agent.core.controllers;
+package pro.ra_tech.giga_ai_agent.core.controllers.ai_model;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pro.ra_tech.giga_ai_agent.core.controllers.dto.AskAiModelRequest;
-import pro.ra_tech.giga_ai_agent.core.controllers.dto.AskAiModelResponse;
-import pro.ra_tech.giga_ai_agent.core.controllers.dto.GetAiModelsResponse;
+import pro.ra_tech.giga_ai_agent.core.controllers.BaseController;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelRequest;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelResponse;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.GetAiModelsResponse;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 
 @RestController

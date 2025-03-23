@@ -1,6 +1,7 @@
 package pro.ra_tech.giga_ai_agent.domain.config;
 
 import lombok.val;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,6 +28,7 @@ public class TelegramBotConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(value = "app.telegram.bot.enabled", havingValue = "true", matchIfMissing = true)
     public TaskExecutor botListenerExecutor(TelegramListener listener) {
         val executor = new ThreadPoolTaskExecutor();
         executor.setMaxPoolSize(1);
@@ -38,6 +40,7 @@ public class TelegramBotConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(value = "app.telegram.bot.enabled", havingValue = "true", matchIfMissing = true)
     public TaskExecutor botUpdateHandlerExecutor(
             TelegramBotProps props,
             BlockingQueue<BotUpdate> botUpdatesQueue,

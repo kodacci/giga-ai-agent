@@ -11,11 +11,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import pro.ra_tech.giga_ai_agent.domain.config.TelegramBotConfig;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatConfig;
+import pro.ra_tech.giga_ai_agent.integration.config.llm_text_processor.LlmTextProcessorConfig;
 import pro.ra_tech.giga_ai_agent.integration.config.telegram.TelegramApiConfig;
 
 @Configuration
 @Slf4j
-@Import({GigaChatConfig.class, TelegramApiConfig.class, TelegramBotConfig.class})
+@Import({GigaChatConfig.class, TelegramApiConfig.class, TelegramBotConfig.class, LlmTextProcessorConfig.class})
 @EnableConfigurationProperties(AppMonitoringProps.class)
 public class MainConfiguration {
     @Bean

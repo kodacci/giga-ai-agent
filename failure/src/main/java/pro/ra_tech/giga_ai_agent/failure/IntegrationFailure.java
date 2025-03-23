@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
 
 public class IntegrationFailure extends AbstractFailure {
-    private static final String DETAIL = "Giga chat API error";
+    private static final String DETAIL = "Integration service API call error";
     private final Code code;
 
     public IntegrationFailure(Code code, String source, @Nullable String message) {
@@ -31,7 +31,8 @@ public class IntegrationFailure extends AbstractFailure {
     public enum Code {
         GIGA_CHAT_INTEGRATION_AUTH_FAILURE("GIGA_CHAT_INTEGRATION_AUTH_FAILURE"),
         GIGA_CHAT_INTEGRATION_FAILURE("GIGA_CHAT_INTEGRATION_FAILURE"),
-        TELEGRAM_BOT_INTEGRATION_FAILURE("TELEGRAM_BOT_INTEGRATION_FAILURE");
+        TELEGRAM_BOT_INTEGRATION_FAILURE("TELEGRAM_BOT_INTEGRATION_FAILURE"),
+        LLM_TEXT_PROCESSOR_FAILURE("LLM_TEXT_PROCESSOR_FAILURE");
 
         private final String value;
 

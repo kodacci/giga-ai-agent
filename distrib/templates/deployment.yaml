@@ -99,22 +99,22 @@ spec:
             httpGet:
               path: /actuator/health/readiness
               port: 8081
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             periodSeconds: 5
             failureThreshold: 15
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8081
-            initialDelaySeconds: 40
+            initialDelaySeconds: 120
             periodSeconds: 5
-            failureThreshold: 15
+            failureThreshold: 5
           resources:
             requests:
-              cpu: 500m
+              cpu: 750m
               memory: 700Mi
             limits:
-              cpu: 500m
+              cpu: 750m
               memory: 700Mi
 
         - name: fluentbit
@@ -187,10 +187,10 @@ spec:
               readOnly: true
           resources:
             requests:
-              cpu: 50m
+              cpu: 150m
               memory: 100Mi
             limits:
-              cpu: 50m
+              cpu: 150m
               memory: 150Mi
 
       imagePullSecrets:

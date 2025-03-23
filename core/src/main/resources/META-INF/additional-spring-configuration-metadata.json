@@ -19,6 +19,11 @@
       "name": "app.telegram.bot",
       "description": "Application telegram bot configuration",
       "sourceType": "pro.ra_tech.giga_ai_agent.domain.config.TelegramBotConfig"
+    },
+    {
+      "name": "app.llm-text-processor",
+      "description": "Application llm text processor integration properties",
+      "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.llm_text_processor.LlmTextProcessorConfig"
     }
   ],
   "properties": [
@@ -125,6 +130,26 @@
     {
       "name": "app.telegram.bot.updates-handlers-count",
       "description": "Telegram bot updates handlers count",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.telegram.bot.enabled",
+      "description": "Telegram bot enabled",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "name": "app.llm-text-processor.base-url",
+      "description": "LLM text processor REST base url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.llm-text-processor.request-timeout-ms",
+      "description": "LLM text processor REST request timeout in milliseconds",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.llm-text-processor.max-retries",
+      "description": "LLM text processor REST request max retries",
       "type": "java.lang.Integer"
     }
   ],
