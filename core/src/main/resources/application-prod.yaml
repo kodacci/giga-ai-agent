@@ -2,6 +2,10 @@ logging:
   level:
     root: ${ROOT_LOGGING_LEVEL:DEBUG}
 
+spring:
+  liquibase:
+    enabled: false
+
 app:
   giga-chat:
     auth-api-base-url: ${GIGA_CHAT_AUTH_API_BASE_URL}

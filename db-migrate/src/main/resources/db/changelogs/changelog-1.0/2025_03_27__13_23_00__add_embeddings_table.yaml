@@ -1,0 +1,38 @@
+databaseChangelog:
+  - changeSet:
+      id: 4
+      author: Andrey Ryabtsev
+      comment: Create embeddings table
+      changes:
+        - createTable:
+            tableName: embeddings
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoincrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: source_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    referencedTableName: sources
+                    referencedColumnNames: id
+                    onDelete: CASCADE
+              - column:
+                  name: text_data
+                  type: varchar2(1024)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: vector_data
+                  type: vector(16)
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValue: now()
+                  constraints:
+                    nullable: false

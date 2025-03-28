@@ -9,17 +9,12 @@
         <version>${revision}</version>
     </parent>
 
-    <name>domain</name>
-    <artifactId>giga-ai-agent-domain</artifactId>
+    <name>database</name>
+    <artifactId>giga-ai-agent-database</artifactId>
     <version>${revision}</version>
 
     <dependencies>
         <!--    Internal    -->
-        <dependency>
-            <groupId>pro.ra-tech.ai</groupId>
-            <artifactId>giga-ai-agent-integration</artifactId>
-            <version>${revision}</version>
-        </dependency>
         <dependency>
             <groupId>pro.ra-tech.ai</groupId>
             <artifactId>giga-ai-agent-failure</artifactId>
@@ -27,26 +22,36 @@
         </dependency>
         <dependency>
             <groupId>pro.ra-tech.ai</groupId>
-            <artifactId>giga-ai-agent-database</artifactId>
+            <artifactId>giga-ai-agent-failure</artifactId>
             <version>${revision}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

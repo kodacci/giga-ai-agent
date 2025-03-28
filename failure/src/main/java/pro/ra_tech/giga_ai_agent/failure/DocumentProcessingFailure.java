@@ -23,7 +23,8 @@ public class DocumentProcessingFailure extends AbstractFailure {
 
     @RequiredArgsConstructor
     public enum Code {
-        PDF_PROCESSING_FAILURE("PDF_PROCESSING_FAILURE");
+        PDF_PROCESSING_FAILURE("PDF_PROCESSING_FAILURE"),
+        EMBEDDING_FAILURE("EMBEDDINGS_PROCESSING_FAILURE");
 
         private final String value;
 

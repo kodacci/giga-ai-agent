@@ -16,6 +16,9 @@ import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerRespon
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAskRequest;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiRole;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsRequest;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetAiModelsResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
 import retrofit2.Response;
@@ -30,6 +33,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
     private final RetryPolicy<Response<GetAiModelsResponse>> getAiModelsPolicy;
     private final RetryPolicy<Response<AiModelAnswerResponse>> askAiModelPolicy;
     private final RetryPolicy<Response<GetBalanceResponse>> getBalancePolicy;
+    private final RetryPolicy<Response<CreateEmbeddingsResponse>> createEmbeddingPolicy;
 
     public GigaChatServiceImpl(
             GigaAuthService authService,
@@ -42,6 +46,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
         getAiModelsPolicy = buildPolicy(maxRetries);
         askAiModelPolicy = buildPolicy(maxRetries);
         getBalancePolicy = buildPolicy(maxRetries);
+        createEmbeddingPolicy = buildPolicy(maxRetries);
 
         log.info("Created Giga Chat service for client {}", authService.getClientId());
     }
@@ -126,6 +131,24 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                 .flatMap(auth -> sendRequest(
                         getBalancePolicy,
                         gigaApi.getBalance(auth, UUID.randomUUID().toString(), sessionId),
+                        this::toFailure
+                ));
+    }
+
+    @Override
+    @Timed(
+            value = "integration.call",
+            extraTags = {"integration.service", "giga-chat", "integration.method", "create-embeddings"},
+            histogram = true,
+            percentiles ={0.9, 0.95, 0.99}
+    )
+    public Either<AppFailure, CreateEmbeddingsResponse> createEmbeddings(List<String> input) {
+        log.info("Creating new embeddings for {} inputs", input.size());
+
+        return authService.getAuthHeader()
+                .flatMap(auth -> sendRequest(
+                        createEmbeddingPolicy,
+                        gigaApi.createEmbeddings(auth, new CreateEmbeddingsRequest(EmbeddingModel.EMBEDDINGS, input)),
                         this::toFailure
                 ));
     }

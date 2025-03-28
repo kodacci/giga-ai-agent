@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.2</version>
+		<version>3.4.4</version>
 	</parent>
 
 	<groupId>pro.ra-tech.ai</groupId>
@@ -22,7 +22,9 @@
 		<module>integration</module>
         <module>failure</module>
         <module>domain</module>
-    </modules>
+		<module>database</module>
+		<module>db-migrate</module>
+	</modules>
 
 	<properties>
 		<revision>1.0.0</revision>
@@ -68,6 +70,9 @@
 		<ok.http.version>4.12.0</ok.http.version>
 		<failsafe.version>3.3.2</failsafe.version>
 		<apache.pdf.box.version>3.0.4</apache.pdf.box.version>
+		<postgresql.version>42.7.5</postgresql.version>
+		<hikaricp.version>6.3.0</hikaricp.version>
+		<liqubase.core.version>4.31.1</liqubase.core.version>
 
 		<!--    Vars    -->
 		<coverage.agent> </coverage.agent>
@@ -150,6 +155,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-jdbc</artifactId>
+				<version>${spring.boot.version}</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.zalando</groupId>
 				<artifactId>problem-spring-web</artifactId>
 				<version>${problem.version}</version>
@@ -199,6 +210,21 @@
 				<groupId>org.apache.pdfbox</groupId>
 				<artifactId>pdfbox</artifactId>
 				<version>${apache.pdf.box.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.postgresql</groupId>
+				<artifactId>posrgresql</artifactId>
+				<version>${postgresql.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.zaxxer</groupId>
+				<artifactId>HikariCP</artifactId>
+				<version>${hikaricp.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-core</artifactId>
+				<version>${liqubase.core.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
