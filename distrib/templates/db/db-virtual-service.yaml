@@ -22,7 +22,7 @@ spec:
           port: {{ db_port }}
           destinationSubnets:
             - {{ db_address }}/32
-        route:
+          route:
             - destination:
               host: giga-ai-agent-egressgw.{{ namespace }}.svc.cluster.local
               subset: giga-ai-agent-database
