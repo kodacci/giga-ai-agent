@@ -150,7 +150,7 @@ pipeline {
                         sh "jinja2 -D namespace=$namespace distrib/templates/service.yaml > distrib/service.yaml"
                         sh "jinja2 -D namespace=$namespace distrib/templates/network-policy-restricted.yaml > distrib/network-policy-restricted.yaml"
                         sh "jinja2 -D namespace=$namespace -D host=$host distrib/templates/ingress-gateway.yaml > distrib/ingress-gateway.yaml"
-                        sh "jinja2 -D namespace=$namespace -D solr_host=$solrHost -D vault_host=$vaultHost -D giga_auth_host=$gigaAuthHost -D giga_chat_host=$gigaChatHost -D telegram_api_host=$telegramHost distrib/templates/egress-gateway.yaml > distrib/egress-gateway.yaml"
+                        sh "jinja2 -D namespace=$namespace -D solr_host=$solrHost -D vault_host=$vaultHost -D giga_auth_host=$gigaAuthHost -D giga_chat_host=$gigaChatHost -D telegram_api_host=$telegramHost -D egress_tcp_port=$egressTcpPort -D db_host=$dbHost distrib/templates/egress-gateway.yaml > distrib/egress-gateway.yaml"
                         sh "jinja2 -D namespace=$namespace -D host=$host distrib/templates/virtual-service.yaml > distrib/virtual-service.yaml"
                         sh "jinja2 -D namespace=$namespace distrib/templates/destination-rule.yaml > distrib/destination-rule.yaml"
                         sh "jinja2 -D namespace=$namespace -D solr_collection=$namespace distrib/templates/configmaps/core-fluentbit.yaml > distrib/core-fluentbit.yaml"
