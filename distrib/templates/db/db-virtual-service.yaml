@@ -22,20 +22,20 @@ spec:
           port: {{ db_port }}
           destinationSubnets:
             - {{ db_address }}/32
-          route:
-            - destination:
+        route:
+          - destination:
               host: giga-ai-agent-egressgw.{{ namespace }}.svc.cluster.local
               subset: giga-ai-agent-database
               port:
                 number: {{ egress_tcp_port }}
-              weight: 100
-        - match:
-            - gateways:
-                - {{ namespace }}/giga-ai-agent-egress-gateway
-              port: {{ egress_tcp_port }}
-          route:
-            - destination:
-                host: {{ db_host }}
-                port:
-                  number: {{ db_port }}
-              weight: 100
+            weight: 100
+      - match:
+        - gateways:
+            - {{ namespace }}/giga-ai-agent-egress-gateway
+          port: {{ egress_tcp_port }}
+        route:
+          - destination:
+              host: {{ db_host }}
+              port:
+                number: {{ db_port }}
+            weight: 100
