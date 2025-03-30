@@ -117,7 +117,7 @@ pipeline {
                     def gigaChatHost = GIGA_CHAT_HOST
                     def telegramHost = TELEGRAM_API_HOST
                     def registry = REGISTRY_HOST
-                    def dbPort = APP_DB_PORT
+                    def dbHost = APP_DB_PORT
                     def dbPort = APP_DB_HOST
                     def dbAddress = sh(
                             encoding: 'UTF-8',
