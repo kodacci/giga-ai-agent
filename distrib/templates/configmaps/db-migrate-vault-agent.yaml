@@ -47,7 +47,7 @@ data:
       destination = "/vault/secrets/liquibase/liquibase.properties"
       error_on_missing_key = true
       contents = <<EOT
-    [[- with secret "ra-tech-kv/data/{{ namespace }}/db-migrate ]]
+    [[- with secret "ra-tech-kv/data/{{ namespace }}/db-migrate" ]]
     [[- .Data.data.liquibase ]]
     [[- end ]]
     EOT
