@@ -4,7 +4,11 @@ logging:
 
 spring:
   liquibase:
-    enabled: false
+    enabled: ${LIQUIBASE_ENABLED:false}
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
 
 app:
   giga-chat:

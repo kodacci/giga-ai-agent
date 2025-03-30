@@ -1,4 +1,4 @@
-databaseChangelog:
+databaseChangeLog:
   - changeSet:
       id: 2
       author: Andrey Ryabtsev
@@ -10,7 +10,7 @@ databaseChangelog:
               - column:
                   name: id
                   type: bigint
-                  autoincrement: true
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -31,4 +31,5 @@ databaseChangelog:
             tableName: sources
             unique: true
             columns:
-              - column: name
+              - column:
+                  name: name

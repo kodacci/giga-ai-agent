@@ -2,6 +2,8 @@ def DEPLOY_GIT_SCOPE
 def DEPLOY_NAMESPACE
 def NAMESPACE_APP_HOST
 def REGISTRY_HOST
+def APP_DB_HOST
+def APP_DB_PORT
 
 def generateExtHttp(namespace, name, host, extHttpsPort) {
     sh "jinja2 -D namespace=${namespace} -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/service-entry.yaml > distrib/${name}-service-entry.yaml"
@@ -30,10 +32,11 @@ static def removeProtocol(url) {
 }
 
 pipeline {
-    agent { label 'jenkins-agent1' }
+    agent { label 'linux' }
 
     parameters {
         string(name: 'core_app_image', description: 'Core image tag to use in deploy')
+        string(name: 'core_db_migrate_image', description: 'Core db migrations image')
     }
 
     stages {
@@ -52,10 +55,14 @@ pipeline {
                     if (BRANCH_NAME.startsWith('release/')) {
                         DEPLOY_NAMESPACE = 'giga-ai-agent'
                         NAMESPACE_APP_HOST = 'api.giga-ai-agent.cloud.ra-tech.pro'
+                        APP_DB_HOST = 'giga-ai-agent.db.ra-tech.pro'
+                        APP_DB_PORT = '5555'
                         REGISTRY_HOST = removeProtocol(DOCKER_REGISTRY_HOST)
                     } else {
                         DEPLOY_NAMESPACE = 'giga-ai-agent-test'
                         NAMESPACE_APP_HOST = 'api.giga-ai-agent.test.cloud.ra-tech.pro'
+                        APP_DB_HOST = 'giga-ai-agent.db.ra-tech.pro'
+                        APP_DB_PORT = '5555'
                         REGISTRY_HOST = removeProtocol(SNAPSHOTS_DOCKER_REGISTRY_HOST)
                     }
                     println "Namespace to deploy app: $DEPLOY_NAMESPACE"
@@ -103,13 +110,20 @@ pipeline {
                 script {
                     def namespace = DEPLOY_NAMESPACE
                     def host = NAMESPACE_APP_HOST
-                    def egressTcpPort = '9999'
+                    def egressTcpPort = ISTIO_EGRESS_TCP_PORT
                     def solrHost = SOLR_HOST
                     def vaultHost = removeProtocol(VAULT_HOST)
                     def gigaAuthHost = GIGA_AUTH_HOST
                     def gigaChatHost = GIGA_CHAT_HOST
                     def telegramHost = TELEGRAM_API_HOST
                     def registry = REGISTRY_HOST
+                    def dbPort = APP_DB_PORT
+                    def registry = REGISTRY_HOST
+                    def dbAddress = sh(
+                            encoding: 'UTF-8',
+                            returnStdout: true,
+                            script: """getent hosts garden-manager.db.ra-tech.pro | awk 'NR==1{ print \$1 }'"""
+                    ).trim()
 
                     def solrApply = ""
                     def vaultApply = ""
@@ -118,6 +132,7 @@ pipeline {
                     def telegramApply = ""
 
                     def coreImageTag = params.core_app_image ? params.core_app_image : generateImageTag('giga-ai-agent-core')
+                    def dbMigrateImageTag = params.core_db_migrate_image ? params.core_db_migrate_image : generateImageTag('core-db-migrate')
 
                     withPythonEnv('Python-3') {
                         sh 'pip install -U jinja2-cli'
@@ -141,12 +156,22 @@ pipeline {
                         sh "jinja2 -D namespace=$namespace -D solr_collection=$namespace distrib/templates/configmaps/core-fluentbit.yaml > distrib/core-fluentbit.yaml"
                         sh "jinja2 -D namespace=$namespace distrib/templates/egw-destination-rule.yaml > distrib/egw-destination-rule.yaml"
 
+                        // database
+                        sh "jinja2 -D namespace=$namespace -D db_host=$dbHost -D db_port=$dbPort -D db_address=$dbAddress distrib/templates/db/db-service-entry.yaml > distrib/db-service-entry.yaml"
+                        sh "jinja2 -D namespace=$namespace -D db_host=$dbHost -D db_port=$dbPort -D db_address=$dbAddress -D egress_tcp_port=$egressTcpPort distrib/templates/db/db-virtual-service.yaml > distrib/db-virtual-service.yaml"
+                        sh "jinja2 -D namespace=$namespace -D db_host=$dbHost -D db_port=$dbPort distrib/templates/db/db-destination-rule.yaml > distrib/db-destination-rule.yaml"
+                        sh "jinja2 -D namespace=$namespace -D db_port=$dbPort -D db_address=$dbAddress distrib/templates/db/db-service.yaml > distrib/db-service.yaml"
+
+                        // db-migrate
+                        sh "jinja2 -D namespace=$namespace -Dvault_address=http://${vaultHost} -D image_tag=$dbMigrateImageTag distrib/templates/core-db-migrate-job.yaml > distrib/core-db-migrate-job.yaml"
+
                         // Solr
                         solrApply = generateExtHttp(namespace, 'solr', solrHost, 443)
 
                         // Vault
                         vaultApply = generateExtHttp(namespace, 'vault', vaultHost, 443)
                         sh "jinja2 -D namespace=$namespace -Dvault_addr=http://${vaultHost} distrib/templates/configmaps/core-vault-agent.yaml > distrib/core-vault-agent.yaml"
+                        sh "jinja2 -D namespace=$namespace -Dvault_addr=http://${vaultHost} distrib/templates/configmaps/db-migrate-vault-agent.yaml > distrib/db-migrate-vault-agent.yaml"
 
                         // Giga Chat API
                         gigaAuthApply = generateExtHttp(namespace, 'giga-auth', gigaAuthHost, 9443)
@@ -173,6 +198,7 @@ pipeline {
                         sh 'kubectl apply ' +
                                 '-f distrib/core-fluentbit.yaml ' +
                                 '-f distrib/core-vault-agent.yaml ' +
+                                '-f distrib/db-migrate-vault-agent.yaml ' +
                                 '-f distrib/network-policy-restricted.yaml ' +
                                 '-f distrib/service.yaml ' +
                                 '-f distrib/ingress-gateway.yaml ' +
@@ -180,11 +206,22 @@ pipeline {
                                 '-f distrib/virtual-service.yaml ' +
                                 '-f distrib/destination-rule.yaml ' +
                                 '-f distrib/egw-destination-rule.yaml ' +
+                                '-f distrib/db-service.yaml ' +
+                                '-f distrib/db-service-entry.yaml ' +
+                                '-f distrib/db-virtual-service.yaml ' +
+                                '-f distrib/db-destination-rule.yaml ' +
                                 solrApply +
                                 vaultApply +
                                 gigaAuthApply +
                                 gigaChatApply +
                                 telegramApply
+
+                        // Run db migrations job
+                        println "Starting db migrations job"
+                        sh 'kubectl apply -f distrib/core-db-migrate-job.yaml'
+                        println "Waiting for db migrations job to succeed"
+                        sleep time: 3, unit: 'SECONDS'
+                        sh "kubectl wait --for=condition=complete --timeout=10m -n $namespace job/core-db-migrate"
 
                         // Deploying main app
                         sh 'kubectl apply -f distrib/deployment.yaml'

@@ -72,7 +72,7 @@
 		<apache.pdf.box.version>3.0.4</apache.pdf.box.version>
 		<postgresql.version>42.7.5</postgresql.version>
 		<hikaricp.version>6.3.0</hikaricp.version>
-		<liqubase.core.version>4.31.1</liqubase.core.version>
+		<liquibase.version>4.31.1</liquibase.version>
 
 		<!--    Vars    -->
 		<coverage.agent> </coverage.agent>
@@ -224,7 +224,7 @@
 			<dependency>
 				<groupId>org.liquibase</groupId>
 				<artifactId>liquibase-core</artifactId>
-				<version>${liqubase.core.version}</version>
+				<version>${liquibase.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -320,11 +320,6 @@
 					<groupId>org.sonatype.plugins</groupId>
 					<artifactId>nxrm3-maven-plugin</artifactId>
 					<version>${nxrm3.maven.plugin.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.liquibase</groupId>
-					<artifactId>liquibase-maven-plugin</artifactId>
-					<version>${liquibase.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.sonarsource.jacoco</groupId>

@@ -1,0 +1,26 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: giga-ai-agent-database
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/name: giga-ai-agent-database
+    app.kubernetes.io/part-of: giga-ai-agent
+    app.kubernetes.io/component: core
+spec:
+  exportTo:
+    - "."
+  hosts:
+    - {{ db_host }}
+  addresses:
+    - {{ db_address }}/32
+  endpoints:
+      - address: {{ db_address }}
+        ports:
+          tcp: {{ db_port }}
+  ports:
+    - number: {{ db_port }}
+      name: tcp
+      protocol: TCP
+  resolution: STATIC
+  location: MESH_EXTERNAL

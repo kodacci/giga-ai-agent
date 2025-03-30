@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>pro.ra-tech.ai</groupId>
-            <artifactId>giga-ai-agent-failure</artifactId>
+            <artifactId>giga-ai-agent-db-migrate</artifactId>
             <version>${revision}</version>
         </dependency>
 
