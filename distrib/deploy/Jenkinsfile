@@ -110,7 +110,7 @@ pipeline {
                 script {
                     def namespace = DEPLOY_NAMESPACE
                     def host = NAMESPACE_APP_HOST
-                    def egressTcpPort = 9999
+                    def egressTcpPort = '9999'
                     def solrHost = SOLR_HOST
                     def vaultHost = removeProtocol(VAULT_HOST)
                     def gigaAuthHost = GIGA_AUTH_HOST
@@ -122,7 +122,7 @@ pipeline {
                     def dbAddress = sh(
                             encoding: 'UTF-8',
                             returnStdout: true,
-                            script: """getent hosts garden-manager.db.ra-tech.pro | awk 'NR==1{ print \$1 }'"""
+                            script: """getent hosts $dbHost | awk 'NR==1{ print \$1 }'"""
                     ).trim()
 
                     def solrApply = ""
