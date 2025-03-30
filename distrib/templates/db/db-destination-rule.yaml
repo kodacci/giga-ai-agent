@@ -9,5 +9,8 @@ metadata:
     app.kubernetes.io/component: core
 spec:
   host: {{ db_host }}
+  trafficPolicy:
+    tls:
+      mode: DISABLE
   exportTo:
     - "."

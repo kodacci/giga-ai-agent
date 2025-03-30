@@ -34,4 +34,4 @@ spec:
               kubernetes.io/metadata.name: istio-system
         - podSelector:
             matchLabels:
-              istio: egressgateway
+              istio: {{ namespace }}-egressgateway

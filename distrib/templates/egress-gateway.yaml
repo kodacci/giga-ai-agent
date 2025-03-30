@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/component: core
 spec:
   selector:
-    istio: egressgateway
+    istio: {{ namespace }}-egressgateway
   servers:
     - port:
         number: 80
