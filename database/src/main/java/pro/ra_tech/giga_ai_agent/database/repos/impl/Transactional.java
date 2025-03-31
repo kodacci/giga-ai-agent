@@ -14,8 +14,11 @@ import java.util.function.Function;
 @Service
 public class Transactional {
     public static class TransactionalException extends RuntimeException {
-        public TransactionalException(Throwable cause) {
-            super("Transaction terminated with application failure:", cause);
+        public TransactionalException(AppFailure failure) {
+            super(
+                    String.format("Transaction terminated with application failure: %s", failure.getMessage()),
+                    failure.getCause()
+            );
         }
     }
 
@@ -33,7 +36,7 @@ public class Transactional {
         return Try.of(() -> trx.execute(
                 state -> callback.apply(state)
                         .fold(
-                                failure -> { throw new TransactionalException(failure.getCause()); },
+                                failure -> { throw new TransactionalException(failure); },
                                 Either::<AppFailure, R>right
                         )
         ))

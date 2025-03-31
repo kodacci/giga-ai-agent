@@ -12,6 +12,8 @@ import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DatabaseFailure;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,7 +35,12 @@ public class EmbeddingsRepositoryImpl implements EmbeddingRepository {
                 )
                 .param("source_id", data.sourceId())
                 .param("text_data", data.textData())
-                .param("vector_data", data.vectorData())
+                .param("vector_data", String.format(
+                        "[%s]",
+                        data.vectorData().stream()
+                                .map(Object::toString)
+                                .collect(Collectors.joining(","))
+                ))
                 .query(Long.class)
                 .single();
     }
