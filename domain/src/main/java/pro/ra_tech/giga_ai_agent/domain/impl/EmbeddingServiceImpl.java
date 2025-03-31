@@ -39,7 +39,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
 
     private Either<AppFailure, List<TagData>> saveAllTags(List<TagData> known, List<String> all) {
         val unknown = all.stream()
-                .filter(name -> known.stream().anyMatch(tag -> !tag.name().equals(name)))
+                .filter(name -> known.stream().noneMatch(tag -> tag.name().equals(name)))
                 .toList();
 
         return tagRepo.create(unknown).map(
