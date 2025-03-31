@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.database.repos.impl;
 
+import com.pgvector.PGvector;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
@@ -35,12 +36,7 @@ public class EmbeddingsRepositoryImpl implements EmbeddingRepository {
                 )
                 .param("source_id", data.sourceId())
                 .param("text_data", data.textData())
-                .param("vector_data", String.format(
-                        "[%s]",
-                        data.vectorData().stream()
-                                .map(Object::toString)
-                                .collect(Collectors.joining(","))
-                ))
+                .param("vector_data", new PGvector(data.vectorData()))
                 .query(Long.class)
                 .single();
     }
