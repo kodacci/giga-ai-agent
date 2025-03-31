@@ -2,7 +2,9 @@ package pro.ra_tech.giga_ai_agent.integration.impl;
 
 import dev.failsafe.RetryPolicy;
 import io.micrometer.core.annotation.Timed;
+import io.vavr.collection.Stream;
 import io.vavr.control.Either;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.lang.Nullable;
@@ -18,13 +20,18 @@ import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiRole;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsRequest;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingUsage;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetAiModelsResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
 import retrofit2.Response;
 
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.DoubleStream;
 
 @Slf4j
 public class GigaChatServiceImpl extends BaseRestService implements GigaChatService {
@@ -34,6 +41,8 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
     private final RetryPolicy<Response<AiModelAnswerResponse>> askAiModelPolicy;
     private final RetryPolicy<Response<GetBalanceResponse>> getBalancePolicy;
     private final RetryPolicy<Response<CreateEmbeddingsResponse>> createEmbeddingPolicy;
+    private final ReentrantLock mutex = new ReentrantLock();
+    private final Random random = new Random();
 
     public GigaChatServiceImpl(
             GigaAuthService authService,
@@ -66,6 +75,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
             histogram = true,
             percentiles ={0.9, 0.95, 0.99}
     )
+    @Synchronized("mutex")
     public Either<AppFailure, GetAiModelsResponse> listModels() {
         log.info("Getting ai models list");
 
@@ -87,6 +97,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
             histogram = true,
             percentiles ={0.9, 0.95, 0.99}
     )
+    @Synchronized("mutex")
     public Either<AppFailure, AiModelAnswerResponse> askModel(
             String rqUid,
             AiModelType model,
@@ -126,6 +137,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
     }
 
     @Override
+    @Synchronized("mutex")
     public Either<AppFailure, GetBalanceResponse> getBalance(@Nullable String sessionId) {
         return authService.getAuthHeader()
                 .flatMap(auth -> sendRequest(
@@ -142,14 +154,27 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
             histogram = true,
             percentiles ={0.9, 0.95, 0.99}
     )
+    @Synchronized("mutex")
     public Either<AppFailure, CreateEmbeddingsResponse> createEmbeddings(List<String> input) {
         log.info("Creating new embeddings for {} inputs", input.size());
 
-        return authService.getAuthHeader()
-                .flatMap(auth -> sendRequest(
-                        createEmbeddingPolicy,
-                        gigaApi.createEmbeddings(auth, new CreateEmbeddingsRequest(EmbeddingModel.EMBEDDINGS, input)),
-                        this::toFailure
-                ));
+        val data = Stream.ofAll(input)
+                .zipWithIndex()
+                .map(item -> new EmbeddingData(
+                        "object",
+                        DoubleStream.generate(random::nextDouble).limit(16).boxed().toList(),
+                        item._2(),
+                        new EmbeddingUsage(item._1().length())
+                ))
+                .toJavaList();
+
+        return Either.right(new CreateEmbeddingsResponse("list", data, EmbeddingModel.EMBEDDINGS));
+
+//        return authService.getAuthHeader()
+//                .flatMap(auth -> sendRequest(
+//                        createEmbeddingPolicy,
+//                        gigaApi.createEmbeddings(auth, new CreateEmbeddingsRequest(EmbeddingModel.EMBEDDINGS, input)),
+//                        this::toFailure
+//                ));
     }
 }

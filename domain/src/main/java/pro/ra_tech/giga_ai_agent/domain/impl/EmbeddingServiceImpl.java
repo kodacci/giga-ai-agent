@@ -109,7 +109,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     }
 
     @Override
-    public Either<AppFailure, Void> createEmbeddings(DocumentData data) {
+    public Either<AppFailure, Integer> createEmbeddings(DocumentData data) {
         return trx.execute(
                 status -> tagRepo.findByNames(data.tags())
                         .flatMap(found -> saveAllTags(found, data.tags()))
@@ -121,6 +121,6 @@ public class EmbeddingServiceImpl implements EmbeddingService {
                         )
                         .flatMap(embeddingRepo::createEmbeddings)
         )
-                .map(result -> null);
+                .map(List::size);
     }
 }
