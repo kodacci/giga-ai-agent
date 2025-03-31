@@ -79,6 +79,8 @@ public class EmbeddingServiceImpl implements EmbeddingService {
 
     private Either<AppFailure, List<List<Double>>> createGigaEmbeddings(List<String> chunks) {
         val vectors = new ArrayList<List<Double>>(chunks.size());
+        IntStream.range(0, chunks.size()).forEach(idx -> vectors.add(null));
+
         val chunksCount = chunks.size()/ GIGA_CHAT_EMBEDDING_CHUNKS_MAX_SIZE;
         val tailSize = chunks.size() % GIGA_CHAT_EMBEDDING_CHUNKS_MAX_SIZE;
 
