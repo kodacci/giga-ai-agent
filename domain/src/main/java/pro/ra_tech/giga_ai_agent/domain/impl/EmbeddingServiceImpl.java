@@ -23,6 +23,7 @@ import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsRes
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -41,7 +42,9 @@ public class EmbeddingServiceImpl implements EmbeddingService {
                 .filter(name -> known.stream().anyMatch(tag -> tag.name().equals(name)))
                 .toList();
 
-        return tagRepo.create(unknown).peek(created -> created.addAll(known));
+        return tagRepo.create(unknown).map(
+                created -> Stream.concat(created.stream(), known.stream()).toList()
+        );
     }
 
     private AppFailure toFailure(Throwable cause) {
