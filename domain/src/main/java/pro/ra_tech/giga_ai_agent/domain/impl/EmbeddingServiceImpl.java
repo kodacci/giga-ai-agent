@@ -5,7 +5,6 @@ import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.stereotype.Service;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.TagRepository;
@@ -19,9 +18,12 @@ import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsResponse;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingUsage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -76,12 +78,21 @@ public class EmbeddingServiceImpl implements EmbeddingService {
                 );
     }
 
+    private int sumUsage(CreateEmbeddingsResponse res) {
+        return res.data()
+                .stream()
+                .map(EmbeddingData::usage)
+                .mapToInt(EmbeddingUsage::promptTokens)
+                .sum();
+    }
+
     private Either<AppFailure, List<List<Double>>> createGigaEmbeddings(List<String> chunks) {
         val vectors = new ArrayList<List<Double>>(chunks.size());
         IntStream.range(0, chunks.size()).forEach(idx -> vectors.add(null));
 
         val chunksCount = chunks.size()/ gigaInputMaxSize;
         val tailSize = chunks.size() % gigaInputMaxSize;
+        var totalCost = 0;
 
         for (int i = 0; i < chunksCount; ++i) {
             val idx = i * gigaInputMaxSize;
@@ -97,10 +108,15 @@ public class EmbeddingServiceImpl implements EmbeddingService {
                 return result.peekLeft(failure -> log.error("Error getting embeddings vector"))
                         .map(res -> vectors);
             }
+
+            totalCost += sumUsage(result.get());
         }
 
         if (tailSize > 0) {
+            val cost = Optional.of(totalCost);
+
             return createEmbeddingsFromChunk(chunks, chunks.size() - tailSize, chunks.size(), vectors)
+                    .peek(res -> log.info("Total cost: {}", cost.get() + sumUsage(res)))
                     .map(res -> vectors);
         }
 
