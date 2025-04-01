@@ -32,7 +32,7 @@ public class DocumentUploadController extends BaseController implements Document
             @Valid @RequestPart("file") @NotNull MultipartFile pdf,
             @Valid @RequestPart("metadata") @NotNull DocumentMetadata metadata
     ) {
-        log.info("Uploading document {}", pdf.getName());
+        log.info("Uploading document {}", pdf.getOriginalFilename());
 
         return toResponse(service.handlePdf(pdf, metadata));
     }

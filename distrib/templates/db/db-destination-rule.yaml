@@ -10,7 +10,12 @@ metadata:
 spec:
   host: {{ db_host }}
   trafficPolicy:
-    tls:
-      mode: DISABLE
+    portLevelSettings:
+      - port:
+          number {{ db_port }}
+        tls:
+          mode: DISABLE
+  workloadSelector:
+    istio: {{ namespace }}-egressgateway
   exportTo:
     - "."
