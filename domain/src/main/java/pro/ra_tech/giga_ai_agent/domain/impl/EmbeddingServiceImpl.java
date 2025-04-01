@@ -27,15 +27,14 @@ import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
-@Service
 public class EmbeddingServiceImpl implements EmbeddingService {
-    private final int GIGA_CHAT_EMBEDDING_CHUNKS_MAX_SIZE = 10;
 
     private final Transactional trx;
     private final TagRepository tagRepo;
     private final SourceRepository sourceRepo;
     private final EmbeddingRepository embeddingRepo;
     private final GigaChatService gigaChatService;
+    private final int gigaInputMaxSize;
 
     private Either<AppFailure, List<TagData>> saveAllTags(List<TagData> known, List<String> all) {
         val unknown = all.stream()
@@ -81,16 +80,16 @@ public class EmbeddingServiceImpl implements EmbeddingService {
         val vectors = new ArrayList<List<Double>>(chunks.size());
         IntStream.range(0, chunks.size()).forEach(idx -> vectors.add(null));
 
-        val chunksCount = chunks.size()/ GIGA_CHAT_EMBEDDING_CHUNKS_MAX_SIZE;
-        val tailSize = chunks.size() % GIGA_CHAT_EMBEDDING_CHUNKS_MAX_SIZE;
+        val chunksCount = chunks.size()/ gigaInputMaxSize;
+        val tailSize = chunks.size() % gigaInputMaxSize;
 
         for (int i = 0; i < chunksCount; ++i) {
-            val idx = i * GIGA_CHAT_EMBEDDING_CHUNKS_MAX_SIZE;
+            val idx = i * gigaInputMaxSize;
 
             val result = createEmbeddingsFromChunk(
                     chunks,
                     idx,
-                    idx + GIGA_CHAT_EMBEDDING_CHUNKS_MAX_SIZE,
+                    idx + gigaInputMaxSize,
                     vectors
             );
 

@@ -25,7 +25,7 @@ databaseChangeLog:
                     onDelete: CASCADE
               - column:
                   name: text_data
-                  type: varchar2(1024)
+                  type: varchar2(3000)
                   constraints:
                     nullable: false
               - column:
