@@ -12,7 +12,7 @@ spec:
   trafficPolicy:
     portLevelSettings:
       - port:
-          number {{ db_port }}
+          number: {{ db_port }}
         tls:
           mode: DISABLE
   workloadSelector:
