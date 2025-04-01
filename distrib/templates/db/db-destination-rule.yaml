@@ -16,6 +16,7 @@ spec:
         tls:
           mode: DISABLE
   workloadSelector:
-    istio: {{ namespace }}-egressgateway
+    matchLabels:
+      istio: {{ namespace }}-egressgateway
   exportTo:
     - "."

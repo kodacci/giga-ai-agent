@@ -17,6 +17,7 @@ spec:
           mode: SIMPLE
           sni: {{ host }}
   workloadSelector:
-    istio: { { namespace } }-egressgateway
+    matchLabels:
+      istio: { { namespace } }-egressgateway
   exportTo:
     - "."
