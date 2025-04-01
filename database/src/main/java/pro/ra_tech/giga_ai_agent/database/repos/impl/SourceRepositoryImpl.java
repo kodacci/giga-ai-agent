@@ -3,6 +3,7 @@ package pro.ra_tech.giga_ai_agent.database.repos.impl;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class SourceRepositoryImpl implements SourceRepository {
     private final JdbcClient jdbc;
 
@@ -31,7 +33,7 @@ public class SourceRepositoryImpl implements SourceRepository {
                 tag -> jdbc.sql("INSERT INTO sources_tags_join (source_id, tag_id) VALUES (:source_id, :tag_id)")
                         .param("source_id", id)
                         .param("tag_id", tag)
-                        .query()
+                        .update()
         );
 
         return id;

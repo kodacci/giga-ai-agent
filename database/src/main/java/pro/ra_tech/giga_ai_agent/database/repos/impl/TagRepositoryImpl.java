@@ -3,7 +3,7 @@ package pro.ra_tech.giga_ai_agent.database.repos.impl;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.TagRepository;
@@ -31,7 +31,7 @@ public class TagRepositoryImpl implements TagRepository {
         return Try.of(
                 () -> jdbc.sql("SELECT id, name FROM tags WHERE name in (:names)")
                         .param("names", names)
-                        .query(BeanPropertyRowMapper.newInstance(TagData.class))
+                        .query(DataClassRowMapper.newInstance(TagData.class))
                         .list()
         )
                 .toEither()
