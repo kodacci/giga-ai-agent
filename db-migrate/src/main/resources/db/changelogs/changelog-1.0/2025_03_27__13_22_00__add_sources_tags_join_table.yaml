@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: Andrey Ryabtsev
+      comment: Create sources and tags join table
+      changes:
+        - createTable:
+            tableName: sources_tags_join
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: source_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: sources_tags_join_sources_fk
+                    referencedTableName: sources
+                    referencedColumnNames: id
+                    onDelete: CASCADE
+              - column:
+                  name: tag_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: sources_tags_join_tags_fk
+                    referencedTableName: tags
+                    referencedColumnNames: id
+                    onDelete: CASCADE
+        - createIndex:
+            indexName: source_id_index
+            tableName: sources_tags_join
+            columns:
+              - column:
+                  name: source_id
+        - createIndex:
+            indexName: tag_id_index
+            tableName: sources_tags_join
+            columns:
+              - column:
+                  name: tag_id

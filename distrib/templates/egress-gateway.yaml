@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/component: core
 spec:
   selector:
-    istio: egressgateway
+    istio: {{ namespace }}-egressgateway
   servers:
     - port:
         number: 80
@@ -39,3 +39,9 @@ spec:
         - {{ giga_auth_host }}
       tls:
         mode: PASSTHROUGH
+    - port:
+        number: {{ egress_tcp_port }}
+        name: tcp
+        protocol: TCP
+      hosts:
+        - {{ db_host }}

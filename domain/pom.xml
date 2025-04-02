@@ -13,12 +13,6 @@
     <artifactId>giga-ai-agent-domain</artifactId>
     <version>${revision}</version>
 
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
         <!--    Internal    -->
         <dependency>
@@ -29,6 +23,11 @@
         <dependency>
             <groupId>pro.ra-tech.ai</groupId>
             <artifactId>giga-ai-agent-failure</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>pro.ra-tech.ai</groupId>
+            <artifactId>giga-ai-agent-database</artifactId>
             <version>${revision}</version>
         </dependency>
 

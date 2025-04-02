@@ -88,6 +88,13 @@
       "type": "java.lang.Integer"
     },
     {
+      "name": "app.giga-chat.embeddings-inputs-max-count",
+      "description": "Giga Chat API create embedding inputs max count",
+      "type": "java.lang.Integer"
+    },
+
+
+    {
       "name": "app.telegram.api.rest-api-base-url",
       "description": "Telegram bot API rest base URL",
       "type": "java.lang.String"

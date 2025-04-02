@@ -1,0 +1,41 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: giga-ai-agent-database-rule
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/name: giga-ai-agent-database-rule
+    app.kubernetes.io/part-of: giga-ai-agent
+    app.kubernetes.io/component: core
+spec:
+  exportTo:
+    - "."
+  hosts:
+    - {{ db_host }}
+  gateways:
+    - mesh
+    - {{ namespace }}/giga-ai-agent-egress-gateway
+  tcp:
+    - match:
+      - gateways:
+          - mesh
+        port: {{ db_port }}
+        destinationSubnets:
+          - {{ db_address }}/32
+      route:
+        - destination:
+            host: giga-ai-agent-egressgw.{{ namespace }}.svc.cluster.local
+            subset: giga-ai-agent-database
+            port:
+              number: {{ egress_tcp_port }}
+          weight: 100
+    - match:
+      - gateways:
+          - {{ namespace }}/giga-ai-agent-egress-gateway
+        port: {{ egress_tcp_port }}
+      route:
+        - destination:
+            host: {{ db_host }}
+            port:
+              number: {{ db_port }}
+          weight: 100

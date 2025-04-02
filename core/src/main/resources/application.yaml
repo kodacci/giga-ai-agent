@@ -30,8 +30,8 @@ management:
   metrics:
     distribution:
       percentiles-histogram[http.server.requests]: true
-      percentiles[http.server.request]: 0.5, 0.90, 0.95, 0.99
-      slo[http.server.requests]: 100ms, 250ms, 500ms, 1s, 2s, 5s
+      percentiles[http.server.request]: 0.90, 0.95, 0.99
+      slo[http.server.requests]: 50ms, 100ms, 250ms, 500ms, 1s, 2s, 3s
     enable:
       jvm: true
 
@@ -48,6 +48,8 @@ spring:
       max-file-size: 100MB
       max-request-size: 110MB
       file-size-threshold: 110MB
+  liquibase:
+    change-log: db/changelog-root.yaml
 
 server:
   servlet:

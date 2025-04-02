@@ -15,7 +15,7 @@ spec:
       app.kubernetes.io/name: giga-ai-agent-egressgw
       app.kubernetes.io/component: istio-egressgw
       app.kubernetes.io/part-of: giga-ai-agent
-      istio: egressgateway
+      istio: {{ namespace }}-egressgateway
       sidecar.istio.io/inject: "false"
       istio.io/rev: 1-18-2
       app.network.policy: egress
@@ -31,7 +31,7 @@ spec:
         app.kubernetes.io/name: giga-ai-agent-egressgw
         app.kubernetes.io/component: istio-egressgw
         app.kubernetes.io/part-of: giga-ai-agent
-        istio: egressgateway
+        istio: {{ namespace }}-egressgateway
         sidecar.istio.io/inject: "false"
         istio.io/rev: 1-18-2
         app.network.policy: egress
@@ -94,9 +94,9 @@ spec:
           resources:
             limits:
               cpu: 200m
-              memory: 512Mi
+              memory: 128Mi
             requests:
-              cpu: 100m
+              cpu: 200m
               memory: 128Mi
           ports:
             - containerPort: {{ egress_tcp_port }}

@@ -1,0 +1,22 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: giga-ai-agent-database
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/name: giga-ai-agent-database
+    app.kubernetes.io/part-of: giga-ai-agent
+    app.kubernetes.io/component: core
+spec:
+  host: {{ db_host }}
+  trafficPolicy:
+    portLevelSettings:
+      - port:
+          number: {{ db_port }}
+        tls:
+          mode: DISABLE
+  workloadSelector:
+    matchLabels:
+      istio: {{ namespace }}-egressgateway
+  exportTo:
+    - "."

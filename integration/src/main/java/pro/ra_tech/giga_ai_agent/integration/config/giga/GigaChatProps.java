@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.integration.config.giga;
 
+import jakarta.validation.constraints.Min;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("app.giga-chat")
@@ -10,6 +11,8 @@ public record GigaChatProps (
     int maxRetries,
     String clientId,
     String authKey,
-    int authRetryTimeoutMs
+    int authRetryTimeoutMs,
+    @Min(1)
+    int embeddingsInputsMaxCount
 ) {
 }

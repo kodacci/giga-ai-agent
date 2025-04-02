@@ -26,7 +26,7 @@ spec:
         app.kubernetes.io/component: core
         app.kubernetes.io/part-of: giga-ai-agent
         app.network.policy: restricted
-        sidecar.istio.io/proxyCPU: '100m'
+        sidecar.istio.io/proxyCPU: '150m'
         sidecar.istio.io/proxyCPULimit: '150m'
         sidecar.istio.io/proxyMemory: '128Mi'
         sidecar.istio.io/proxyMemoryLimit: '256Mi'
@@ -111,11 +111,11 @@ spec:
             failureThreshold: 5
           resources:
             requests:
-              cpu: 750m
-              memory: 700Mi
+              cpu: 1000m
+              memory: 1500Mi
             limits:
-              cpu: 750m
-              memory: 700Mi
+              cpu: 1000m
+              memory: 1500Mi
 
         - name: fluentbit
           image: fluent/fluent-bit:3.1.4

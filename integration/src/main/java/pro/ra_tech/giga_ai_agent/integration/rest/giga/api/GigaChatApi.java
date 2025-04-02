@@ -3,6 +3,8 @@ package pro.ra_tech.giga_ai_agent.integration.rest.giga.api;
 import org.springframework.lang.Nullable;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAskRequest;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsRequest;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetAiModelsResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
 import retrofit2.Call;
@@ -29,5 +31,11 @@ public interface GigaChatApi {
             @Header("Authorization") String auth,
             @Header("X-Request-ID") @Nullable String requestId,
             @Header("X-Session-ID") @Nullable String sessionId
+    );
+
+    @POST("/api/v1/embeddings")
+    Call<CreateEmbeddingsResponse> createEmbeddings(
+            @Header("Authorization") String auth,
+            @Body CreateEmbeddingsRequest request
     );
 }

@@ -1,6 +1,7 @@
 def PROJECT_VERSION
 def DEPLOY_GIT_SCOPE
 def CORE_APP_IMAGE_TAG
+def CORE_DB_MIGRATE_IMAGE_TAG
 
 static def genImageTag(name, scope, version, buildNumber) {
     return 'pro.ra-tech/giga-ai-agent/' +
@@ -25,7 +26,7 @@ def buildImage(name, dockerFilePath, scope, version, buildNumber) {
 }
 
 pipeline {
-    agent { label 'jenkins-agent1' }
+    agent { label 'k8s' }
 
     options {
         ansiColor('xterm')
@@ -130,6 +131,20 @@ pipeline {
             }
         }
 
+        stage('Build core db migrations docker image') {
+            steps {
+                script {
+                    CORE_DB_MIGRATE_IMAGE_TAG = buildImage(
+                            'core-db-migrate',
+                            'distrib/docker/db-migrate/Dockerfile',
+                            DEPLOY_GIT_SCOPE,
+                            PROJECT_VERSION,
+                            currentBuild.number
+                    )
+                }
+            }
+        }
+
         stage('Trigger deploy pipeline') {
             steps {
                 script {
@@ -139,6 +154,7 @@ pipeline {
                             wait: false,
                             parameters: [
                                     string(name: 'core_app_image', value: CORE_APP_IMAGE_TAG),
+                                    string(name: 'core_db_migrate_image', value: CORE_DB_MIGRATE_IMAGE_TAG)
                             ]
                     )
                 }

@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: Andrey Ryabtsev
+      comment: Create sources table
+      changes:
+        - createTable:
+            tableName: sources
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValue: now()
+                  constraints:
+                    nullable: false
+        - createIndex:
+            indexName: sources_name_index
+            tableName: sources
+            unique: true
+            columns:
+              - column:
+                  name: name

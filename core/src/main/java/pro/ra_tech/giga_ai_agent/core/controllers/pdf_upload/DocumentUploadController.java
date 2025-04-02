@@ -3,6 +3,7 @@ package pro.ra_tech.giga_ai_agent.core.controllers.pdf_upload;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,8 @@ import pro.ra_tech.giga_ai_agent.core.services.api.DocumentService;
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE}
 )
 @RequiredArgsConstructor
-public class DocumentUploader extends BaseController implements DocumentsUploadApi {
+@Slf4j
+public class DocumentUploadController extends BaseController implements DocumentsUploadApi {
     private final DocumentService service;
 
     @Override
@@ -30,6 +32,8 @@ public class DocumentUploader extends BaseController implements DocumentsUploadA
             @Valid @RequestPart("file") @NotNull MultipartFile pdf,
             @Valid @RequestPart("metadata") @NotNull DocumentMetadata metadata
     ) {
+        log.info("Uploading document {}", pdf.getOriginalFilename());
+
         return toResponse(service.handlePdf(pdf, metadata));
     }
 }

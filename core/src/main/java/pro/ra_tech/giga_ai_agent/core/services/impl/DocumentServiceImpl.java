@@ -41,6 +41,7 @@ public class DocumentServiceImpl implements DocumentService {
                 metadata
         );
 
-        return toBytes(file).flatMap(pdfService::handlePdf).map(PdfUploadResponse::of);
+        return toBytes(file).flatMap(data -> pdfService.handlePdf(data, metadata.tags(), metadata.documentName()))
+                .map(PdfUploadResponse::of);
     }
 }
