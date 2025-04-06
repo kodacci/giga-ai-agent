@@ -131,7 +131,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
     ) {
         log.info("Asking model {} with prompt: `{}`", model, prompt);
 
-        val messages = new ArrayList<AiAskMessage>();
+        val messages = new ArrayList<>(toContextMessages(context));
         messages.add(
                 new AiAskMessage(
                         AiRole.USER,
@@ -140,7 +140,6 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                         null
                 )
         );
-        messages.addAll(toContextMessages(context));
 
         val request = AiModelAskRequest.builder()
                 .model(model)
