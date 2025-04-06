@@ -92,6 +92,11 @@
       "description": "Giga Chat API create embedding inputs max count",
       "type": "java.lang.Integer"
     },
+    {
+      "name": "app.giga-chat.stub-embeddings",
+      "description": "Stub giga chat embeddings creation",
+      "type": "java.lang.Boolean"
+    },
 
 
     {

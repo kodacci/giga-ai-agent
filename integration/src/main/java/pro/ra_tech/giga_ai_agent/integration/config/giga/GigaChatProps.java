@@ -13,6 +13,7 @@ public record GigaChatProps (
     String authKey,
     int authRetryTimeoutMs,
     @Min(1)
-    int embeddingsInputsMaxCount
+    int embeddingsInputsMaxCount,
+    boolean stubEmbeddings
 ) {
 }
