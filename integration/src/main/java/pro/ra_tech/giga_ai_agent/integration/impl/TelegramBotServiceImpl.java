@@ -107,12 +107,6 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
     }
 
     @Override
-    @Timed(
-            value = "integration.call",
-            extraTags = {"integration.service", "telegram-bot", "integration.method", "sendMessage"},
-            histogram = true,
-            percentiles = {0.9, 0.95, 0.99}
-    )
     public Either<AppFailure, TelegramMessage> sendMessage(long chatId, String text, Integer replyMessageId) {
         return sendMessage(chatId, text, replyMessageId, null);
     }
