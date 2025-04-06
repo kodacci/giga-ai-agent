@@ -2,7 +2,6 @@ package pro.ra_tech.giga_ai_agent.integration.impl;
 
 import dev.failsafe.RetryPolicy;
 import io.micrometer.core.annotation.Timed;
-import io.vavr.collection.Stream;
 import io.vavr.control.Either;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
@@ -20,18 +19,17 @@ import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiRole;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsRequest;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsResponse;
-import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
-import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingUsage;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetAiModelsResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
 import retrofit2.Response;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.DoubleStream;
 
 @Slf4j
 public class GigaChatServiceImpl extends BaseRestService implements GigaChatService {
@@ -90,6 +88,18 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                 .peekLeft(failure -> log.error("Error getting models list:", failure.getCause()));
     }
 
+    private List<AiAskMessage> toContextMessages(@Nullable List<String> context) {
+        return Optional.ofNullable(context).orElse(List.of())
+                .stream()
+                .map(ctx -> new AiAskMessage(
+                        AiRole.CONTEXT,
+                        ctx,
+                        null,
+                        null
+                ))
+                .toList();
+    }
+
     @Override
     @Timed(
             value = "integration.call",
@@ -102,22 +112,29 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
             String rqUid,
             AiModelType model,
             String prompt,
-            @Nullable String sessionId
+            @Nullable String sessionId,
+            @Nullable List<String> context
     ) {
         log.info("Asking model {} with prompt: `{}`", model, prompt);
+
+        val messages = new ArrayList<AiAskMessage>();
+        messages.add(
+                new AiAskMessage(
+                        AiRole.USER,
+                        prompt,
+                        null,
+                        null
+                )
+        );
+        messages.addAll(toContextMessages(context));
+
         val request = AiModelAskRequest.builder()
                 .model(model)
-                .messages(List.of(
-                        new AiAskMessage(
-                                AiRole.USER,
-                                prompt,
-                                null,
-                                null
-                        )
-                ))
+                .messages(messages)
                 .build();
 
         log.info("Sending chat completions request {}", request);
+
         return authService.getAuthHeader()
                 .flatMap(
                         authHeader -> sendRequest(

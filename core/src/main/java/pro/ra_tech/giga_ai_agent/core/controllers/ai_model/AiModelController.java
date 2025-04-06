@@ -44,7 +44,7 @@ public class AiModelController extends BaseController implements AiModelApi {
             @RequestBody AskAiModelRequest data
     ) {
         return toResponse(
-                gigaService.askModel(rqUid, data.model(), data.prompt(), sessionID)
+                gigaService.askModel(rqUid, data.model(), data.prompt(), sessionID, null)
                         .map(AskAiModelResponse::of)
         );
     }

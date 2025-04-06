@@ -10,7 +10,8 @@ public enum AiRole {
     SYSTEM("system"),
     USER("user"),
     ASSISTANT("assistant"),
-    FUNCTION("function");
+    FUNCTION("function"),
+    CONTEXT("context");
 
     public final String value;
 
@@ -26,6 +27,7 @@ public enum AiRole {
             case "system" -> SYSTEM;
             case "from" -> USER;
             case "function" -> FUNCTION;
+            case "context" -> CONTEXT;
             default -> ASSISTANT;
         };
     }

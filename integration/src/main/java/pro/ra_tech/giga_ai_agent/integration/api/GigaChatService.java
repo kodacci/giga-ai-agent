@@ -18,7 +18,8 @@ public interface GigaChatService {
             String rqUid,
             AiModelType model,
             String prompt,
-            @Nullable String sessionId
+            @Nullable String sessionId,
+            @Nullable List<String> context
     );
 
     Either<AppFailure, GetBalanceResponse> getBalance(@Nullable String sessionId);
