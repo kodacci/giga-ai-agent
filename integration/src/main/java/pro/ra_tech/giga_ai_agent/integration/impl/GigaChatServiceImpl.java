@@ -158,23 +158,23 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
     public Either<AppFailure, CreateEmbeddingsResponse> createEmbeddings(List<String> input) {
         log.info("Creating new embeddings for {} inputs", input.size());
 
-        val data = Stream.ofAll(input)
-                .zipWithIndex()
-                .map(item -> new EmbeddingData(
-                        "object",
-                        DoubleStream.generate(random::nextDouble).limit(16).boxed().toList(),
-                        item._2(),
-                        new EmbeddingUsage(item._1().length())
-                ))
-                .toJavaList();
+//        val data = Stream.ofAll(input)
+//                .zipWithIndex()
+//                .map(item -> new EmbeddingData(
+//                        "object",
+//                        DoubleStream.generate(random::nextDouble).limit(16).boxed().toList(),
+//                        item._2(),
+//                        new EmbeddingUsage(item._1().length())
+//                ))
+//                .toJavaList();
+//
+//        return Either.right(new CreateEmbeddingsResponse("list", data, EmbeddingModel.EMBEDDINGS));
 
-        return Either.right(new CreateEmbeddingsResponse("list", data, EmbeddingModel.EMBEDDINGS));
-
-//        return authService.getAuthHeader()
-//                .flatMap(auth -> sendRequest(
-//                        createEmbeddingPolicy,
-//                        gigaApi.createEmbeddings(auth, new CreateEmbeddingsRequest(EmbeddingModel.EMBEDDINGS, input)),
-//                        this::toFailure
-//                ));
+        return authService.getAuthHeader()
+                .flatMap(auth -> sendRequest(
+                        createEmbeddingPolicy,
+                        gigaApi.createEmbeddings(auth, new CreateEmbeddingsRequest(EmbeddingModel.EMBEDDINGS, input)),
+                        this::toFailure
+                ));
     }
 }

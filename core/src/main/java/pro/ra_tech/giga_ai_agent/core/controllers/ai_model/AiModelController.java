@@ -13,8 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 import pro.ra_tech.giga_ai_agent.core.controllers.BaseController;
 import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelRequest;
 import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelResponse;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.CreateEmbeddingRequest;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.CreateEmbeddingResponse;
 import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.GetAiModelsResponse;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(
@@ -28,7 +32,7 @@ public class AiModelController extends BaseController implements AiModelApi {
 
     @Override
     @GetMapping(value = "/models", consumes = MediaType.ALL_VALUE)
-    public ResponseEntity<Object> createGarden() {
+    public ResponseEntity<Object> listAiModels() {
         return toResponse(gigaService.listModels().map(GetAiModelsResponse::of));
     }
 
@@ -42,6 +46,18 @@ public class AiModelController extends BaseController implements AiModelApi {
         return toResponse(
                 gigaService.askModel(rqUid, data.model(), data.prompt(), sessionID)
                         .map(AskAiModelResponse::of)
+        );
+    }
+
+    @Override
+    @PostMapping("/embeddings")
+    public ResponseEntity<Object> askModel(
+            @RequestHeader("RqUID") String rqUid,
+            @RequestBody CreateEmbeddingRequest request
+    ) {
+        return toResponse(
+                gigaService.createEmbeddings(List.of(request.text()))
+                        .map(CreateEmbeddingResponse::of)
         );
     }
 }
