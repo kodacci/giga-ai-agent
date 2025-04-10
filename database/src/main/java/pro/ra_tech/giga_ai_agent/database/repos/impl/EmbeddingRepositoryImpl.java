@@ -53,8 +53,7 @@ public class EmbeddingRepositoryImpl implements EmbeddingRepository {
                 () -> data.stream().map(embedding -> new EmbeddingPersistentData(
                         insert(embedding),
                         embedding.sourceId(),
-                        embedding.textData(),
-                        embedding.vectorData()
+                        embedding.textData()
                 ))
                         .toList()
         )
@@ -72,7 +71,7 @@ public class EmbeddingRepositoryImpl implements EmbeddingRepository {
     public Either<AppFailure, List<EmbeddingPersistentData>> vectorSearch(List<Double> promptVector) {
         return Try.of(
                 () -> client.sql(
-                        "SELECT id, source_id as source, text_data, vector_data " +
+                        "SELECT id, source_id as source, text_data " +
                                 "FROM embeddings ORDER BY vector_data <-> :search_vector LIMIT 5"
                 )
                         .param("search_vector", new PGvector(promptVector))

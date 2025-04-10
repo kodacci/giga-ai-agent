@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pro.ra_tech.giga_ai_agent.integration.api.LlmTextProcessorService;
+import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
 import pro.ra_tech.giga_ai_agent.integration.impl.LlmTextProcessorServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.rest.llm_text_processor.api.LlmTextProcessorApi;
 import retrofit2.Retrofit;
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableConfigurationProperties(LlmTextProcessorProps.class)
-public class LlmTextProcessorConfig {
+public class LlmTextProcessorConfig extends BaseIntegrationConfig {
     @Bean
     LlmTextProcessorService llmTextProcessorService(LlmTextProcessorProps props, MeterRegistry registry) {
         val client = new OkHttpClient.Builder()
@@ -31,11 +32,7 @@ public class LlmTextProcessorConfig {
                 .build()
                 .create(LlmTextProcessorApi.class);
 
-        val timer = Timer.builder("integration.call")
-                .tags("integration.service", "llm-text-processor", "integration.method", "splitText")
-                .publishPercentileHistogram()
-                .publishPercentiles(0.9, 0.95, 0.99)
-                .register(registry);
+        val timer = buildTimer(registry, "llm-text-processor", "split-text");
 
         return new LlmTextProcessorServiceImpl(api, timer, props.maxRetries());
     }
