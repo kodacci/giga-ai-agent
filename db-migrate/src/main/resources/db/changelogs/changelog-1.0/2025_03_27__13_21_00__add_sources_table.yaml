@@ -21,6 +21,11 @@ databaseChangeLog:
                     unique: true
                     nullable: false
               - column:
+                  name: description
+                  type: varchar(3000)
+                  constraints:
+                    nullable: false
+              - column:
                   name: created_at
                   type: timestamp with time zone
                   defaultValue: now()

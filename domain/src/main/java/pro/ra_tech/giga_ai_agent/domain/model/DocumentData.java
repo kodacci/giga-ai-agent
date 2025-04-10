@@ -4,6 +4,7 @@ import java.util.List;
 
 public record DocumentData(
         String sourceName,
+        String sourceDescription,
         List<String> tags,
         List<String> chunks
 ) {

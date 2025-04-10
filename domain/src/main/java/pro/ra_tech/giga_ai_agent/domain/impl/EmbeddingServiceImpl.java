@@ -136,7 +136,11 @@ public class EmbeddingServiceImpl implements EmbeddingService {
                 status -> tagRepo.findByNames(data.tags())
                         .flatMap(found -> saveAllTags(found, data.tags()))
                         .map(tags -> tags.stream().map(TagData::id).toList())
-                        .flatMap(tags -> sourceRepo.create(new CreateSourceData(data.sourceName(), tags)))
+                        .flatMap(tags -> sourceRepo.create(new CreateSourceData(
+                                data.sourceName(),
+                                data.sourceDescription(),
+                                tags
+                        )))
                         .flatMap(
                                 source -> createGigaEmbeddings(data.chunks())
                                         .map(vectors -> toEmbeddingsData(source.id(), vectors, data.chunks()))

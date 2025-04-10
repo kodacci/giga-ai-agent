@@ -12,13 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pro.ra_tech.giga_ai_agent.core.controllers.BaseController;
 import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelRequest;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelResponse;
 import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.CreateEmbeddingRequest;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.CreateEmbeddingResponse;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.GetAiModelsResponse;
-import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
-
-import java.util.List;
+import pro.ra_tech.giga_ai_agent.core.services.api.AiModelService;
 
 @RestController
 @RequestMapping(
@@ -28,12 +23,12 @@ import java.util.List;
 )
 @RequiredArgsConstructor
 public class AiModelController extends BaseController implements AiModelApi {
-    private final GigaChatService gigaService;
+    private final AiModelService service;
 
     @Override
     @GetMapping(value = "/models", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<Object> listAiModels() {
-        return toResponse(gigaService.listModels().map(GetAiModelsResponse::of));
+        return toResponse(service.listModels());
     }
 
     @Override
@@ -43,21 +38,15 @@ public class AiModelController extends BaseController implements AiModelApi {
             @RequestHeader("X-Session-ID") @Nullable String sessionID,
             @RequestBody AskAiModelRequest data
     ) {
-        return toResponse(
-                gigaService.askModel(rqUid, data.model(), data.prompt(), sessionID, data.context())
-                        .map(AskAiModelResponse::of)
-        );
+        return toResponse(service.askModel(rqUid, sessionID, data));
     }
 
     @Override
     @PostMapping("/embeddings")
-    public ResponseEntity<Object> askModel(
+    public ResponseEntity<Object> createEmbedding(
             @RequestHeader("RqUID") String rqUid,
             @RequestBody CreateEmbeddingRequest request
     ) {
-        return toResponse(
-                gigaService.createEmbeddings(List.of(request.text()))
-                        .map(CreateEmbeddingResponse::of)
-        );
+        return toResponse(service.createEmbedding(request));
     }
 }

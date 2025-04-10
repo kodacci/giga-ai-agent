@@ -4,6 +4,7 @@ import java.util.List;
 
 public record CreateSourceData(
         String name,
+        String description,
         List<Long> tags
 ) {
 }

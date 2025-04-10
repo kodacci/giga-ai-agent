@@ -36,12 +36,17 @@ public class PdfServiceImpl implements PdfService {
     }
 
     @Override
-    public Either<AppFailure, PdfProcessingInfo> handlePdf(byte[] contents, List<String> tags, String name) {
+    public Either<AppFailure, PdfProcessingInfo> handlePdf(
+            byte[] contents,
+            List<String> tags,
+            String name,
+            String description
+    ) {
         return toText(contents)
                 .peek(text -> log.info("Got text with length {} from pdf", format.format(text.length())))
                 .flatMap(llmService::splitText)
                 .peek(chunks -> log.info("Got {} chunks from llm text processor", chunks.size()))
-                .map(chunks -> new DocumentData(name, tags, chunks))
+                .map(chunks -> new DocumentData(name, description, tags, chunks))
                 .flatMap(embeddingService::createEmbeddings)
                 .map(PdfProcessingInfo::new);
     }

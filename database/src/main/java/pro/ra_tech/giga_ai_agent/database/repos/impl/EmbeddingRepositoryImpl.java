@@ -4,21 +4,20 @@ import com.pgvector.PGvector;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateEmbeddingData;
-import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingData;
+import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingPersistentData;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DatabaseFailure;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class EmbeddingsRepositoryImpl implements EmbeddingRepository {
+public class EmbeddingRepositoryImpl implements EmbeddingRepository {
     private final JdbcClient client;
 
     private AppFailure toFailure(Throwable cause) {
@@ -42,15 +41,30 @@ public class EmbeddingsRepositoryImpl implements EmbeddingRepository {
     }
 
     @Override
-    public Either<AppFailure, List<EmbeddingData>> createEmbeddings(List<CreateEmbeddingData> data) {
+    public Either<AppFailure, List<EmbeddingPersistentData>> createEmbeddings(List<CreateEmbeddingData> data) {
         return Try.of(
-                () -> data.stream().map(embedding -> new EmbeddingData(
+                () -> data.stream().map(embedding -> new EmbeddingPersistentData(
                         insert(embedding),
                         embedding.sourceId(),
                         embedding.textData(),
                         embedding.vectorData()
                 ))
                         .toList()
+        )
+                .toEither()
+                .mapLeft(this::toFailure);
+    }
+
+    @Override
+    public Either<AppFailure, List<EmbeddingPersistentData>> vectorSearch(List<Double> promptVector) {
+        return Try.of(
+                () -> client.sql(
+                        "SELECT id, source_id as source, text_data, vector_data " +
+                                "FROM embeddings ORDER BY vector_data <-> :search_vector LIMIT 5"
+                )
+                        .param("search_vector", new PGvector(promptVector))
+                        .query(DataClassRowMapper.newInstance(EmbeddingPersistentData.class))
+                        .list()
         )
                 .toEither()
                 .mapLeft(this::toFailure);

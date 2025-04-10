@@ -65,7 +65,7 @@ public interface AiModelApi {
                     )
             }
     )
-    ResponseEntity<Object> askModel(
+    ResponseEntity<Object> createEmbedding(
             @RequestHeader("RqUID") String rqUid,
             @RequestBody CreateEmbeddingRequest request
     );
