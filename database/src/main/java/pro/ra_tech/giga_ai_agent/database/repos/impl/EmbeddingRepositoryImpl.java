@@ -1,6 +1,7 @@
 package pro.ra_tech.giga_ai_agent.database.repos.impl;
 
 import com.pgvector.PGvector;
+import io.micrometer.core.annotation.Timed;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,12 @@ public class EmbeddingRepositoryImpl implements EmbeddingRepository {
     }
 
     @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "embedding", "repository.method", "create-embeddings"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
     public Either<AppFailure, List<EmbeddingPersistentData>> createEmbeddings(List<CreateEmbeddingData> data) {
         return Try.of(
                 () -> data.stream().map(embedding -> new EmbeddingPersistentData(
@@ -56,6 +63,12 @@ public class EmbeddingRepositoryImpl implements EmbeddingRepository {
     }
 
     @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "embedding", "repository.method", "vector-search"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
     public Either<AppFailure, List<EmbeddingPersistentData>> vectorSearch(List<Double> promptVector) {
         return Try.of(
                 () -> client.sql(

@@ -46,7 +46,8 @@ public class GigaChatConfig extends BaseIntegrationConfig {
     public GigaAuthService gigaAuthenticator(
             OkHttpClient gigaHttpClient,
             GigaChatProps props,
-            ThreadPoolTaskScheduler gigaAuthScheduler
+            ThreadPoolTaskScheduler gigaAuthScheduler,
+            MeterRegistry registry
     ) {
         val authApi = new Retrofit.Builder()
                 .baseUrl(props.authApiBaseUrl())
@@ -55,6 +56,7 @@ public class GigaChatConfig extends BaseIntegrationConfig {
                 .build();
 
         val retryPolicy = RetryPolicy.<Response<AuthResponse>>builder().withMaxRetries(props.maxRetries()).build();
+        val timer = buildTimer(registry, "giga-auth", "authenticate");
 
         return new GigaAuthServiceImpl(
                 props.clientId(),
@@ -62,7 +64,8 @@ public class GigaChatConfig extends BaseIntegrationConfig {
                 retryPolicy,
                 authApi.create(AuthApi.class),
                 gigaAuthScheduler,
-                props.authRetryTimeoutMs()
+                props.authRetryTimeoutMs(),
+                timer
         );
     }
 

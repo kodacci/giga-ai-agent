@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
+import io.micrometer.core.annotation.Timed;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,12 @@ public class PdfServiceImpl implements PdfService {
     }
 
     @Override
+    @Timed(
+            value = "business.process.call",
+            extraTags = {"business.process.service", "pdf-service", "business.process.method", "handle-pdf"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
     public Either<AppFailure, PdfProcessingInfo> handlePdf(
             byte[] contents,
             List<String> tags,

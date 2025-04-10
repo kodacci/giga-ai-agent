@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.database.repos.impl;
 
+import io.micrometer.core.annotation.Timed;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,12 @@ public class SourceRepositoryImpl implements SourceRepository {
     }
 
     @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "source", "repository.method", "create"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
     public Either<AppFailure, SourceData> create(CreateSourceData data) {
         return Try.of(
                 () -> jdbc.sql("INSERT INTO sources (name, description) VALUES (:name, :description) RETURNING id")

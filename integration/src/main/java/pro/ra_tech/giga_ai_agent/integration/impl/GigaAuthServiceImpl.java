@@ -1,8 +1,9 @@
 package pro.ra_tech.giga_ai_agent.integration.impl;
 
+import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
-import dev.failsafe.retrofit.FailsafeCall;
 import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Timer;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import jakarta.annotation.PostConstruct;
@@ -62,6 +63,7 @@ public class GigaAuthServiceImpl extends BaseRestService implements GigaAuthServ
     private final AuthApi api;
     private final ThreadPoolTaskScheduler taskScheduler;
     private final int authRetryTimeoutMs;
+    private final Timer authTimer;
 
     @PostConstruct
     public void scheduleAuth() {
@@ -99,12 +101,6 @@ public class GigaAuthServiceImpl extends BaseRestService implements GigaAuthServ
         );
     }
 
-    @Timed(
-            value = "integration.call",
-            extraTags = {"integration.service", "giga-auth", "integration.method", "authenticate"},
-            histogram = true,
-            percentiles ={0.9, 0.95, 0.99}
-    )
     private Either<AppFailure, AuthResponse> authenticate() {
         val uuid = UUID.randomUUID().toString();
         log.info("Auth request for client {} with uuid: {}", clientId, uuid);
@@ -114,7 +110,7 @@ public class GigaAuthServiceImpl extends BaseRestService implements GigaAuthServ
                 AuthScope.GIGA_CHAT_API_PERS
         );
 
-        return Try.of(() -> FailsafeCall.with(retryPolicy).compose(call).execute())
+        return Try.of(() -> Failsafe.with(retryPolicy).get(() -> authTimer.recordCallable(call::execute)))
                 .map(this::onResponse)
                 .onSuccess(res ->
                     log.info(
