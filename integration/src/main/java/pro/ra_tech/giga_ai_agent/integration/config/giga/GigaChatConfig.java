@@ -89,6 +89,7 @@ public class GigaChatConfig extends BaseIntegrationConfig {
                 authService,
                 gigaApi.create(GigaChatApi.class),
                 props.maxRetries(),
+                props.retryTimeoutMs(),
                 buildTimer(registry, GIGA_CHAT_SERVICE, "get-models"),
                 buildTimer(registry, GIGA_CHAT_SERVICE, "chat-completions"),
                 buildTimer(registry, GIGA_CHAT_SERVICE, "get-balance"),

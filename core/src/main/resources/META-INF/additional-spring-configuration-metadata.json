@@ -73,6 +73,11 @@
       "type": "java.lang.Integer"
     },
     {
+      "name": "app.giga-chat.retry-timeout-ms",
+      "description": "API retry timeout ms",
+      "type": "java.lang.Integer"
+    },
+    {
       "name": "app.giga-chat.client-id",
       "description": "Giga Chat API client ID",
       "type": "java.lang.String"

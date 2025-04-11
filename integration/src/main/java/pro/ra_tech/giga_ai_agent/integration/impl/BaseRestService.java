@@ -17,6 +17,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.function.Function;
 
 @Slf4j
@@ -33,6 +34,12 @@ public abstract class BaseRestService {
 
     protected static <T> RetryPolicy<Response<T>> buildPolicy(int maxRetries) {
         return RetryPolicy.<Response<T>>builder().withMaxRetries(maxRetries).build();
+    }
+
+    protected static <T> RetryPolicy<Response<T>> buildPolicy(int maxRetries, int retryTimeoutMs) {
+        return RetryPolicy.<Response<T>>builder().withMaxRetries(maxRetries)
+                .withDelay(Duration.ofMillis(retryTimeoutMs))
+                .build();
     }
 
     protected AppFailure toFailure(IntegrationFailure.Code code, String source, @Nullable Throwable cause) {

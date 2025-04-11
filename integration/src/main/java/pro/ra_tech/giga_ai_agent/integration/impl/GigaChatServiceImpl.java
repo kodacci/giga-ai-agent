@@ -72,6 +72,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
             GigaAuthService authService,
             GigaChatApi gigaApi,
             int maxRetries,
+            int retryDelayMs,
             Timer getAiModelsTimer,
             Timer askAiModelTimer,
             Timer getBalanceTimer,
@@ -89,10 +90,10 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
         this.authService = authService;
         this.gigaApi = gigaApi;
 
-        getAiModelsPolicy = buildPolicy(maxRetries);
-        askAiModelPolicy = buildPolicy(maxRetries);
-        getBalancePolicy = buildPolicy(maxRetries);
-        createEmbeddingPolicy = buildPolicy(maxRetries);
+        getAiModelsPolicy = buildPolicy(maxRetries, retryDelayMs);
+        askAiModelPolicy = buildPolicy(maxRetries, retryDelayMs);
+        getBalancePolicy = buildPolicy(maxRetries, retryDelayMs);
+        createEmbeddingPolicy = buildPolicy(maxRetries, retryDelayMs);
 
         this.getAiModelsTimer = getAiModelsTimer;
         this.askAiModelTimer = askAiModelTimer;
