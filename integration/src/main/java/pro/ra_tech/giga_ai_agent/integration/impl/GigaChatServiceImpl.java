@@ -250,6 +250,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                         createEmbeddings5xxCounter,
                         gigaApi.createEmbeddings(auth, new CreateEmbeddingsRequest(EmbeddingModel.EMBEDDINGS, input)),
                         this::toFailure
-                ));
+                ))
+                .peekLeft(failure -> log.error("Error creating embedding for {}: {}", input, failure.getMessage()));
     }
 }

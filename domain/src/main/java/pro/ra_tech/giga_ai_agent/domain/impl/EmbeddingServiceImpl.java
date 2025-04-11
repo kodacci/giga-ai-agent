@@ -110,6 +110,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
             }
 
             totalCost += sumUsage(result.get());
+            log.info("Processed {}% chunks for embeddings, current total cost: {}", i*100.0/chunksCount, totalCost);
         }
 
         if (tailSize > 0) {
