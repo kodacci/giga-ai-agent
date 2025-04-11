@@ -1,6 +1,7 @@
 package pro.ra_tech.giga_ai_agent.integration.impl;
 
 import dev.failsafe.RetryPolicy;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Timer;
 import io.vavr.collection.Stream;
 import io.vavr.control.Either;
@@ -37,6 +38,8 @@ import java.util.stream.DoubleStream;
 
 @Slf4j
 public class GigaChatServiceImpl extends BaseRestService implements GigaChatService {
+    private static final int STUB_VECTOR_SIZE = 1024;
+
     private final GigaAuthService authService;
     private final GigaChatApi gigaApi;
 
@@ -49,6 +52,16 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
     private final Timer askAiModelTimer;
     private final Timer getBalanceTimer;
     private final Timer createEmbeddingsTimer;
+
+    private final Counter getAiModels4xxCounter;
+    private final Counter askAiModel4xxCounter;
+    private final Counter getBalance4xxCounter;
+    private final Counter createEmbeddings4xxCounter;
+
+    private final Counter getAiModels5xxCounter;
+    private final Counter askAiModel5xxCounter;
+    private final Counter getBalance5xxCounter;
+    private final Counter createEmbeddings5xxCounter;
 
     private final boolean stubEmbeddings;
 
@@ -63,6 +76,14 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
             Timer askAiModelTimer,
             Timer getBalanceTimer,
             Timer createEmbeddingsTimer,
+            Counter getAiModels4xxCounter,
+            Counter askAiModel4xxCounter,
+            Counter getBalance4xxCounter,
+            Counter createEmbeddings4xxCounter,
+            Counter getAiModels5xxCounter,
+            Counter askAiModel5xxCounter,
+            Counter getBalance5xxCounter,
+            Counter createEmbeddings5xxCounter,
             boolean stubEmbeddings
     ) {
         this.authService = authService;
@@ -77,6 +98,16 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
         this.askAiModelTimer = askAiModelTimer;
         this.getBalanceTimer = getBalanceTimer;
         this.createEmbeddingsTimer = createEmbeddingsTimer;
+
+        this.getAiModels4xxCounter = getAiModels4xxCounter;
+        this.askAiModel4xxCounter = askAiModel4xxCounter;
+        this.getBalance4xxCounter = getBalance4xxCounter;
+        this.createEmbeddings4xxCounter = createEmbeddings4xxCounter;
+
+        this.getAiModels5xxCounter = getAiModels5xxCounter;
+        this.askAiModel5xxCounter = askAiModel5xxCounter;
+        this.getBalance5xxCounter = getBalance5xxCounter;
+        this.createEmbeddings5xxCounter = createEmbeddings5xxCounter;
 
         this.stubEmbeddings = stubEmbeddings;
 
@@ -101,6 +132,8 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                         authHeader -> sendMeteredRequest(
                                 getAiModelsPolicy,
                                 getAiModelsTimer,
+                                getAiModels4xxCounter,
+                                getAiModels5xxCounter,
                                 gigaApi.getAiModels(authHeader),
                                 this::toFailure
                         )
@@ -112,8 +145,11 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
         return Optional.ofNullable(context)
                 .map(ctx -> String.join("\n", ctx))
                 .map(ctx -> String.format(
-                        "Ты должен ответить на вопрос пользователя с использованием предоставленных данных.\n" +
-                                "Вот необходимые данные - контекст для ответа:\n\n%s", ctx
+                        """
+                                Ты должен ответить на вопрос пользователя с использованием предоставленных данных. \
+                                Если не знаешь ответ, ничего не выдумывай.
+                                Вот необходимые данные - контекст для ответа:
+                                %s""", ctx
                 ))
                 .map(ctx -> new AiAskMessage(AiRole.SYSTEM, ctx, null, null))
                 .map(List::of)
@@ -153,6 +189,8 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                         authHeader -> sendMeteredRequest(
                                 askAiModelPolicy,
                                 askAiModelTimer,
+                                askAiModel4xxCounter,
+                                askAiModel5xxCounter,
                                 gigaApi.askModel(
                                         authHeader,
                                         authService.getClientId(),
@@ -174,6 +212,8 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                 .flatMap(auth -> sendMeteredRequest(
                         getBalancePolicy,
                         getBalanceTimer,
+                        getBalance4xxCounter,
+                        getBalance5xxCounter,
                         gigaApi.getBalance(auth, UUID.randomUUID().toString(), sessionId),
                         this::toFailure
                 ));
@@ -184,7 +224,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                 .zipWithIndex()
                 .map(item -> new EmbeddingData(
                         "object",
-                        DoubleStream.generate(random::nextDouble).limit(16).boxed().toList(),
+                        DoubleStream.generate(random::nextDouble).limit(STUB_VECTOR_SIZE).boxed().toList(),
                         item._2(),
                         new EmbeddingUsage(item._1().length())
                 ))
@@ -206,6 +246,8 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                 .flatMap(auth -> sendMeteredRequest(
                         createEmbeddingPolicy,
                         createEmbeddingsTimer,
+                        createEmbeddings4xxCounter,
+                        createEmbeddings5xxCounter,
                         gigaApi.createEmbeddings(auth, new CreateEmbeddingsRequest(EmbeddingModel.EMBEDDINGS, input)),
                         this::toFailure
                 ));

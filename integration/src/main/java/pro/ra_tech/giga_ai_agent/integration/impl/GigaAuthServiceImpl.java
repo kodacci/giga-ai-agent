@@ -2,7 +2,7 @@ package pro.ra_tech.giga_ai_agent.integration.impl;
 
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
-import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Timer;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
@@ -64,6 +64,8 @@ public class GigaAuthServiceImpl extends BaseRestService implements GigaAuthServ
     private final ThreadPoolTaskScheduler taskScheduler;
     private final int authRetryTimeoutMs;
     private final Timer authTimer;
+    private final Counter auth4xxCounter;
+    private final Counter auth5xxCounter;
 
     @PostConstruct
     public void scheduleAuth() {
@@ -111,7 +113,7 @@ public class GigaAuthServiceImpl extends BaseRestService implements GigaAuthServ
         );
 
         return Try.of(() -> Failsafe.with(retryPolicy).get(() -> authTimer.recordCallable(call::execute)))
-                .map(this::onResponse)
+                .map(res -> onResponse(res, auth4xxCounter, auth5xxCounter))
                 .onSuccess(res ->
                     log.info(
                             "Got authentication header for client {}, expires at {} ({})",

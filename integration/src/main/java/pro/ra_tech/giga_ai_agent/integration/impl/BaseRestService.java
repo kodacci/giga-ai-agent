@@ -3,6 +3,7 @@ package pro.ra_tech.giga_ai_agent.integration.impl;
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import dev.failsafe.retrofit.FailsafeCall;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Timer;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
@@ -33,6 +34,22 @@ public abstract class BaseRestService {
         return new IntegrationFailure(code, source, cause);
     }
 
+    protected <R> R onResponse(Response<R> response, Counter status4xxCounter, Counter status5xxCounter) {
+        if (response.isSuccessful()) {
+            return onResponse(response);
+        }
+
+        if (response.code() >= 400 && response.code() < 500) {
+            status4xxCounter.increment();
+
+            return onResponse(response);
+        }
+
+        status5xxCounter.increment();
+
+        return  onResponse(response);
+    }
+
     protected <R> R onResponse(Response<R> response) {
         if (response.isSuccessful()) {
             return response.body();
@@ -61,11 +78,13 @@ public abstract class BaseRestService {
     protected <R> Either<AppFailure, R> sendMeteredRequest(
             RetryPolicy<Response<R>> retryPolicy,
             Timer timer,
+            Counter status4xxCounter,
+            Counter status5xxCounter,
             Call<R> call,
             Function<Throwable, AppFailure> toFailure
     ) {
         return Try.of(() -> Failsafe.with(retryPolicy).get(() -> timer.recordCallable(call::execute)))
-                .map(this::onResponse)
+                .map(res -> onResponse(res, status4xxCounter, status5xxCounter))
                 .toEither()
                 .mapLeft(toFailure);
     }

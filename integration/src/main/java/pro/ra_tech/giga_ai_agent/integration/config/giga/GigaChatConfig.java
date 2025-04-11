@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class GigaChatConfig extends BaseIntegrationConfig {
     private static final String GIGA_CHAT_SERVICE = "giga-chat";
+    private static final String GIGA_AUTH_SERVICE = "giga-auth";
 
     @Bean
     public OkHttpClient gigaHttpClient(GigaChatProps props) {
@@ -56,7 +57,7 @@ public class GigaChatConfig extends BaseIntegrationConfig {
                 .build();
 
         val retryPolicy = RetryPolicy.<Response<AuthResponse>>builder().withMaxRetries(props.maxRetries()).build();
-        val timer = buildTimer(registry, "giga-auth", "authenticate");
+        val timer = buildTimer(registry, GIGA_AUTH_SERVICE, "authenticate");
 
         return new GigaAuthServiceImpl(
                 props.clientId(),
@@ -65,7 +66,9 @@ public class GigaChatConfig extends BaseIntegrationConfig {
                 authApi.create(AuthApi.class),
                 gigaAuthScheduler,
                 props.authRetryTimeoutMs(),
-                timer
+                timer,
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_AUTH_SERVICE, "authenticate"),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_AUTH_SERVICE, "authenticate")
         );
     }
 
@@ -90,6 +93,14 @@ public class GigaChatConfig extends BaseIntegrationConfig {
                 buildTimer(registry, GIGA_CHAT_SERVICE, "chat-completions"),
                 buildTimer(registry, GIGA_CHAT_SERVICE, "get-balance"),
                 buildTimer(registry, GIGA_CHAT_SERVICE, "create-embeddings"),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, "get-models"),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, "chat-completions"),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, "get-balance"),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, "create-embeddings"),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, "get-models"),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, "chat-completions"),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, "get-balance"),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, "create-embeddings"),
                 props.stubEmbeddings()
         );
     }

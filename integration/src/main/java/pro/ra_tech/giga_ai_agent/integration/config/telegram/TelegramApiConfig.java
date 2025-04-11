@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 @EnableConfigurationProperties(TelegramApiProps.class)
 public class TelegramApiConfig extends BaseIntegrationConfig {
     private static final int SEC_TO_MS = 1000;
+    private static final String TELEGRAM_SERVICE = "telegram";
 
     private TelegramBotApi api(
             TelegramApiProps props,
@@ -44,7 +45,14 @@ public class TelegramApiConfig extends BaseIntegrationConfig {
                 props.maxRetries(),
                 props.updateLimit(),
                 props.updateTimeoutSec(),
-                buildTimer(registry, "telegram", "send-message")
+                buildTimer(registry, TELEGRAM_SERVICE, "send-message"),
+                buildTimer(registry, TELEGRAM_SERVICE, "get-me"),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, TELEGRAM_SERVICE, "send-message"),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, TELEGRAM_SERVICE, "get-updates"),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, TELEGRAM_SERVICE, "get-me"),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, TELEGRAM_SERVICE, "send-message"),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, TELEGRAM_SERVICE, "get-updates"),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, TELEGRAM_SERVICE, "get-me")
         );
     }
 }
