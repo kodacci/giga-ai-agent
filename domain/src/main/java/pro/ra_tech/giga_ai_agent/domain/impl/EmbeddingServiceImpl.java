@@ -17,6 +17,7 @@ import pro.ra_tech.giga_ai_agent.domain.model.DocumentData;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
+import pro.ra_tech.giga_ai_agent.integration.impl.BaseRestService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingUsage;
@@ -30,6 +31,7 @@ import java.util.stream.Stream;
 @Slf4j
 @RequiredArgsConstructor
 public class EmbeddingServiceImpl implements EmbeddingService {
+    private static final int TOO_MANY_TOKENS_HTTP_STATUS = 413;
 
     private final Transactional trx;
     private final TagRepository tagRepo;
@@ -105,12 +107,18 @@ public class EmbeddingServiceImpl implements EmbeddingService {
             );
 
             if (result.isLeft()) {
-                return result.peekLeft(failure -> log.error("Error getting embeddings vector"))
-                        .map(res -> vectors);
+                val cause = result.getLeft().getCause();
+                if (cause instanceof BaseRestService.RestApiException &&
+                        ((BaseRestService.RestApiException) cause).getHttpCode() != TOO_MANY_TOKENS_HTTP_STATUS) {
+                    return result.peekLeft(failure -> log.error("Error getting embeddings vector"))
+                            .map(res -> vectors);
+                }
+
+                result.peekLeft(failure -> log.error("Too many tokens failure, skipping chunk...", failure.getCause()));
             }
 
             totalCost += sumUsage(result.get());
-            log.info("Processed {}% chunks for embeddings, current total cost: {}", i*100.0/chunksCount, totalCost);
+            log.info("Processed {}% chunks for embeddings, current total cost: {}", Math.floor(i*100.0/chunksCount), totalCost);
         }
 
         if (tailSize > 0) {

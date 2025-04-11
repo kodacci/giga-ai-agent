@@ -7,6 +7,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Timer;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.lang.Nullable;
@@ -20,9 +21,13 @@ import java.util.function.Function;
 
 @Slf4j
 public abstract class BaseRestService {
-    protected static class ApiException extends RuntimeException {
-        public ApiException(String message) {
+    @Getter
+    public static class RestApiException extends RuntimeException {
+        private final int httpCode;
+
+        public RestApiException(String message, int httpCode) {
             super(message);
+            this.httpCode = httpCode;
         }
     }
 
@@ -58,9 +63,9 @@ public abstract class BaseRestService {
         try (val body = response.errorBody()) {
             val message = body == null ? "Unknown error" : body.string();
             log.error("API request error with code: {} and body: {}", response.code(), message);
-            throw new ApiException(String.format("Bad response with code %d, body: %s", response.code(), message));
+            throw new RestApiException(String.format("Bad response with code %d, body: %s", response.code(), message), response.code());
         } catch (IOException e) {
-            throw new ApiException("Bad response with code " + response.code());
+            throw new RestApiException("Bad response with code " + response.code(), response.code());
         }
     }
 
