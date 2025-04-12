@@ -112,10 +112,10 @@ spec:
           resources:
             requests:
               cpu: 1000m
-              memory: 1500Mi
+              memory: 2000Mi
             limits:
               cpu: 1000m
-              memory: 1500Mi
+              memory: 2000Mi
 
         - name: fluentbit
           image: fluent/fluent-bit:3.1.4

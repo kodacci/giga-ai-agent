@@ -52,7 +52,8 @@ public class DomainConfig {
             TelegramBotProps props,
             BlockingQueue<BotUpdate> botUpdatesQueue,
             TelegramBotService botService,
-            GigaChatService gigaChatService
+            GigaChatService gigaChatService,
+            EmbeddingRepository embeddingRepository
     ) {
         val executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(props.updatesHandlersCount());
@@ -66,7 +67,8 @@ public class DomainConfig {
                             botUpdatesQueue,
                             botService,
                             gigaChatService,
-                            props.aiModelType()
+                            props.aiModelType(),
+                            embeddingRepository
                     ));
                 });
 
