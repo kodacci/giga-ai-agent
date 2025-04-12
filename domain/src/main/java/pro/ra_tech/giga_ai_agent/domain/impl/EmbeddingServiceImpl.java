@@ -115,6 +115,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
                 }
 
                 result.peekLeft(failure -> log.error("Too many tokens failure, skipping chunk...", failure.getCause()));
+                continue;
             }
 
             totalCost += sumUsage(result.get());
@@ -126,7 +127,11 @@ public class EmbeddingServiceImpl implements EmbeddingService {
 
             return createEmbeddingsFromChunk(chunks, chunks.size() - tailSize, chunks.size(), vectors)
                     .peek(res -> log.info("Total cost: {}", cost.get() + sumUsage(res)))
-                    .map(res -> vectors);
+                    .peekLeft(failure -> log.error("Error vectorising last chunk", failure.getCause()))
+                    .fold(
+                            failure -> Either.right(vectors),
+                            res -> Either.right(vectors)
+                    );
         }
 
         return Either.right(vectors);
