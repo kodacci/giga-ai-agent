@@ -4,11 +4,14 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
+import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingPersistentData;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelUsage;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageParseMode;
@@ -16,6 +19,7 @@ import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramMessage
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramUser;
 
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -30,6 +34,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
     private final TelegramBotService botService;
     private final GigaChatService gigaService;
     private final AiModelType aiModelType;
+    private final EmbeddingRepository embeddingRepo;
 
     private final DecimalFormat balanceFormatter = new DecimalFormat("###,###,###");
 
@@ -91,7 +96,25 @@ public class TelegramBotUpdatesHandler implements Runnable {
         val replyTo = message.messageId();
         log.info("Asking AI model rq: {}, session: {}, with: {}", id, user, prompt);
 
-        gigaService.askModel(id, aiModelType, prompt, user, null)
+        gigaService.createEmbeddings(List.of(prompt))
+                .peek(res -> log.info("Created embedding for prompt: {}", res))
+                .flatMap(res -> embeddingRepo.vectorSearch(
+                        res.data()
+                                .stream()
+                                .findAny()
+                                .map(EmbeddingData::embedding)
+                                .orElse(List.of())
+                ))
+                .peek(embeddings -> log.info("Found embeddings {} in db for prompt {}", embeddings, prompt))
+                .flatMap(embeddings -> gigaService.askModel(
+                        id,
+                        aiModelType,
+                        prompt,
+                        user,
+                        embeddings.stream()
+                                .map(EmbeddingPersistentData::textData)
+                                .toList()
+                ))
                 .map(res -> sendAnswerParts(res, chatId, replyTo))
                 .flatMap(usage -> botService.sendMessage(chatId, toUsageMessage(usage), null, MessageParseMode.MARKDOWN))
                 .flatMap(sent -> gigaService.getBalance(null))

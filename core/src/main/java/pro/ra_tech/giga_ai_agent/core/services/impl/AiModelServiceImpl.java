@@ -25,7 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AiModelServiceImpl implements AiModelService {
     private final GigaChatService gigaService;
-    private final EmbeddingRepository embeddingsRepo;
+    private final EmbeddingRepository embeddingRepo;
 
     private Either<AppFailure, AskAiModelResponse> askWithEmbeddings(
             String rqUid,
@@ -35,7 +35,7 @@ public class AiModelServiceImpl implements AiModelService {
     ) {
         return gigaService.createEmbeddings(List.of(prompt))
                 .peek(res -> log.info("Created embedding for prompt: {}", res))
-                .flatMap(res -> embeddingsRepo.vectorSearch(
+                .flatMap(res -> embeddingRepo.vectorSearch(
                         res.data()
                                 .stream()
                                 .findAny()
