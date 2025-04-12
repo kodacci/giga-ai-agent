@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 5
+      author: Andrey Ryabtsev
+      comment: Increase tag name length
+      changes:
+        - modifyDataType:
+            tableName: tags
+            columnName: name
+            newDataType: varchar(255)
