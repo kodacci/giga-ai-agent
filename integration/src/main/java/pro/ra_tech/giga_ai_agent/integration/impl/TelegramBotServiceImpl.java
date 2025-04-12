@@ -144,6 +144,8 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
         val reply = replyMessageId == null ? null : new ReplyParameters(replyMessageId);
         val request = new SendMessageRequest(chatId, text, parseMode,false, reply);
 
+        log.info("Sending telegram message: {}", text);
+
         return sendTelegramRequest(
                 sendMessagePolicy,
                 api.sendMessage(request),

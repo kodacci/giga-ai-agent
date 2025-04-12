@@ -56,6 +56,8 @@ public class TelegramBotUpdatesHandler implements Runnable {
     }
 
     private AiModelUsage sendAnswerParts(AiModelAnswerResponse res, long chatId, int replyTo) {
+        log.info("Got AI model answer: {}", res);
+
         res.choices().stream()
                 .filter(choice -> choice.message() != null)
                 .forEach(
@@ -80,7 +82,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
         log.info("Got AI model balance: {}", res);
 
         return res.balance().stream()
-                .filter(balance -> balance.usage().equals(aiModelType.toString()))
+                .filter(balance -> balance.usage().equals(aiModelType.getBalanceName()))
                 .findAny()
                 .map(balance -> String.format(
                         "*Баланс (модель %s):* %s токенов",
