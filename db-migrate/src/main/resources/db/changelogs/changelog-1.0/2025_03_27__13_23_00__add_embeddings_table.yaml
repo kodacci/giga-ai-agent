@@ -30,7 +30,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: vector_data
-                  type: vector(16)
+                  type: vector(1024)
               - column:
                   name: created_at
                   type: timestamp with time zone

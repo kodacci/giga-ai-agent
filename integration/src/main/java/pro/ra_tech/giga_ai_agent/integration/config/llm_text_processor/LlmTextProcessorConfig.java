@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pro.ra_tech.giga_ai_agent.integration.api.LlmTextProcessorService;
+import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
 import pro.ra_tech.giga_ai_agent.integration.impl.LlmTextProcessorServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.rest.llm_text_processor.api.LlmTextProcessorApi;
 import retrofit2.Retrofit;
@@ -17,7 +18,9 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableConfigurationProperties(LlmTextProcessorProps.class)
-public class LlmTextProcessorConfig {
+public class LlmTextProcessorConfig extends BaseIntegrationConfig {
+    private static final String LLM_TEXT_PROCESSOR_SERVICE = "llm-text-processor";
+
     @Bean
     LlmTextProcessorService llmTextProcessorService(LlmTextProcessorProps props, MeterRegistry registry) {
         val client = new OkHttpClient.Builder()
@@ -31,12 +34,10 @@ public class LlmTextProcessorConfig {
                 .build()
                 .create(LlmTextProcessorApi.class);
 
-        val timer = Timer.builder("integration.call")
-                .tags("integration.service", "llm-text-processor", "integration.method", "splitText")
-                .publishPercentileHistogram()
-                .publishPercentiles(0.9, 0.95, 0.99)
-                .register(registry);
+        val timer = buildTimer(registry, LLM_TEXT_PROCESSOR_SERVICE, "split-text");
+        val status4xxCounter = buildCounter(registry, ErrorCounterType.STATUS_4XX, LLM_TEXT_PROCESSOR_SERVICE, "split-text");
+        val status5xxCounter = buildCounter(registry, ErrorCounterType.STATUS_5XX, LLM_TEXT_PROCESSOR_SERVICE, "split-text");
 
-        return new LlmTextProcessorServiceImpl(api, timer, props.maxRetries());
+        return new LlmTextProcessorServiceImpl(api, timer, status4xxCounter, status5xxCounter, props.maxRetries());
     }
 }

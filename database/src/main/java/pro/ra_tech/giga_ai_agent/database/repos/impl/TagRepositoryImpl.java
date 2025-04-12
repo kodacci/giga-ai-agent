@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.database.repos.impl;
 
+import io.micrometer.core.annotation.Timed;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,12 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "tag", "repository.method", "find-by-names"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
     public Either<AppFailure, List<TagData>> findByNames(List<String> names) {
         return Try.of(
                 () -> jdbc.sql("SELECT id, name FROM tags WHERE name in (:names)")
@@ -39,6 +46,12 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "tag", "repository.method", "create-list"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
     public Either<AppFailure, List<TagData>> create(List<String> names) {
         return Try.of(
                 () -> names.stream().map(this::createUnsafe).toList()
@@ -48,6 +61,12 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "tag", "repository.method", "exists"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
     public Either<AppFailure, Boolean> exists(String name) {
         return Try.of(
                 () -> !jdbc.sql("SELECT 1 from tags WHERE name = :name")
@@ -71,6 +90,12 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "tag", "repository.method", "create"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
     public Either<AppFailure, TagData> create(String data) {
         return Try.of(() -> createUnsafe(data))
                 .toEither()

@@ -10,6 +10,7 @@ public interface PdfService {
     Either<AppFailure, PdfProcessingInfo> handlePdf(
             byte[] contents,
             List<String> tags,
-            String name
+            String name,
+            String description
     );
 }

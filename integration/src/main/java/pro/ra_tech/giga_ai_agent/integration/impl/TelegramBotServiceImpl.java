@@ -3,9 +3,12 @@ package pro.ra_tech.giga_ai_agent.integration.impl;
 import dev.failsafe.RetryPolicy;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Timer;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.lang.Nullable;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
@@ -22,6 +25,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class TelegramBotServiceImpl extends BaseRestService implements TelegramBotService {
@@ -29,6 +33,14 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
     private final TelegramBotApi pollApi;
     private final int updateLimit;
     private final int updateTimeout;
+    private final Timer sendMessageTimer;
+    private final Timer getMeTimer;
+    private final Counter sendMessage4xxCounter;
+    private final Counter sendMessage5xxCounter;
+    private final Counter getUpdates4xxCounter;
+    private final Counter getUpdates5xxCounter;
+    private final Counter getMe4xxCounter;
+    private final Counter getMe5xxCounter;
     private final RetryPolicy<Response<TelegramApiResponse<TelegramUser>>> getMePolicy;
     private final RetryPolicy<Response<TelegramApiResponse<List<BotUpdate>>>> getUpdatesPolicy;
     private final RetryPolicy<Response<TelegramApiResponse<TelegramMessage>>> sendMessagePolicy;
@@ -40,12 +52,28 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
             TelegramBotApi pollApi,
             int maxRetries,
             int updateLimit,
-            int updateTimeout
+            int updateTimeout,
+            Timer sendMessageTimer,
+            Timer getMeTimer,
+            Counter sendMessage4xxCounter,
+            Counter getUpdates4xxCounter,
+            Counter getMe4xxCounter,
+            Counter sendMessage5xxCounter,
+            Counter getUpdates5xxCounter,
+            Counter getMe5xxCounter
     ) {
         this.api = api;
         this.pollApi = pollApi;
         this.updateLimit = updateLimit;
         this.updateTimeout = updateTimeout;
+        this.sendMessageTimer = sendMessageTimer;
+        this.getMeTimer = getMeTimer;
+        this.sendMessage4xxCounter = sendMessage4xxCounter;
+        this.sendMessage5xxCounter = sendMessage5xxCounter;
+        this.getUpdates4xxCounter = getUpdates4xxCounter;
+        this.getUpdates5xxCounter = getUpdates5xxCounter;
+        this.getMe4xxCounter = getMe4xxCounter;
+        this.getMe5xxCounter = getMe5xxCounter;
 
         getUpdatesPolicy = buildPolicy(maxRetries);
         sendMessagePolicy = buildPolicy(maxRetries);
@@ -58,9 +86,16 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
 
     private <T> Either<AppFailure, T> sendTelegramRequest(
             RetryPolicy<Response<TelegramApiResponse<T>>> policy,
-            Call<TelegramApiResponse<T>> call
+            Call<TelegramApiResponse<T>> call,
+            @Nullable Timer timer,
+            Counter status4xxCounter,
+            Counter status5xxCounter
     ) {
-        return sendRequest(policy, call, this::toFailure)
+        return Optional.ofNullable(timer)
+                .map(notNull ->
+                        sendMeteredRequest(policy, notNull, status4xxCounter, status5xxCounter, call, this::toFailure)
+                )
+                .orElseGet(() -> sendRequest(policy, call, this::toFailure))
                 .flatMap(res -> {
                     log.debug("Telegram response: {}", res);
                     if (res.ok() && res.result() != null) {
@@ -77,7 +112,7 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
 
     @Override
     public Either<AppFailure, TelegramUser> getMe() {
-        return sendTelegramRequest(getMePolicy, api.getMe());
+        return sendTelegramRequest(getMePolicy, api.getMe(), getMeTimer, getMe4xxCounter, getMe5xxCounter);
     }
 
     @Override
@@ -85,7 +120,10 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
     public Either<AppFailure, List<BotUpdate>> getUpdates() {
         return sendTelegramRequest(
                 getUpdatesPolicy,
-                pollApi.getUpdates(new GetUpdatesRequest(offset, updateLimit, updateTimeout, null))
+                pollApi.getUpdates(new GetUpdatesRequest(offset, updateLimit, updateTimeout, null)),
+                null,
+                getUpdates4xxCounter,
+                getUpdates5xxCounter
         )
                 .peek(res -> {
                     if (!res.isEmpty()) {
@@ -97,12 +135,6 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
     }
 
     @Override
-    @Timed(
-            value = "integration.call",
-            extraTags = {"integration.service", "telegram-bot", "integration.method", "sendMessage"},
-            histogram = true,
-            percentiles = {0.9, 0.95, 0.99}
-    )
     public Either<AppFailure, TelegramMessage> sendMessage(long chatId, String text, Integer replyMessageId) {
         return sendMessage(chatId, text, replyMessageId, null);
     }
@@ -112,6 +144,12 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
         val reply = replyMessageId == null ? null : new ReplyParameters(replyMessageId);
         val request = new SendMessageRequest(chatId, text, parseMode,false, reply);
 
-        return sendTelegramRequest(sendMessagePolicy, api.sendMessage(request));
+        return sendTelegramRequest(
+                sendMessagePolicy,
+                api.sendMessage(request),
+                sendMessageTimer,
+                sendMessage4xxCounter,
+                sendMessage5xxCounter
+        );
     }
 }

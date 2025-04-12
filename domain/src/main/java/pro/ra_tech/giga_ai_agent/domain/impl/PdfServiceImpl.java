@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
+import io.micrometer.core.annotation.Timed;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
@@ -36,12 +37,23 @@ public class PdfServiceImpl implements PdfService {
     }
 
     @Override
-    public Either<AppFailure, PdfProcessingInfo> handlePdf(byte[] contents, List<String> tags, String name) {
+    @Timed(
+            value = "business.process.call",
+            extraTags = {"business.process.service", "pdf-service", "business.process.method", "handle-pdf"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
+    public Either<AppFailure, PdfProcessingInfo> handlePdf(
+            byte[] contents,
+            List<String> tags,
+            String name,
+            String description
+    ) {
         return toText(contents)
                 .peek(text -> log.info("Got text with length {} from pdf", format.format(text.length())))
                 .flatMap(llmService::splitText)
                 .peek(chunks -> log.info("Got {} chunks from llm text processor", chunks.size()))
-                .map(chunks -> new DocumentData(name, tags, chunks))
+                .map(chunks -> new DocumentData(name, description, tags, chunks))
                 .flatMap(embeddingService::createEmbeddings)
                 .map(PdfProcessingInfo::new);
     }

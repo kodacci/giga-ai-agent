@@ -1,4 +1,4 @@
-package pro.ra_tech.giga_ai_agent.core.controllers.pdf_upload;
+package pro.ra_tech.giga_ai_agent.core.controllers.document_upload;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,8 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
-import pro.ra_tech.giga_ai_agent.core.controllers.pdf_upload.dto.DocumentMetadata;
-import pro.ra_tech.giga_ai_agent.core.controllers.pdf_upload.dto.PdfUploadResponse;
+import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.DocumentMetadata;
+import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.PdfUploadResponse;
 
 @Validated
 @Tag(name = "Documents upload")

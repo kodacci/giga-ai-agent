@@ -3,13 +3,19 @@ package pro.ra_tech.giga_ai_agent.integration.rest.giga.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 
-@RequiredArgsConstructor
 public enum EmbeddingModel {
     EMBEDDINGS("Embeddings");
 
     private final String value;
+    @Getter
+    private final String balanceName;
+
+    EmbeddingModel(String value) {
+        this.value = value;
+        balanceName = value.toLowerCase();
+    }
 
     @Override
     @JsonValue

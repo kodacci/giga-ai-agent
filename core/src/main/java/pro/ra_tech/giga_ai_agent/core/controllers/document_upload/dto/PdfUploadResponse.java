@@ -1,4 +1,4 @@
-package pro.ra_tech.giga_ai_agent.core.controllers.pdf_upload.dto;
+package pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

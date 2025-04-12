@@ -9,10 +9,12 @@ public record GigaChatProps (
     String apiBaseUrl,
     int requestTimeoutMs,
     int maxRetries,
+    int retryTimeoutMs,
     String clientId,
     String authKey,
     int authRetryTimeoutMs,
     @Min(1)
-    int embeddingsInputsMaxCount
+    int embeddingsInputsMaxCount,
+    boolean stubEmbeddings
 ) {
 }

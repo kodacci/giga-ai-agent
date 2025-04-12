@@ -1,14 +1,17 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
+import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingPersistentData;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelUsage;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageParseMode;
@@ -16,9 +19,11 @@ import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramMessage
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramUser;
 
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.stream.Collectors;
 
 import static pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageEntityType.MENTION;
 import static pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramChatType.PRIVATE;
@@ -30,6 +35,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
     private final TelegramBotService botService;
     private final GigaChatService gigaService;
     private final AiModelType aiModelType;
+    private final EmbeddingRepository embeddingRepo;
 
     private final DecimalFormat balanceFormatter = new DecimalFormat("###,###,###");
 
@@ -71,18 +77,20 @@ public class TelegramBotUpdatesHandler implements Runnable {
         );
     }
 
-    private @Nullable String toBalanceMessage(GetBalanceResponse res) {
+    private String toBalanceMessage(GetBalanceResponse res) {
         log.info("Got AI model balance: {}", res);
 
         return res.balance().stream()
-                .filter(balance -> balance.usage().equals(aiModelType.toString()))
-                .findAny()
+                .filter(balance ->
+                        balance.usage().equals(aiModelType.getBalanceName()) ||
+                                balance.usage().equals(EmbeddingModel.EMBEDDINGS.getBalanceName())
+                )
                 .map(balance -> String.format(
                         "*Баланс (модель %s):* %s токенов",
                         balance.usage(),
                         balanceFormatter.format(balance.value())
                 ))
-                .orElse(null);
+                .collect(Collectors.joining("\n\n---------\n\n"));
     }
 
     private void sendResponse(TelegramMessage message, String prompt, String user) {
@@ -91,16 +99,31 @@ public class TelegramBotUpdatesHandler implements Runnable {
         val replyTo = message.messageId();
         log.info("Asking AI model rq: {}, session: {}, with: {}", id, user, prompt);
 
-        gigaService.askModel(id, aiModelType, prompt, user)
+        gigaService.createEmbeddings(List.of(prompt))
+                .peek(res -> log.info("Created embedding for prompt: {}", res))
+                .flatMap(res -> embeddingRepo.vectorSearch(
+                        res.data()
+                                .stream()
+                                .findAny()
+                                .map(EmbeddingData::embedding)
+                                .orElse(List.of())
+                ))
+                .peek(embeddings -> log.info("Found embeddings {} in db for prompt {}", embeddings, prompt))
+                .flatMap(embeddings -> gigaService.askModel(
+                        id,
+                        aiModelType,
+                        prompt,
+                        user,
+                        embeddings.stream()
+                                .map(EmbeddingPersistentData::textData)
+                                .toList()
+                ))
                 .map(res -> sendAnswerParts(res, chatId, replyTo))
                 .flatMap(usage -> botService.sendMessage(chatId, toUsageMessage(usage), null, MessageParseMode.MARKDOWN))
                 .flatMap(sent -> gigaService.getBalance(null))
-                .flatMap(balance ->
-                        Optional.ofNullable(toBalanceMessage(balance))
-                                .map(text -> botService.sendMessage(chatId, text, null, MessageParseMode.MARKDOWN))
-                                .orElse(null)
-                )
-                .peekLeft(failure -> log.error("Error while asking model and sending answer: {}", failure.getMessage()));
+                .map(this::toBalanceMessage)
+                .map(text -> text.isBlank() ? null : botService.sendMessage(chatId, text, null, MessageParseMode.MARKDOWN))
+                .peekLeft(failure -> log.error("Error while asking model and sending answer", failure.getCause()));
     }
 
     @Override
@@ -147,6 +170,8 @@ public class TelegramBotUpdatesHandler implements Runnable {
                 log.info("Interrupting bot updates handler");
                 Thread.currentThread().interrupt();
                 return;
+            } catch (Exception ex) {
+                log.error("Unexpected exception:", ex);
             }
         }
     }

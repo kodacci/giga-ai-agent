@@ -16,10 +16,12 @@ app:
     api-base-url: ${GIGA_CHAT_API_BASE_URL}
     request-timeout-ms: ${GIGA_CHAT_API_REQUEST_TIMEOUT_MS}
     max-retries: ${GIGA_CHAT_API_MAX_RETRIES}
+    retry-timeout-ms: ${GIGA_CHAT_API_RETRY_TIMEOUT_MS}
     client-id: ${GIGA_CHAT_CLIENT_ID}
     auth-key: ${GIGA_CHAT_AUTH_KEY}
     auth-retry-timeout-ms: ${GIGA_CHAT_AUTH_RETRY_TIMEOUT_MS}
     embeddings-inputs-max-count: ${GIGA_CHAT_EMBEDDINGS_INPUTS_MAX_COUNT}
+    stub-embeddings: ${GIGA_CHAT_STUB_EMBEDDINGS}
   telegram:
     api:
       rest-api-base-url: ${TELEGRAM_BOT_REST_BASE_URL}

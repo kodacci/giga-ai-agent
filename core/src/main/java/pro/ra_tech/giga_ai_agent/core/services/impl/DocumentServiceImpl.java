@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import pro.ra_tech.giga_ai_agent.core.controllers.pdf_upload.dto.DocumentMetadata;
-import pro.ra_tech.giga_ai_agent.core.controllers.pdf_upload.dto.PdfUploadResponse;
+import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.DocumentMetadata;
+import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.PdfUploadResponse;
 import pro.ra_tech.giga_ai_agent.core.services.api.DocumentService;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
@@ -41,7 +41,9 @@ public class DocumentServiceImpl implements DocumentService {
                 metadata
         );
 
-        return toBytes(file).flatMap(data -> pdfService.handlePdf(data, metadata.tags(), metadata.documentName()))
+        return toBytes(file).flatMap(data -> pdfService.handlePdf(
+                    data, metadata.tags(), metadata.documentName(), metadata.description()
+                ))
                 .map(PdfUploadResponse::of);
     }
 }
