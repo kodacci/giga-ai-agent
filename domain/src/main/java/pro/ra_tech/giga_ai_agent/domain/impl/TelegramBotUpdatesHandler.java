@@ -86,11 +86,11 @@ public class TelegramBotUpdatesHandler implements Runnable {
                                 balance.usage().equals(EmbeddingModel.EMBEDDINGS.getBalanceName())
                 )
                 .map(balance -> String.format(
-                        "*Баланс (модель %s):* %s токенов",
+                        "*Баланс модели %s:* %s токенов",
                         balance.usage(),
                         balanceFormatter.format(balance.value())
                 ))
-                .collect(Collectors.joining("\n\n---------\n\n"));
+                .collect(Collectors.joining("\n---------\n"));
     }
 
     private void sendResponse(TelegramMessage message, String prompt, String user) {
