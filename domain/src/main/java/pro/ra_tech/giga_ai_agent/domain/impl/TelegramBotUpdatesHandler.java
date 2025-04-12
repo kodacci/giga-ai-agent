@@ -1,6 +1,5 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
