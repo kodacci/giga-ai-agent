@@ -84,7 +84,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
         return res.balance().stream()
                 .filter(balance ->
                         balance.usage().equals(aiModelType.getBalanceName()) ||
-                                balance.usage().equals(EmbeddingModel.EMBEDDINGS.toString())
+                                balance.usage().equals(EmbeddingModel.EMBEDDINGS.getBalanceName())
                 )
                 .map(balance -> String.format(
                         "*Баланс (модель %s):* %s токенов",
