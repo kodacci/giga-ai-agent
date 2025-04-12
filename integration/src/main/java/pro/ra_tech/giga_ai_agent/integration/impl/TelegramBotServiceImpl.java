@@ -95,9 +95,9 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
                 .map(notNull ->
                         sendMeteredRequest(policy, notNull, status4xxCounter, status5xxCounter, call, this::toFailure)
                 )
-                .orElse(sendRequest(policy, call, this::toFailure))
+                .orElseGet(() -> sendRequest(policy, call, this::toFailure))
                 .flatMap(res -> {
-                    log.debug("Telegram response: {}", res);
+                    log.info("Telegram response: {}", res);
                     if (res.ok() && res.result() != null) {
                         return Either.right(res.result());
                     }
@@ -143,8 +143,6 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
     public Either<AppFailure, TelegramMessage> sendMessage(long chatId, String text, Integer replyMessageId, MessageParseMode parseMode) {
         val reply = replyMessageId == null ? null : new ReplyParameters(replyMessageId);
         val request = new SendMessageRequest(chatId, text, parseMode,false, reply);
-
-        log.info("Sending telegram message: {}", text);
 
         return sendTelegramRequest(
                 sendMessagePolicy,
