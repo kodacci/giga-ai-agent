@@ -3,9 +3,9 @@ package pro.ra_tech.giga_ai_agent.integration.rest.giga.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public enum AiModelType {
     GIGA_CHAT("GigaChat"),
     GIGA_CHAT_PRO("GigaChat-Pro"),
@@ -17,6 +17,13 @@ public enum AiModelType {
     GIGA_CHAT_2_MAX("GigaChat-2-Max");
 
     private final String value;
+    @Getter
+    private final String balanceName;
+
+    AiModelType(String value) {
+        this.value = value;
+        balanceName = value.replaceAll("-2", "");
+    }
 
     @Override
     @JsonValue

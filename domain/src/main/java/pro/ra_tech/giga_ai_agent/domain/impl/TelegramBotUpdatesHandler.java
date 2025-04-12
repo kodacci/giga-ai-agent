@@ -118,12 +118,12 @@ public class TelegramBotUpdatesHandler implements Runnable {
                 .map(res -> sendAnswerParts(res, chatId, replyTo))
                 .flatMap(usage -> botService.sendMessage(chatId, toUsageMessage(usage), null, MessageParseMode.MARKDOWN))
                 .flatMap(sent -> gigaService.getBalance(null))
-                .flatMap(balance ->
+                .map(balance ->
                         Optional.ofNullable(toBalanceMessage(balance))
                                 .map(text -> botService.sendMessage(chatId, text, null, MessageParseMode.MARKDOWN))
                                 .orElse(null)
                 )
-                .peekLeft(failure -> log.error("Error while asking model and sending answer: {}", failure.getMessage()));
+                .peekLeft(failure -> log.error("Error while asking model and sending answer", failure.getCause()));
     }
 
     @Override
@@ -170,6 +170,8 @@ public class TelegramBotUpdatesHandler implements Runnable {
                 log.info("Interrupting bot updates handler");
                 Thread.currentThread().interrupt();
                 return;
+            } catch (Exception ex) {
+                log.error("Unexpected exception:", ex);
             }
         }
     }
