@@ -1,5 +1,8 @@
 package pro.ra_tech.giga_ai_agent.domain.config;
 
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.val;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -13,16 +16,21 @@ import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.TagRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
+import pro.ra_tech.giga_ai_agent.domain.impl.BalanceGaugeService;
 import pro.ra_tech.giga_ai_agent.domain.impl.EmbeddingServiceImpl;
 import pro.ra_tech.giga_ai_agent.domain.impl.TelegramBotUpdatesHandler;
 import pro.ra_tech.giga_ai_agent.domain.impl.TelegramListener;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
 
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
 @Configuration
@@ -92,5 +100,26 @@ public class DomainConfig {
                 chatService,
                 gigaProps.embeddingsInputsMaxCount()
         );
+    }
+
+    private AtomicLong buildBalanceGauge(MeterRegistry registry, String model, AtomicLong value) {
+        Gauge.builder("giga.chat.balance", value, AtomicLong::get)
+                .description("Giga Chat model balance")
+                .tag("model", model)
+                .register(registry);
+
+        return value;
+    }
+
+    @Bean
+    BalanceGaugeService balanceGaugeService(MeterRegistry registry, GigaChatService gigaChatService) {
+        val aiModelsBalances = Map.of(
+                AiModelType.GIGA_CHAT.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT.toString(), new AtomicLong(0)),
+                AiModelType.GIGA_CHAT_PRO.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT_PRO.toString(), new AtomicLong(0)),
+                AiModelType.GIGA_CHAT_MAX.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT_MAX.toString(), new AtomicLong(0)),
+                EmbeddingModel.EMBEDDINGS.getBalanceName(), buildBalanceGauge(registry, EmbeddingModel.EMBEDDINGS.toString(), new AtomicLong(0))
+        );
+
+        return new BalanceGaugeService(gigaChatService, aiModelsBalances);
     }
 }
