@@ -23,6 +23,7 @@ public interface GigaChatService {
     );
 
     Either<AppFailure, GetBalanceResponse> getBalance(@Nullable String sessionId);
+    Either<AppFailure, GetBalanceResponse> getBalance();
 
     Either<AppFailure, CreateEmbeddingsResponse> createEmbeddings(List<String> input);
 }

@@ -220,6 +220,12 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                 ));
     }
 
+    @Override
+    @Synchronized("mutex")
+    public Either<AppFailure, GetBalanceResponse> getBalance() {
+        return getBalance(null);
+    }
+
     private CreateEmbeddingsResponse stubEmbeddings(List<String> input) {
         val data = Stream.ofAll(input)
                 .zipWithIndex()
