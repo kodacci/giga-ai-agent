@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
@@ -36,6 +37,7 @@ import java.util.stream.IntStream;
 @Configuration
 @EnableConfigurationProperties(TelegramBotProps.class)
 @ComponentScan("pro.ra_tech.giga_ai_agent.domain.impl")
+@EnableScheduling
 public class DomainConfig {
     @Bean
     public BlockingQueue<BotUpdate> botUpdatesQueue(TelegramBotProps props) {

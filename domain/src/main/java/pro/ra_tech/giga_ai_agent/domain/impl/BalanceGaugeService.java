@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class BalanceGaugeService {
     private final GigaChatService gigaChatService;
     private final Map<String, AtomicLong> aiModelsBalances;
