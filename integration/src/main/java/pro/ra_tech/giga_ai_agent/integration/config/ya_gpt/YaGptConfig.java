@@ -39,7 +39,7 @@ public class YaGptConfig extends BaseIntegrationConfig {
     }
 
     @Bean
-    public YaGptAuthServiceImpl yaGptService(
+    public YaGptAuthServiceImpl yaGptAuthService(
             OkHttpClient yaGptHttpClient,
             YaGptProps props,
             TaskScheduler yaGptAuthScheduler,
