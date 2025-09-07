@@ -15,7 +15,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.YaGptService;
 
 @RestController
 @RequestMapping(
-        value = "/api/v1/ya-gpt/ask",
+        value = "/api/v1/ya-gpt",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE}
 )
