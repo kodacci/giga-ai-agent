@@ -21,7 +21,7 @@ spec:
         - {{ giga_chat_host }}
         - {{ telegram_api_host }}
         - {{ yandex_gpt_auth_host }}
-        - {{ yandex_gpt_host }}
+        - {{ yandex_gpt_api_host }}
     - port:
         number: 443
         name: https
@@ -32,7 +32,7 @@ spec:
         - {{ giga_chat_host }}
         - {{ telegram_api_host }}
         - {{ yandex_gpt_auth_host }}
-        - {{ yandex_gpt_host }}
+        - {{ yandex_gpt_api_host }}
       tls:
         mode: PASSTHROUGH
     - port:
