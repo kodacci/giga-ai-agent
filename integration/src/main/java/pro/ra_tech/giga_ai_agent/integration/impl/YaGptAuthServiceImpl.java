@@ -7,6 +7,7 @@ import io.micrometer.core.instrument.Timer;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.scheduling.TaskScheduler;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
@@ -17,6 +18,7 @@ import retrofit2.Response;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Slf4j
 public class YaGptAuthServiceImpl extends BaseAuthService {
@@ -49,6 +51,12 @@ public class YaGptAuthServiceImpl extends BaseAuthService {
         this.auth5xxCounter = auth5xxCounter;
     }
 
+    private Instant buildExpiresAt(OffsetDateTime expiresAt) {
+        val bestExp = OffsetDateTime.now().plus(AUTH_TOKEN_EXPIRES_TIMEOUT);
+
+        return bestExp.isBefore(expiresAt) ? bestExp.toInstant() : expiresAt.toInstant();
+    }
+
     @Override
     protected Either<AppFailure, AuthTokenDto> acquireToken() {
         return Try.of(
@@ -62,7 +70,7 @@ public class YaGptAuthServiceImpl extends BaseAuthService {
                 .mapLeft(this::toFailure)
                 .map(res -> new AuthTokenDto(
                         res.iamToken(),
-                        Instant.now().plus(AUTH_TOKEN_EXPIRES_TIMEOUT)
+                        buildExpiresAt(res.expiresAt())
                 ));
     }
 
