@@ -1,6 +1,7 @@
 package pro.ra_tech.giga_ai_agent.core.controllers.ya_gpt;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,8 @@ import pro.ra_tech.giga_ai_agent.integration.api.YaGptService;
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_PROBLEM_JSON_VALUE}
 )
 @RequiredArgsConstructor
-public class AskModelController extends BaseController implements YaGptApi {
+@ConditionalOnProperty(name = "app.ya-gpt.enabled", havingValue = "true")
+public class YaGptController extends BaseController implements YaGptApi {
     private final YaGptService yaGptService;
 
     @Override
