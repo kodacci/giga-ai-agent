@@ -15,5 +15,7 @@ spec:
     - name: giga-chat
     - name: telegram-bot
     - name: giga-ai-agent-database
+    - name: yandex-gpt-auth
+    - name: yandex-gpt-api
   exportTo:
     - "."
