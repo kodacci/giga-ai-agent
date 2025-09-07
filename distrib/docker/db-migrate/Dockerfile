@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM liquibase/liquibase:4.31
+FROM liquibase/liquibase:4.33
 
 LABEL authors="Andrey Ryabtsev"
 
