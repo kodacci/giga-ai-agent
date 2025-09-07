@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import pro.ra_tech.giga_ai_agent.integration.api.AuthService;
+import pro.ra_tech.giga_ai_agent.integration.api.YaGptService;
 import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
 import pro.ra_tech.giga_ai_agent.integration.impl.YaGptAuthServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.impl.YaGptServiceImpl;
@@ -67,20 +68,20 @@ public class YaGptConfig extends BaseIntegrationConfig {
     }
 
     @Bean
-    public YaGptServiceImpl yaGptService(
-            OkHttpClient client,
+    public YaGptService yaGptService(
+            OkHttpClient yaGptHttpClient,
             YaGptProps props,
-            AuthService auth,
+            AuthService yaGptAuthService,
             MeterRegistry registry
     ) {
         val api = new Retrofit.Builder()
                 .baseUrl(props.apiBaseUrl())
                 .addConverterFactory(JacksonConverterFactory.create())
-                .client(client)
+                .client(yaGptHttpClient)
                 .build();
 
         return new YaGptServiceImpl(
-                auth,
+                yaGptAuthService,
                 "gpt://" + props.cloudCatalogId() + "/yandexgpt",
                 api.create(YaGptApi.class),
                 buildPolicy(props.maxRetries(), props.retryTimeoutMs()),

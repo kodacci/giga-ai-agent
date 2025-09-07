@@ -54,7 +54,7 @@
 		<assertj.version>3.24.2</assertj.version>
 		<spring.boot.version>3.4.1</spring.boot.version>
 		<spring.version>6.2.1</spring.version>
-		<springdoc.openapi.version>2.3.0</springdoc.openapi.version>
+		<springdoc.openapi.version>2.8.13</springdoc.openapi.version>
 		<problem.version>0.27.0</problem.version>
 		<vavr.version>0.10.4</vavr.version>
 		<jacoco.maven.plugin.version>0.8.11</jacoco.maven.plugin.version>

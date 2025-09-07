@@ -66,7 +66,7 @@ public class GigaChatConfig extends BaseIntegrationConfig {
 
     @Bean
     public GigaChatService gigaChatService(
-            OkHttpClient client,
+            OkHttpClient gigaHttpClient,
             GigaChatProps props,
             GigaAuthService authService,
             MeterRegistry registry
@@ -74,7 +74,7 @@ public class GigaChatConfig extends BaseIntegrationConfig {
         val gigaApi = new Retrofit.Builder()
                 .baseUrl(props.apiBaseUrl())
                 .addConverterFactory(JacksonConverterFactory.create())
-                .client(client)
+                .client(gigaHttpClient)
                 .build();
 
         return new GigaChatServiceImpl(
