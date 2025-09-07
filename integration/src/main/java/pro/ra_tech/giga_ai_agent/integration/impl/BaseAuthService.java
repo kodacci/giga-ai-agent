@@ -29,7 +29,7 @@ public abstract class BaseAuthService extends BaseRestService implements AuthSer
         @Synchronized("mutex")
         public void run() {
             acquireToken().peek(tokenData -> {
-                        authHeader = "Bearer " + tokenData;
+                        authHeader = "Bearer " + tokenData.token();
                         taskScheduler.schedule(
                                 new BaseAuthService.AuthUpdater(mutex),
                                 tokenData.expiresAt().minus(EXPIRES_TIMEOUT_CORRECTION_SEC, ChronoUnit.SECONDS)

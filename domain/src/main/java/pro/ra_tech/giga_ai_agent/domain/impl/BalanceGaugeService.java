@@ -28,7 +28,7 @@ public class BalanceGaugeService {
         });
     }
 
-    @Scheduled(fixedRate = 15L, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
     public void updateBalanceGauge() {
         gigaChatService.getBalance()
                 .peek(this::updateGauges)
