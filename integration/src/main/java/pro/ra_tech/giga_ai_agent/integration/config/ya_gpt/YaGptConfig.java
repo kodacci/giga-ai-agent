@@ -81,7 +81,7 @@ public class YaGptConfig extends BaseIntegrationConfig {
 
         return new YaGptServiceImpl(
                 auth,
-                "gtp://" + props.cloudCatalogId() + "/yandexgpt",
+                "gpt://" + props.cloudCatalogId() + "/yandexgpt",
                 api.create(YaGptApi.class),
                 buildPolicy(props.maxRetries(), props.retryTimeoutMs()),
                 buildTimer(registry, YA_GPT_SERVICE, YA_GPT_SERVICE_COMPLETIONS),
