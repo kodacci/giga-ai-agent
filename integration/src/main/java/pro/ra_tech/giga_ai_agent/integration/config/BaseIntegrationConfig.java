@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.integration.config;
 
+import dev.failsafe.RetryPolicy;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -8,6 +9,9 @@ import lombok.val;
 import okhttp3.OkHttpClient;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import retrofit2.Response;
+
+import java.time.Duration;
 
 public abstract class BaseIntegrationConfig {
     protected Timer buildTimer(MeterRegistry registry, String service, String method) {
@@ -38,6 +42,12 @@ public abstract class BaseIntegrationConfig {
     protected OkHttpClient buildOkHttpClient(int callTimeoutMs) {
         return new OkHttpClient.Builder()
                 .callTimeout(callTimeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS)
+                .build();
+    }
+
+    protected static <T> RetryPolicy<Response<T>> buildPolicy(int maxRetries, int retryTimeoutMs) {
+        return RetryPolicy.<Response<T>>builder().withMaxRetries(maxRetries)
+                .withDelay(Duration.ofMillis(retryTimeoutMs))
                 .build();
     }
 

@@ -8,9 +8,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
+import pro.ra_tech.giga_ai_agent.integration.api.AuthService;
 import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
 import pro.ra_tech.giga_ai_agent.integration.impl.YaGptAuthServiceImpl;
+import pro.ra_tech.giga_ai_agent.integration.impl.YaGptServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.rest.ya_gpt.api.AuthApi;
+import pro.ra_tech.giga_ai_agent.integration.rest.ya_gpt.api.YaGptApi;
 import pro.ra_tech.giga_ai_agent.integration.rest.ya_gpt.model.AuthResponse;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -21,6 +24,9 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 public class YaGptConfig extends BaseIntegrationConfig {
     private static final String YA_GPT_AUTH_SERVICE = "ya-gpt-auth";
     private static final String YA_GPT_AUTH_AUTHENTICATE = "authenticate";
+
+    private static final String YA_GPT_SERVICE = "ya-gpt";
+    private static final String YA_GPT_SERVICE_COMPLETIONS = "completions";
 
     @Bean
     public TaskScheduler yaGptAuthScheduler() {
@@ -57,6 +63,30 @@ public class YaGptConfig extends BaseIntegrationConfig {
                 buildCounter(registry, ErrorCounterType.STATUS_5XX, YA_GPT_AUTH_SERVICE, YA_GPT_AUTH_AUTHENTICATE),
                 yaGptAuthScheduler,
                 props.retryTimeoutMs()
+        );
+    }
+
+    @Bean
+    public YaGptServiceImpl yaGptService(
+            OkHttpClient client,
+            YaGptProps props,
+            AuthService auth,
+            MeterRegistry registry
+    ) {
+        val api = new Retrofit.Builder()
+                .baseUrl(props.apiBaseUrl())
+                .addConverterFactory(JacksonConverterFactory.create())
+                .client(client)
+                .build();
+
+        return new YaGptServiceImpl(
+                auth,
+                "gtp://" + props.cloudCatalogId() + "/yandexgpt",
+                api.create(YaGptApi.class),
+                buildPolicy(props.maxRetries(), props.retryTimeoutMs()),
+                buildTimer(registry, YA_GPT_SERVICE, YA_GPT_SERVICE_COMPLETIONS),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, YA_GPT_SERVICE, YA_GPT_SERVICE_COMPLETIONS),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, YA_GPT_SERVICE, YA_GPT_SERVICE_COMPLETIONS)
         );
     }
 }
