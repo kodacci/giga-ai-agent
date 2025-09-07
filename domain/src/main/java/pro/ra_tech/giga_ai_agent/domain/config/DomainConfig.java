@@ -72,15 +72,13 @@ public class DomainConfig {
         executor.initialize();
 
         IntStream.range(0, props.updatesHandlersCount())
-                .forEach(idx -> {
-                    executor.execute(new TelegramBotUpdatesHandler(
-                            botUpdatesQueue,
-                            botService,
-                            gigaChatService,
-                            props.aiModelType(),
-                            embeddingRepository
-                    ));
-                });
+                .forEach(idx -> executor.execute(new TelegramBotUpdatesHandler(
+                        botUpdatesQueue,
+                        botService,
+                        gigaChatService,
+                        props.aiModelType(),
+                        embeddingRepository
+                )));
 
         return executor;
     }

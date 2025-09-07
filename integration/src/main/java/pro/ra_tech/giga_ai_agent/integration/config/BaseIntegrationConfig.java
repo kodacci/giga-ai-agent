@@ -4,6 +4,10 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
+import okhttp3.OkHttpClient;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 public abstract class BaseIntegrationConfig {
     protected Timer buildTimer(MeterRegistry registry, String service, String method) {
@@ -20,6 +24,21 @@ public abstract class BaseIntegrationConfig {
                 .tag("integration.service", service)
                 .tag("integration.method", method)
                 .register(registry);
+    }
+
+    protected TaskScheduler buildThreadPoolScheduler(int maxThreads, String namePrefix) {
+        val scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(maxThreads);
+        scheduler.setThreadNamePrefix(namePrefix);
+        scheduler.initialize();
+
+        return scheduler;
+    }
+
+    protected OkHttpClient buildOkHttpClient(int callTimeoutMs) {
+        return new OkHttpClient.Builder()
+                .callTimeout(callTimeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS)
+                .build();
     }
 
     @RequiredArgsConstructor

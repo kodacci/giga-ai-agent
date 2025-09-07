@@ -6,13 +6,10 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Timer;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.lang.Nullable;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.TaskScheduler;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
@@ -22,59 +19,40 @@ import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AuthScope;
 import retrofit2.Response;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
-import java.util.concurrent.locks.ReentrantLock;
 
-@RequiredArgsConstructor
 @Slf4j
-public class GigaAuthServiceImpl extends BaseRestService implements GigaAuthService {
-    private final static int EXPIRES_TIMEOUT_CORRECTION_SEC = 5;
-
-    @RequiredArgsConstructor
-    private class AuthUpdater implements Runnable {
-        private final ReentrantLock mutex;
-
-        @Synchronized("mutex")
-        public void run() {
-            authenticate().peek(res -> {
-                authHeader = "Bearer " + res.accessToken();
-                val exp = Instant.ofEpochMilli(res.expiresAt());
-                taskScheduler.schedule(
-                        new AuthUpdater(mutex),
-                        exp.minus(EXPIRES_TIMEOUT_CORRECTION_SEC, ChronoUnit.SECONDS)
-                );
-            })
-                    .peekLeft(failure -> {
-                        authHeader = null;
-                        taskScheduler.schedule(
-                                    new AuthUpdater(mutex),
-                                    Instant.now().plus(authRetryTimeoutMs, ChronoUnit.MILLIS)
-                                );
-                    });
-        }
-    }
-
-    private final ReentrantLock mutex = new ReentrantLock();
+public class GigaAuthServiceImpl extends BaseAuthService implements GigaAuthService {
 
     private final String clientId;
     private final String authKey;
     private final RetryPolicy<Response<AuthResponse>> retryPolicy;
     private final AuthApi api;
-    private final ThreadPoolTaskScheduler taskScheduler;
-    private final int authRetryTimeoutMs;
     private final Timer authTimer;
     private final Counter auth4xxCounter;
     private final Counter auth5xxCounter;
 
-    @PostConstruct
-    public void scheduleAuth() {
-        taskScheduler.schedule(new AuthUpdater(mutex), Instant.now());
-    }
+    public GigaAuthServiceImpl(
+            String clientId,
+            String authKey,
+            RetryPolicy<Response<AuthResponse>> retryPolicy,
+            AuthApi api,
+            TaskScheduler taskScheduler,
+            int authRetryTimeoutMs,
+            Timer authTimer,
+            Counter auth4xxCounter,
+            Counter auth5xxCounter
+    ) {
+        super(taskScheduler, authRetryTimeoutMs, IntegrationFailure.Code.YA_GPT_INTEGRATION_AUTH_FAILURE);
 
-    @Nullable
-    private String authHeader = null;
-    @Nullable
+        this.clientId = clientId;
+        this.authKey = authKey;
+        this.api = api;
+        this.retryPolicy = retryPolicy;
+        this.authTimer = authTimer;
+        this.auth4xxCounter = auth4xxCounter;
+        this.auth5xxCounter = auth5xxCounter;
+    }
 
     @Override
     public String getClientId() {
@@ -82,28 +60,7 @@ public class GigaAuthServiceImpl extends BaseRestService implements GigaAuthServ
     }
 
     @Override
-    @Synchronized("mutex")
-    public Either<AppFailure, String> getAuthHeader() {
-        if (authHeader == null) {
-            return Either.left(new IntegrationFailure(
-                    IntegrationFailure.Code.GIGA_CHAT_INTEGRATION_AUTH_FAILURE,
-                    getClass().getName(),
-                    "No active auth header available"
-            ));
-        }
-
-        return Either.right(authHeader);
-    }
-
-    private AppFailure toFailure(@Nullable Throwable cause) {
-        return toFailure(
-                IntegrationFailure.Code.GIGA_CHAT_INTEGRATION_AUTH_FAILURE,
-                getClass().getName(),
-                cause
-        );
-    }
-
-    private Either<AppFailure, AuthResponse> authenticate() {
+    protected Either<AppFailure, AuthTokenDto> acquireToken() {
         val uuid = UUID.randomUUID().toString();
         log.info("Auth request for client {} with uuid: {}", clientId, uuid);
         val call = api.authenticate(
@@ -115,15 +72,27 @@ public class GigaAuthServiceImpl extends BaseRestService implements GigaAuthServ
         return Try.of(() -> Failsafe.with(retryPolicy).get(() -> authTimer.recordCallable(call::execute)))
                 .map(res -> onResponse(res, auth4xxCounter, auth5xxCounter))
                 .onSuccess(res ->
-                    log.info(
-                            "Got authentication header for client {}, expires at {} ({})",
-                            clientId,
-                            res.expiresAt(),
-                            Instant.ofEpochMilli(res.expiresAt())
-                    )
+                        log.info(
+                                "Got authentication header for client {}, expires at {} ({})",
+                                clientId,
+                                res.expiresAt(),
+                                Instant.ofEpochMilli(res.expiresAt())
+                        )
                 )
                 .onFailure(cause -> log.error("Error authenticating:", cause))
                 .toEither()
-                .mapLeft(this::toFailure);
+                .mapLeft(this::toFailure)
+                .map(res -> new AuthTokenDto(
+                        res.accessToken(),
+                        Instant.ofEpochMilli(res.expiresAt())
+                ));
+    }
+
+    private AppFailure toFailure(@Nullable Throwable cause) {
+        return GigaAuthServiceImpl.this.toFailure(
+                IntegrationFailure.Code.GIGA_CHAT_INTEGRATION_AUTH_FAILURE,
+                getClass().getName(),
+                cause
+        );
     }
 }
