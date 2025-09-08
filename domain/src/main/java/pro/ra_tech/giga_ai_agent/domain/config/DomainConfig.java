@@ -10,8 +10,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.TagRepository;
@@ -39,6 +41,16 @@ import java.util.stream.IntStream;
 @ComponentScan("pro.ra_tech.giga_ai_agent.domain.impl")
 @EnableScheduling
 public class DomainConfig {
+    @Bean
+    public TaskScheduler taskScheduler() {
+        val scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(1);
+        scheduler.setThreadNamePrefix("domain-task-scheduler-");
+        scheduler.initialize();
+
+        return scheduler;
+    }
+
     @Bean
     public BlockingQueue<BotUpdate> botUpdatesQueue(TelegramBotProps props) {
         return new LinkedBlockingDeque<>(props.updatesQueueCapacity());
@@ -72,15 +84,13 @@ public class DomainConfig {
         executor.initialize();
 
         IntStream.range(0, props.updatesHandlersCount())
-                .forEach(idx -> {
-                    executor.execute(new TelegramBotUpdatesHandler(
-                            botUpdatesQueue,
-                            botService,
-                            gigaChatService,
-                            props.aiModelType(),
-                            embeddingRepository
-                    ));
-                });
+                .forEach(idx -> executor.execute(new TelegramBotUpdatesHandler(
+                        botUpdatesQueue,
+                        botService,
+                        gigaChatService,
+                        props.aiModelType(),
+                        embeddingRepository
+                )));
 
         return executor;
     }

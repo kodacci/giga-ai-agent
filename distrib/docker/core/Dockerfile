@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM eclipse-temurin:17.0.13_11-jre
+FROM eclipse-temurin:21.0.8_9-jre
 
 LABEL authors="Andrey Ryabtsev"
 

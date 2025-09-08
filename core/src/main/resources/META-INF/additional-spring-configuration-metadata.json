@@ -12,7 +12,7 @@
     },
     {
       "name": "app.telegram.api",
-      "description": "Application telegram api configuration",
+      "description": "Application Telegram API configuration",
       "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.telegram.TelegramApiProps"
     },
     {
@@ -24,6 +24,11 @@
       "name": "app.llm-text-processor",
       "description": "Application llm text processor integration properties",
       "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.llm_text_processor.LlmTextProcessorConfig"
+    },
+    {
+      "name": "app.ya-gpt",
+      "description": "Application Yandex GPT API configuration",
+      "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.ya_gpt.YaGptProps"
     }
   ],
   "properties": [
@@ -168,6 +173,47 @@
       "name": "app.llm-text-processor.max-retries",
       "description": "LLM text processor REST request max retries",
       "type": "java.lang.Integer"
+    },
+
+    {
+      "name": "app.ya-gpt.enabled",
+      "description": "Enable usage of Yandex GPT",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "name": "app.ya-gpt.auth-api-base-url",
+      "description": "Yandex GPT auth API base URL",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.ya-gpt.api-base-url",
+      "description": "Yandex GPT API base url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.ya-gpt.o-auth-token",
+      "description": "Yandex Oauth token",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.ya-gpt.request-timeout-ms",
+      "description": "Yandex GPT API request timeout ms",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.ya-gpt.max-retries",
+      "description": "Yandex GPT API max retries",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.ya-gpt.retry-timeout-ms",
+      "description": "Yandex GPT API retry timeout ms",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.ya-gpt.cloud-catalog-id",
+      "description": "Yandex cloud catalog id with AI model capabilities",
+      "type": "java.lang.String"
     }
   ],
   "hints": [

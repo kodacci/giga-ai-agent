@@ -59,7 +59,7 @@ public abstract class BaseRestService {
 
         status5xxCounter.increment();
 
-        return  onResponse(response);
+        return onResponse(response);
     }
 
     protected <R> R onResponse(Response<R> response) {
@@ -95,7 +95,12 @@ public abstract class BaseRestService {
             Call<R> call,
             Function<Throwable, AppFailure> toFailure
     ) {
-        return Try.of(() -> Failsafe.with(retryPolicy).get(() -> timer.recordCallable(call::execute)))
+        return Try.of(
+                () -> Failsafe.with(retryPolicy)
+                        .get(() -> timer.recordCallable(
+                                () -> call.isExecuted() ? call.clone().execute() : call.execute())
+                        )
+                )
                 .map(res -> onResponse(res, status4xxCounter, status5xxCounter))
                 .toEither()
                 .mapLeft(toFailure);

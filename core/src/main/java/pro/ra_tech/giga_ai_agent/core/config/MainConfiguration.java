@@ -15,6 +15,7 @@ import pro.ra_tech.giga_ai_agent.domain.config.DomainConfig;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatConfig;
 import pro.ra_tech.giga_ai_agent.integration.config.llm_text_processor.LlmTextProcessorConfig;
 import pro.ra_tech.giga_ai_agent.integration.config.telegram.TelegramApiConfig;
+import pro.ra_tech.giga_ai_agent.integration.config.ya_gpt.YaGptConfig;
 
 @Configuration
 @Slf4j
@@ -23,7 +24,8 @@ import pro.ra_tech.giga_ai_agent.integration.config.telegram.TelegramApiConfig;
         TelegramApiConfig.class,
         DomainConfig.class,
         LlmTextProcessorConfig.class,
-        DatabaseConfig.class
+        DatabaseConfig.class,
+        YaGptConfig.class
 })
 @EnableConfigurationProperties(AppMonitoringProps.class)
 @ComponentScan({

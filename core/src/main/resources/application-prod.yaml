@@ -39,3 +39,13 @@ app:
     base-url: ${LLM_TEXT_PROCESSOR_BASE_URL}
     request-timeout-ms: ${LLM_TEXT_PROCESSOR_REQUEST_TIMEOUT_MS}
     max-retries: ${LLM_TEXT_PROCESSOR_MAX_RETRIES}
+  ya-gpt:
+    enabled: ${YA_GPT_ENABLED:false}
+    auth-api-base-url: ${YA_GPT_AUTH_API_BASE_URL}
+    api-base-url: ${YA_GPT_API_BASE_URL}
+    o-auth-token: ${YA_GPT_O_AUTH_TOKEN}
+    request-timeout-ms: ${YA_GPT_REQUEST_TIMEOUT_MS}
+    max-retries: ${YA_GPT_MAX_RETIRES}
+    retry-timeout-ms: ${YA_GPT_RETRY_TIMEOUT_MS}
+    cloud-catalog-id: ${YA_GPT_CLOUD_CATALOG_ID}
+

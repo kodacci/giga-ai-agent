@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 @EnableConfigurationProperties(LlmTextProcessorProps.class)
 public class LlmTextProcessorConfig extends BaseIntegrationConfig {
     private static final String LLM_TEXT_PROCESSOR_SERVICE = "llm-text-processor";
+    private static final String SPLIT_TEXT_METHOD = "split-text";
 
     @Bean
     LlmTextProcessorService llmTextProcessorService(LlmTextProcessorProps props, MeterRegistry registry) {
@@ -34,9 +35,9 @@ public class LlmTextProcessorConfig extends BaseIntegrationConfig {
                 .build()
                 .create(LlmTextProcessorApi.class);
 
-        val timer = buildTimer(registry, LLM_TEXT_PROCESSOR_SERVICE, "split-text");
-        val status4xxCounter = buildCounter(registry, ErrorCounterType.STATUS_4XX, LLM_TEXT_PROCESSOR_SERVICE, "split-text");
-        val status5xxCounter = buildCounter(registry, ErrorCounterType.STATUS_5XX, LLM_TEXT_PROCESSOR_SERVICE, "split-text");
+        val timer = buildTimer(registry, LLM_TEXT_PROCESSOR_SERVICE, SPLIT_TEXT_METHOD);
+        val status4xxCounter = buildCounter(registry, ErrorCounterType.STATUS_4XX, LLM_TEXT_PROCESSOR_SERVICE, SPLIT_TEXT_METHOD);
+        val status5xxCounter = buildCounter(registry, ErrorCounterType.STATUS_5XX, LLM_TEXT_PROCESSOR_SERVICE, SPLIT_TEXT_METHOD);
 
         return new LlmTextProcessorServiceImpl(api, timer, status4xxCounter, status5xxCounter, props.maxRetries());
     }

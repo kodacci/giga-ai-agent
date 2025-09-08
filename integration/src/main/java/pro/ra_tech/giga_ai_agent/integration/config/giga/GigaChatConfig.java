@@ -6,7 +6,7 @@ import lombok.val;
 import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.TaskScheduler;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
@@ -19,35 +19,27 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
-import java.util.concurrent.TimeUnit;
-
 @Configuration
 public class GigaChatConfig extends BaseIntegrationConfig {
     private static final String GIGA_CHAT_SERVICE = "giga-chat";
     private static final String GIGA_AUTH_SERVICE = "giga-auth";
+    private static final String GIGA_AUTH_AUTHENTICATE = "authenticate";
 
     @Bean
     public OkHttpClient gigaHttpClient(GigaChatProps props) {
-        return new OkHttpClient.Builder()
-                .callTimeout(props.requestTimeoutMs(), TimeUnit.MILLISECONDS)
-                .build();
+        return buildOkHttpClient(props.requestTimeoutMs());
     }
 
     @Bean
-    public ThreadPoolTaskScheduler gigaAuthScheduler() {
-        val scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(1);
-        scheduler.setThreadNamePrefix("giga-auth-");
-        scheduler.initialize();
-
-        return scheduler;
+    public TaskScheduler gigaAuthScheduler() {
+        return buildThreadPoolScheduler(1, "giga-auth-");
     }
 
     @Bean
     public GigaAuthService gigaAuthenticator(
             OkHttpClient gigaHttpClient,
             GigaChatProps props,
-            ThreadPoolTaskScheduler gigaAuthScheduler,
+            TaskScheduler gigaAuthScheduler,
             MeterRegistry registry
     ) {
         val authApi = new Retrofit.Builder()
@@ -57,7 +49,7 @@ public class GigaChatConfig extends BaseIntegrationConfig {
                 .build();
 
         val retryPolicy = RetryPolicy.<Response<AuthResponse>>builder().withMaxRetries(props.maxRetries()).build();
-        val timer = buildTimer(registry, GIGA_AUTH_SERVICE, "authenticate");
+        val timer = buildTimer(registry, GIGA_AUTH_SERVICE, GIGA_AUTH_AUTHENTICATE);
 
         return new GigaAuthServiceImpl(
                 props.clientId(),
@@ -67,14 +59,14 @@ public class GigaChatConfig extends BaseIntegrationConfig {
                 gigaAuthScheduler,
                 props.authRetryTimeoutMs(),
                 timer,
-                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_AUTH_SERVICE, "authenticate"),
-                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_AUTH_SERVICE, "authenticate")
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_AUTH_SERVICE, GIGA_AUTH_AUTHENTICATE),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_AUTH_SERVICE, GIGA_AUTH_AUTHENTICATE)
         );
     }
 
     @Bean
     public GigaChatService gigaChatService(
-            OkHttpClient client,
+            OkHttpClient gigaHttpClient,
             GigaChatProps props,
             GigaAuthService authService,
             MeterRegistry registry
@@ -82,7 +74,7 @@ public class GigaChatConfig extends BaseIntegrationConfig {
         val gigaApi = new Retrofit.Builder()
                 .baseUrl(props.apiBaseUrl())
                 .addConverterFactory(JacksonConverterFactory.create())
-                .client(client)
+                .client(gigaHttpClient)
                 .build();
 
         return new GigaChatServiceImpl(

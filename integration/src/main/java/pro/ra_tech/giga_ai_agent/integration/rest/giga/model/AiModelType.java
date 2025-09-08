@@ -21,7 +21,7 @@ public enum AiModelType {
 
     AiModelType(String value) {
         this.value = value;
-        balanceName = value.replaceAll("-2", "");
+        balanceName = value.replace("-2", "");
     }
 
     @Override

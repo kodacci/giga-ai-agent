@@ -10,7 +10,7 @@ public abstract class AbstractFailure implements AppFailure {
     private final @Nullable Throwable cause;
     private String message = null;
 
-    public AbstractFailure(String source, @Nullable String message) {
+    protected AbstractFailure(String source, @Nullable String message) {
         this.source = source;
         this.message = message;
         cause = null;
@@ -36,7 +36,7 @@ public abstract class AbstractFailure implements AppFailure {
             return "Unknown error";
         }
 
-        val message = cause.getMessage();
-        return message == null ? cause.toString() : message;
+        val detail = cause.getMessage();
+        return detail == null ? cause.toString() : detail;
     }
 }
