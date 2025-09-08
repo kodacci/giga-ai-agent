@@ -12,7 +12,7 @@ public record AskGptResponse(
 ) {
     public static AskGptResponse of(AskModelResponse response) {
         return new AskGptResponse(
-                response.alternatives().stream()
+                response.result().alternatives().stream()
                         .map(CompletionAlternative::message)
                         .filter(message -> message.role() == ModelRole.ASSISTANT)
                         .map(ModelMessage::text)
