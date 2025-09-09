@@ -22,6 +22,7 @@ spec:
         - {{ telegram_api_host }}
         - {{ yandex_gpt_auth_host }}
         - {{ yandex_gpt_api_host }}
+        - {{ hfs_host }}
     - port:
         number: 443
         name: https
@@ -33,6 +34,7 @@ spec:
         - {{ telegram_api_host }}
         - {{ yandex_gpt_auth_host }}
         - {{ yandex_gpt_api_host }}
+        - {{ hfs_host }}
       tls:
         mode: PASSTHROUGH
     - port:

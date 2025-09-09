@@ -126,6 +126,7 @@ pipeline {
                     ).trim()
                     def yandexAuthHost = YANDEX_GPT_AUTH_HOST
                     def yandexApiHost = YANDEX_GPT_API_HOST
+                    def hfsHost = HFS_HOST
 
                     def solrApply = ""
                     def vaultApply = ""
@@ -134,6 +135,7 @@ pipeline {
                     def telegramApply = ""
                     def yandexAuthApply = ""
                     def yandexApiApply = ""
+                    def hfsApply = ""
 
                     def coreImageTag = params.core_app_image ? params.core_app_image : generateImageTag('giga-ai-agent-core')
                     def dbMigrateImageTag = params.core_db_migrate_image ? params.core_db_migrate_image : generateImageTag('core-db-migrate')
@@ -154,7 +156,7 @@ pipeline {
                         sh "jinja2 -D namespace=$namespace distrib/templates/service.yaml > distrib/service.yaml"
                         sh "jinja2 -D namespace=$namespace distrib/templates/network-policy-restricted.yaml > distrib/network-policy-restricted.yaml"
                         sh "jinja2 -D namespace=$namespace -D host=$host distrib/templates/ingress-gateway.yaml > distrib/ingress-gateway.yaml"
-                        sh "jinja2 -D namespace=$namespace -D solr_host=$solrHost -D vault_host=$vaultHost -D giga_auth_host=$gigaAuthHost -D giga_chat_host=$gigaChatHost -D telegram_api_host=$telegramHost -D egress_tcp_port=$egressTcpPort -D db_host=$dbHost -D yandex_gpt_auth_host=$yandexAuthHost -D yandex_gpt_api_host=$yandexApiHost distrib/templates/egress-gateway.yaml > distrib/egress-gateway.yaml"
+                        sh "jinja2 -D namespace=$namespace -D solr_host=$solrHost -D vault_host=$vaultHost -D giga_auth_host=$gigaAuthHost -D giga_chat_host=$gigaChatHost -D telegram_api_host=$telegramHost -D egress_tcp_port=$egressTcpPort -D db_host=$dbHost -D yandex_gpt_auth_host=$yandexAuthHost -D yandex_gpt_api_host=$yandexApiHost -D hfs_host=$hfsHost distrib/templates/egress-gateway.yaml > distrib/egress-gateway.yaml"
                         sh "jinja2 -D namespace=$namespace -D host=$host distrib/templates/virtual-service.yaml > distrib/virtual-service.yaml"
                         sh "jinja2 -D namespace=$namespace distrib/templates/destination-rule.yaml > distrib/destination-rule.yaml"
                         sh "jinja2 -D namespace=$namespace -D solr_collection=$namespace distrib/templates/configmaps/core-fluentbit.yaml > distrib/core-fluentbit.yaml"
@@ -187,6 +189,9 @@ pipeline {
                         // Yandex GPT
                         yandexAuthApply = generateExtHttp(namespace, 'yandex-gpt-auth', yandexAuthHost, 443)
                         yandexApiApply = generateExtHttp(namespace, 'yandex-gpt-api', yandexApiHost, 443)
+
+                        // HFS
+                        hfsApply = generateExtHttp(namespace, 'hfs', hfsHost, 443)
                     }
 
                     withKubeConfig([credentialsId: 'jenkins-k8s-cert', serverUrl: KUBERNETES_API_URL, namespace: namespace]) {
@@ -224,7 +229,8 @@ pipeline {
                                 gigaChatApply +
                                 telegramApply +
                                 yandexAuthApply +
-                                yandexApiApply
+                                yandexApiApply +
+                                hfsApply
 
                         // Run db migrations job
                         println "Starting db migrations job"
