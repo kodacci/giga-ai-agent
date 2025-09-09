@@ -32,8 +32,8 @@ public class HfsConfig extends BaseIntegrationConfig {
 
         return new HfsServiceImpl(
                 api.create(HfsApi.class),
-                Base64.getEncoder().encodeToString(
-                        ("Basic " + props.user() + ":" + props.password()).getBytes(StandardCharsets.US_ASCII)
+                "Basic " + Base64.getEncoder().encodeToString(
+                        (props.user() + ":" + props.password()).getBytes(StandardCharsets.UTF_8)
                 ),
                 buildRequestMonitoringDto(
                         registry,
