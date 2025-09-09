@@ -2,6 +2,7 @@ package pro.ra_tech.giga_ai_agent.integration.config.hfs;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.val;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pro.ra_tech.giga_ai_agent.integration.api.HfsService;
@@ -12,6 +13,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 @Configuration
+@EnableConfigurationProperties(HfsProps.class)
 public class HfsConfig extends BaseIntegrationConfig {
     public static final String HFS_SERVICE = "HFS";
 
