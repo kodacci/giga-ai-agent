@@ -4,6 +4,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -14,12 +15,14 @@ public interface HfsApi {
     Call<Void> upload(
             @Path("folder") String folder,
             @Path("file") String fileName,
+            @Header("Authorization") String authHeader,
             @Body byte[] data
     );
 
     @GET("/{folder}/{file}")
     Call<ResponseBody> download(
             @Path("folder") String folder,
-            @Path("file") String fileName
+            @Path("file") String fileName,
+            @Header("Authorization") String authHeader
     );
 }

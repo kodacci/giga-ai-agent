@@ -8,6 +8,8 @@ public record HfsProps(
         int requestTimeoutMs,
         int maxRetries,
         int retryTimeoutMs,
-        String baseFolder
+        String baseFolder,
+        String user,
+        String password
 ) {
 }

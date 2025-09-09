@@ -244,6 +244,16 @@
       "name": "app.hfs.base-folder",
       "description": "HFS file server base folder for agent files",
       "type": "java.lang.String"
+    },
+    {
+      "name": "app.hfs.user",
+      "description": "HFS user login",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.hfs.password",
+      "description": "HFS user password",
+      "type": "java.lang.String"
     }
   ],
   "hints": [

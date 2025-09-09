@@ -54,3 +54,5 @@ app:
     max-retries: ${HFS_API_MAX_RETRIES}
     retry-timeout-ms: ${HFS_API_RETRY_TIMEOUT_MS}
     base-folder: ${HFS_BASE_FOLDER}
+    user: ${HFS_USER}
+    password: ${HFS_PASSWORD}

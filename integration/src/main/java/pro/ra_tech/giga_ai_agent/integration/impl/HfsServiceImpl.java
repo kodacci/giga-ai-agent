@@ -19,6 +19,7 @@ public class HfsServiceImpl extends BaseRestService implements HfsService {
     private final DecimalFormat format = new DecimalFormat("###,###,###");
 
     private final HfsApi api;
+    private final String authHeader;
 
     private final RequestMonitoringDto<Void> uploadMon;
     private final RequestMonitoringDto<ResponseBody> downloadMon;
@@ -34,7 +35,7 @@ public class HfsServiceImpl extends BaseRestService implements HfsService {
 
         return sendMeteredRequest(
                 uploadMon,
-                api.upload(folder, fileName, fileContent),
+                api.upload(folder, fileName, authHeader, fileContent),
                 this::toFailure
         )
                 .peekLeft(failure -> log.error("Error uploading file: ", failure.getCause()));
@@ -51,7 +52,7 @@ public class HfsServiceImpl extends BaseRestService implements HfsService {
     public Either<AppFailure, byte[]> downloadFile(String folder, String fileName) {
         return sendMeteredRequest(
                 downloadMon,
-                api.download(folder, fileName),
+                api.download(folder, fileName, authHeader),
                 this::toFailure
         )
                 .peekLeft(failure -> log.error("Error downloading file: ", failure.getCause()))
@@ -60,7 +61,7 @@ public class HfsServiceImpl extends BaseRestService implements HfsService {
 
     private AppFailure toFailure(Throwable cause) {
         return new IntegrationFailure(
-            IntegrationFailure.Code.HFS_INTEGRATION_FAILURE,
+                IntegrationFailure.Code.HFS_INTEGRATION_FAILURE,
                 getClass().getName(),
                 cause
         );

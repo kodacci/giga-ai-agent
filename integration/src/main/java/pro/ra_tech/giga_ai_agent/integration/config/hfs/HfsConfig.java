@@ -12,6 +12,9 @@ import pro.ra_tech.giga_ai_agent.integration.rest.hfs.api.HfsApi;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 @Configuration
 @EnableConfigurationProperties(HfsProps.class)
 public class HfsConfig extends BaseIntegrationConfig {
@@ -29,6 +32,9 @@ public class HfsConfig extends BaseIntegrationConfig {
 
         return new HfsServiceImpl(
                 api.create(HfsApi.class),
+                Base64.getEncoder().encodeToString(
+                        ("Basic " + props.user() + ":" + props.password()).getBytes(StandardCharsets.UTF_8)
+                ),
                 buildRequestMonitoringDto(
                         registry,
                         HFS_SERVICE,

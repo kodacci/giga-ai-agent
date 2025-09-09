@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Optional;
 
 @Slf4j
@@ -20,7 +21,14 @@ public abstract class BaseController {
         problem.setProperty("code", failure.getCode());
         problem.setProperty("source", failure.getSource());
         problem.setProperty("message", failure.getMessage());
-        problem.setProperty("trace", Optional.ofNullable(failure.getCause()).map(Throwable::getStackTrace).orElse(null));
+        problem.setProperty(
+                "trace",
+                Optional.ofNullable(failure.getCause())
+                        .map(Throwable::getStackTrace)
+                        .map(Arrays::asList)
+                        .map(traces -> traces.stream().map(StackTraceElement::toString).toList())
+                        .orElse(null)
+        );
 
         return problem;
     }
