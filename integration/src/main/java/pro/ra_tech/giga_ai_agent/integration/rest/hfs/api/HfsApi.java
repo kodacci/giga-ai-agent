@@ -38,6 +38,7 @@ public interface HfsApi {
     );
 
     @POST("/~/api/comment")
+    @Headers("x-hfs-anti-csrf: 1")
     Call<Void> comment(
             @Header("Authorization") String authHeader,
             @Body CommentRequest request
