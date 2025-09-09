@@ -12,6 +12,7 @@ import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.HfsService;
 import pro.ra_tech.giga_ai_agent.integration.rest.hfs.api.HfsApi;
+import pro.ra_tech.giga_ai_agent.integration.rest.hfs.model.CommentRequest;
 import pro.ra_tech.giga_ai_agent.integration.util.RequestMonitoringDto;
 
 import java.text.DecimalFormat;
@@ -26,6 +27,8 @@ public class HfsServiceImpl extends BaseRestService implements HfsService {
 
     private final RequestMonitoringDto<Void> uploadMon;
     private final RequestMonitoringDto<ResponseBody> downloadMon;
+    private final RequestMonitoringDto<Void> deleteMon;
+    private final RequestMonitoringDto<Void> commentMon;
 
     @Override
     public Either<AppFailure, Void> uploadFile(String folder, String fileName, byte[] fileContent) {
@@ -55,6 +58,8 @@ public class HfsServiceImpl extends BaseRestService implements HfsService {
 
     @Override
     public Either<AppFailure, byte[]> downloadFile(String folder, String fileName) {
+        log.info("Downloading file {} from folder {}", fileName, folder);
+
         return sendMeteredRequest(
                 downloadMon,
                 api.download(folder, fileName, authHeader),
@@ -62,6 +67,30 @@ public class HfsServiceImpl extends BaseRestService implements HfsService {
         )
                 .peekLeft(failure -> log.error("Error downloading file: ", failure.getCause()))
                 .flatMap(this::toByteArray);
+    }
+
+    @Override
+    public Either<AppFailure, Void> comment(String folder, String fileName, String comment) {
+        log.info("Commenting file {} in folder {}", fileName, folder);
+
+        return sendMeteredRequest(
+                commentMon,
+                api.comment(authHeader, new CommentRequest(comment, folder + "/" + fileName)),
+                this::toFailure
+        )
+                .peekLeft(failure -> log.error("Error commenting file: ", failure.getCause()));
+    }
+
+    @Override
+    public Either<AppFailure, Void> deleteFile(String folder, String fileName) {
+        log.info("Deleting file {} from folder {}", fileName, folder);
+
+        return sendMeteredRequest(
+                deleteMon,
+                api.delete(folder, fileName, authHeader),
+                this::toFailure
+        )
+                .peekLeft(failure -> log.error("Error deleting file: ", failure.getCause()));
     }
 
     private AppFailure toFailure(Throwable cause) {

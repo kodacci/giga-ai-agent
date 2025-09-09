@@ -4,5 +4,5 @@ import io.vavr.control.Either;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
 public interface FileServerService {
-    Either<AppFailure, String> uploadFile(byte[] fileContent);
+    Either<AppFailure, String> uploadFile(String name, byte[] fileContent);
 }

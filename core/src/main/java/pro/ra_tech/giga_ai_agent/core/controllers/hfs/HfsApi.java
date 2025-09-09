@@ -8,7 +8,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Validated
 @Tag(name = "HFS")
@@ -21,5 +22,5 @@ public interface HfsApi {
                     content = @Content(mediaType = MediaType.TEXT_PLAIN_VALUE)
             )
     })
-    ResponseEntity<Object> upload(@RequestBody byte[] fileContent);
+    ResponseEntity<Object> upload(@RequestPart MultipartFile file);
 }

@@ -15,9 +15,11 @@ public class FileServerServiceImpl implements FileServerService {
     private final String folder;
 
     @Override
-    public Either<AppFailure, String> uploadFile(byte[] fileContent) {
-        val name = UUID.randomUUID().toString();
+    public Either<AppFailure, String> uploadFile(String name, byte[] fileContent) {
+        val id = UUID.randomUUID().toString();
 
-        return service.uploadFile(folder, name, fileContent).map(res -> name);
+        return service.uploadFile(folder, id, fileContent).map(res -> id)
+                .flatMap(res -> service.comment(folder, id, name))
+                .map(nothing -> id);
     }
 }
