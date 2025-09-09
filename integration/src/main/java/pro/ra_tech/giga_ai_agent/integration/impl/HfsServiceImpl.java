@@ -4,6 +4,9 @@ import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
@@ -33,9 +36,11 @@ public class HfsServiceImpl extends BaseRestService implements HfsService {
                 folder
         );
 
+        val body = RequestBody.create(fileContent, MediaType.parse("application/octet-stream"));
+
         return sendMeteredRequest(
                 uploadMon,
-                api.upload(folder, fileName, authHeader, fileContent),
+                api.upload(folder, fileName, authHeader, body),
                 this::toFailure
         )
                 .peekLeft(failure -> log.error("Error uploading file: ", failure.getCause()));

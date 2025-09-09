@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.integration.rest.hfs.api;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -16,7 +17,7 @@ public interface HfsApi {
             @Path("folder") String folder,
             @Path("file") String fileName,
             @Header("Authorization") String authHeader,
-            @Body byte[] data
+            @Body RequestBody data
     );
 
     @GET("/{folder}/{file}")
