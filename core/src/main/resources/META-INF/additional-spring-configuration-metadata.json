@@ -29,6 +29,11 @@
       "name": "app.ya-gpt",
       "description": "Application Yandex GPT API configuration",
       "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.ya_gpt.YaGptProps"
+    },
+    {
+      "name": "app.hfs",
+      "description": "Application HFS API integration configuration",
+      "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsProps"
     }
   ],
   "properties": [
@@ -213,6 +218,31 @@
     {
       "name": "app.ya-gpt.cloud-catalog-id",
       "description": "Yandex cloud catalog id with AI model capabilities",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.hfs.api-base-url",
+      "description": "HFS file server API base URL",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.hfs.request-timeout-ms",
+      "description": "HFS file server API retries timeout in milliseconds",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.hfs.max-retries",
+      "description": "HFS file server API request max retries",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.hfs.retry-timeout-ms",
+      "description": "HFS file server API retries timeout in milliseconds",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "app.hfs.base-folder",
+      "description": "HFS file server base folder for agent files",
       "type": "java.lang.String"
     }
   ],

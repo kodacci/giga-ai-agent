@@ -48,4 +48,9 @@ app:
     max-retries: ${YA_GPT_MAX_RETIRES}
     retry-timeout-ms: ${YA_GPT_RETRY_TIMEOUT_MS}
     cloud-catalog-id: ${YA_GPT_CLOUD_CATALOG_ID}
-
+  hfs:
+    api-base-url: ${HFS_API_BASE_URL}
+    request-timeout-ms: ${HFS_API_REQUEST_TIMEOUT_MS}
+    max-retries: ${HFS_API_MAX_RETRIES}
+    retry-timeout-ms: ${HFS_API_RETRY_TIMEOUT_MS}
+    base-folder: ${HFS_BASE_FOLDER}
