@@ -13,6 +13,7 @@ import lombok.val;
 import org.springframework.lang.Nullable;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
+import pro.ra_tech.giga_ai_agent.integration.util.RequestMonitoringDto;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -104,5 +105,20 @@ public abstract class BaseRestService {
                 .map(res -> onResponse(res, status4xxCounter, status5xxCounter))
                 .toEither()
                 .mapLeft(toFailure);
+    }
+
+    protected <R> Either<AppFailure, R> sendMeteredRequest(
+            RequestMonitoringDto<R> mon,
+            Call<R> call,
+            Function<Throwable, AppFailure> toFailure
+    ) {
+        return sendMeteredRequest(
+                mon.retryPolicy(),
+                mon.timer(),
+                mon.rq4xxCounter(),
+                mon.rq5xxCounter(),
+                call,
+                toFailure
+        );
     }
 }

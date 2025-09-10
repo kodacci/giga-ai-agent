@@ -5,11 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -20,7 +24,12 @@ public abstract class BaseController {
         problem.setProperty("code", failure.getCode());
         problem.setProperty("source", failure.getSource());
         problem.setProperty("message", failure.getMessage());
-        problem.setProperty("trace", Optional.ofNullable(failure.getCause()).map(Throwable::getStackTrace).orElse(null));
+        problem.setProperty(
+                "trace",
+                Optional.ofNullable(failure.getCause())
+                        .map(Throwable::getStackTrace)
+                        .orElse(null)
+        );
 
         return problem;
     }
@@ -29,7 +38,11 @@ public abstract class BaseController {
         return result.fold(
                 failure -> {
                     log.error("Request error:", failure.getCause());
-                    return new ResponseEntity<>(toProblemDetail(failure), HttpStatus.INTERNAL_SERVER_ERROR);
+                    return new ResponseEntity<>(
+                            toProblemDetail(failure),
+                            MultiValueMap.fromSingleValue(Map.of("Content-Type", MediaType.APPLICATION_PROBLEM_JSON_VALUE)),
+                            HttpStatus.INTERNAL_SERVER_ERROR
+                    );
                 },
                 data -> new ResponseEntity<>(data, HttpStatus.OK)
         );

@@ -113,7 +113,7 @@ spec:
             - router
             - --domain
             - $(POD_NAMESPACE).svc.cluster.local
-            - --proxyLogLeve=warning
+            - --proxyLogLevel=warning
             - --proxyComponentLogLevel=misc:error
             - --log_output_level=default:info
           env:

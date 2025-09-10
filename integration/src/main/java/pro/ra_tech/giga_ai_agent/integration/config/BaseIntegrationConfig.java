@@ -9,6 +9,7 @@ import lombok.val;
 import okhttp3.OkHttpClient;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import pro.ra_tech.giga_ai_agent.integration.util.RequestMonitoringDto;
 import retrofit2.Response;
 
 import java.time.Duration;
@@ -49,6 +50,21 @@ public abstract class BaseIntegrationConfig {
         return RetryPolicy.<Response<T>>builder().withMaxRetries(maxRetries)
                 .withDelay(Duration.ofMillis(retryTimeoutMs))
                 .build();
+    }
+
+    protected <T> RequestMonitoringDto<T> buildRequestMonitoringDto(
+            MeterRegistry registry,
+            String service,
+            String method,
+            int maxRetries,
+            int retryTimeoutMs
+    ) {
+        return new RequestMonitoringDto<>(
+                buildTimer(registry, service, method),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, service, method),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, service, method),
+                buildPolicy(maxRetries, retryTimeoutMs)
+        );
     }
 
     @RequiredArgsConstructor

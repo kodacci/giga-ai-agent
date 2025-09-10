@@ -17,5 +17,6 @@ spec:
     - name: giga-ai-agent-database
     - name: yandex-gpt-auth
     - name: yandex-gpt-api
+    - name: hfs
   exportTo:
     - "."
