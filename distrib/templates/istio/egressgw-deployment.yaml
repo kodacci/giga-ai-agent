@@ -256,7 +256,7 @@ spec:
             - name: VAULT_ADDR
               value: {{ vault.tls_url }}
             - name: VAULT_SKIP_VERIFY
-              value: 1
+              value: "true"
           volumeMounts:
             - mountPath: /vault/agent
               name: vault-agent-config
