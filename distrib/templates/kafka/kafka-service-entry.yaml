@@ -1,0 +1,26 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: giga-ai-agent-kafka-{{ kafka_id }}
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/name: giga-ai-agent-kafka-{{ kafka_id }}
+    app.kubernetes.io/part-of: giga-ai-agent
+    app.kubernetes.io/component: core
+  spec:
+    exportTo:
+      - "."
+    hosts:
+      - kafka-{{ kafka_id }}.ra-tech.pro
+    addresses:
+      - {{ kafka_address }}/32
+    endpoints:
+      - address: {{ kafka_address }}
+        ports:
+          tcp: {{ kafka_port }}
+    ports:
+      - number: {{ kafka_port }}
+        name: tcp
+        protocol: TCP
+    resolution: STATIC
+    location: MESH_EXTERNAL

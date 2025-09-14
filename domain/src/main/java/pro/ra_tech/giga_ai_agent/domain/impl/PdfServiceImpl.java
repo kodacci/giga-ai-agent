@@ -12,13 +12,20 @@ import org.springframework.stereotype.Service;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
 import pro.ra_tech.giga_ai_agent.domain.model.DocumentData;
+import pro.ra_tech.giga_ai_agent.domain.model.EnqueueDocumentInfo;
 import pro.ra_tech.giga_ai_agent.domain.model.PdfProcessingInfo;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
+import pro.ra_tech.giga_ai_agent.integration.api.HfsService;
+import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
+import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.api.LlmTextProcessorService;
+import pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsProps;
+import pro.ra_tech.giga_ai_agent.integration.kafka.DocumentProcessingTask;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +33,9 @@ import java.util.List;
 public class PdfServiceImpl implements PdfService {
     private final LlmTextProcessorService llmService;
     private final EmbeddingService embeddingService;
+    private final HfsService hfsService;
+    private final KafkaService kafkaService;
+    private final HfsProps hfsProps;
     private final DecimalFormat format = new DecimalFormat("###,###,###");
 
     private AppFailure toFailure(Throwable cause) {
@@ -56,6 +66,44 @@ public class PdfServiceImpl implements PdfService {
                 .map(chunks -> new DocumentData(name, description, tags, chunks))
                 .flatMap(embeddingService::createEmbeddings)
                 .map(PdfProcessingInfo::new);
+    }
+
+    private record SendResultHandler(
+            String documentName,
+            long taskId
+    ) implements KafkaSendResultHandler {
+        @Override
+        public void handleSuccess() {
+            log.info("Successfully enqueued document {} to Kafka, task {}", documentName, taskId);
+        }
+
+        @Override
+        public void handleError(Throwable cause) {
+            log.error(
+                    "Error enqueueing document {} to Kafka, tass {}, error: {}",
+                    documentName,
+                    taskId,
+                    cause
+            );
+        }
+    }
+
+    @Override
+    public Either<AppFailure, EnqueueDocumentInfo> enqueuePdf(
+            byte[] contents,
+            List<String> tags,
+            String name,
+            String description
+    ) {
+        val hfsId = UUID.randomUUID().toString();
+        val taskId = 0L;
+
+        return hfsService.uploadFile(hfsProps.baseFolder(), hfsId, contents)
+                .peek(nothing -> kafkaService.enqueueDocumentProcessing(
+                        new DocumentProcessingTask(taskId, hfsId),
+                        new SendResultHandler(name, taskId)
+                ))
+                .map(nothing -> new EnqueueDocumentInfo(taskId, hfsId));
     }
 
     private Either<AppFailure, String> toText(byte[] contents) {

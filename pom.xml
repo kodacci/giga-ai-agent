@@ -73,6 +73,7 @@
 		<hikaricp.version>6.3.0</hikaricp.version>
 		<liquibase.version>4.33.0</liquibase.version>
 		<pgvector.version>0.1.6</pgvector.version>
+        <spring.kafka.version>3.3.9</spring.kafka.version>
 
 		<!--    Vars    -->
 		<coverage.agent> </coverage.agent>
@@ -160,6 +161,14 @@
 				<artifactId>problem-spring-web</artifactId>
 				<version>${problem.version}</version>
 			</dependency>
+
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka</artifactId>
+                <version>${spring.kafka.version}</version>
+            </dependency>
+
+
 			<dependency>
 				<groupId>io.vavr</groupId>
 				<artifactId>vavr</artifactId>

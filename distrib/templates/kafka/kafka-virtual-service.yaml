@@ -1,0 +1,40 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: giga-ai-agent-kafka-{{ kafka_id }}
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/name: giga-ai-agent-kafka-{{ kafka_id }}
+    app.kubernetes.io/part-of: giga-ai-agent
+    app.kubernetes.io/component: core
+spec:
+  exportTo:
+    - "."
+  hosts:
+    - {{ kafka_host }}
+  gateways:
+    - mesh
+    - {{ namespace }}/giga-ai-agent-egress-gateway
+  tcp:
+    - match
+      - gateways:
+          - mesh
+        port: {{ kafka_port }}
+        destinationSubnets:
+          - {{ kafka_address }}/32
+      route:
+        - destination:
+            host: giga-ai-agent-egressgw.{{ namespace }}.svc.cluster.local
+            subset: giga-ai-agent-kafka-{{ kafka_id }}
+            port:
+              number: {{ kafka_egress_port }}
+          weight: 100
+    - match:
+      - gateways:
+          - {{ namespace }}/giga-ai-agent-egress-gateway
+        port: {{ kafka_egress_port }}
+      route:
+        - destination:
+            host: {{ kafka_host }}
+            port:
+              number: {{ kafka_port }}

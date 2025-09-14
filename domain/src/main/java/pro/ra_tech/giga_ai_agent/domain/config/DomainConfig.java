@@ -1,7 +1,6 @@
 package pro.ra_tech.giga_ai_agent.domain.config;
 
 import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.val;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

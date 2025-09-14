@@ -15,26 +15,26 @@ spec:
         name:  http
         protocol: HTTP
       hosts:
-        - {{ solr_host }}
-        - {{ vault_host }}
-        - {{ giga_auth_host }}
-        - {{ giga_chat_host }}
-        - {{ telegram_api_host }}
-        - {{ yandex_gpt_auth_host }}
-        - {{ yandex_gpt_api_host }}
-        - {{ hfs_host }}
+        - {{ solr.host }}
+        - {{ vault.host }}
+        - {{ giga.auth.host }}
+        - {{ giga.chat.host }}
+        - {{ telegram.api.host }}
+        - {{ yandex.gpt.auth.host }}
+        - {{ yandex.gpt.api.host }}
+        - {{ hfs.host }}
     - port:
         number: 443
         name: https
         protocol: HTTPS
       hosts:
-        - {{ solr_host }}
-        - {{ vault_host }}
-        - {{ giga_chat_host }}
-        - {{ telegram_api_host }}
-        - {{ yandex_gpt_auth_host }}
-        - {{ yandex_gpt_api_host }}
-        - {{ hfs_host }}
+        - {{ solr.host }}
+        - {{ vault.host }}
+        - {{ giga.chat.host }}
+        - {{ telegram.api.host }}
+        - {{ yandex.gpt.auth.host }}
+        - {{ yandex.gpt.api.host }}
+        - {{ hfs.host }}
       tls:
         mode: PASSTHROUGH
     - port:
@@ -42,7 +42,7 @@ spec:
         name: https-9
         protocol: HTTPS
       hosts:
-        - {{ giga_auth_host }}
+        - {{ giga.auth.host }}
       tls:
         mode: PASSTHROUGH
     - port:
@@ -51,3 +51,13 @@ spec:
         protocol: TCP
       hosts:
         - {{ db_host }}
+    {% for server in kafka.bootstrap_servers %}
+    - port:
+        number: {{ server.port }}
+        name: kafka-port-{{ server.port }}
+        protocol: TLS
+      hosts:
+        - {{ server.host }}
+      tls:
+        mode: PASSTHROUGH
+    {% endfor %}

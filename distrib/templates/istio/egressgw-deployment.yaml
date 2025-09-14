@@ -88,19 +88,42 @@ spec:
           secret:
             optional: true
             secretName: istio-egressgateway-ca-certs
+
+#         RA-TECH CERTS
+        - name: ra-tech-certs
+          emptyDir:
+            sizeLimit: 1Mi
+
+#        VAULT
+        - name: vault-agent-config
+          configMap:
+            name: egress-vault-agent
+            items:
+              - key: vault-agent-config.hcl
+                path: vault-agent-config.hcl
+        - name: vault-token
+          emptyDir:
+            sizeLimit: 1Mi
+        - name: vault-role
+          secret:
+            secretName: vault-role
       containers:
         - name: istio-proxy
           image: docker.io/istio/proxyv2:1.18.2
           resources:
             limits:
-              cpu: 200m
-              memory: 128Mi
+              cpu: {{ egress.limits.cpu }}
+              memory: {{ egress.limits.memory }}
             requests:
-              cpu: 200m
-              memory: 128Mi
+              cpu: {{ egress.limits.cpu }}
+              memory: {{ egress.limits.memory }}
           ports:
             - containerPort: {{ egress_tcp_port }}
               protocol: TCP
+            {% for server in kafka.bootstrap_servers %}
+            - containerPort: {{ server.egress_port }}
+              protocol: TCP
+            {% endfor %}
             - containerPort: 18080
               protocol: TCP
             - containerPort: 10443
@@ -215,3 +238,33 @@ spec:
             - name: egressgateway-ca-certs
               mountPath: /etc/istio/egressgateway-ca-certs
               readOnly: true
+            - name: ra-tech-certs
+              mountPath: /tls
+              readOnly: true
+
+        - name: vault-agent
+          image: hashicorp/vault:1.18
+          args:
+            - agent
+            - -config=/vault/agent/vault-agent-config.hcl
+            - -log-level=info
+          env:
+            - name: VAULT_ADDR
+              value: { { vault.url } }
+          volumeMounts:
+            - mountPath: /vault/agent
+              name: vault-agent-config
+            - mountPath: /vault/token
+              name: vault-token
+            - mountPath: /vault/role
+              name: vault-role
+              readOnly: true
+            - name: ra-tech-certs
+              mountPath: /vault/secrets/certs
+          resources:
+            requests:
+              cpu: {{ egress.vault.requests.cpu }}
+              memory: {{ egress.vault.requests.memory }}
+            limits:
+              cpu: {{ egress.vault.limits.cpu }}
+              memory: {{ egress.vault.limits.memory }}
