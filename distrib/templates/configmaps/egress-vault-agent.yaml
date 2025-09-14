@@ -11,7 +11,7 @@ data:
   vault-agent-config.hcl: |
     exit_after_auth = false
     vault {
-      address = "{{ ault.tls_url }}"
+      address = "{{ vault.tls_url }}"
       tls_skip_verify = true 
     }
     
