@@ -16,7 +16,7 @@ spec:
     - mesh
     - {{ namespace }}/giga-ai-agent-egress-gateway
   tcp:
-    - match
+    - match:
       - gateways:
           - mesh
         port: {{ kafka_port }}
