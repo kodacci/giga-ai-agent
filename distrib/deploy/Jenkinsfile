@@ -208,10 +208,10 @@ pipeline {
                         def kafkaHost = 'kafka-1.ra-tech.pro'
                         def kafkaAddress = resolveAddress(kafkaHost)
                         def kafkaPort = 9093
-                        sh "jinja2 -D kafka_id=1 -D kafka_address=$kafkaAddress -Dkafka_port=$kafkaPort distrib/templates/kafka/service-entry.yaml $varsPath > distrib/kafka-1-service-entry.yaml"
-                        sh "jinja2 -D kafka_id=1 -D kafka_address=$kafkaAddress -Dkafka_port=$kafkaPort -Dkafka_host=$kafkaHost -Dkafka_egress_port=9092 distrib/templates/kafka/virtual-service.yaml $varsPath > distrib/kafka-1-virtual-service.yaml"
-                        sh "jinja2 -D kafka_id=1 -D kafka_address=$kafkaAddress -Dkafka_port=$kafkaPort distrib/templates/kafka/destination-rule.yaml $varsPath > distrib/kafka-1-destination-rule.yaml"
-                        sh "jinja2 -D kafka_id=1 -D kafka_address=$kafkaAddress -Dkafka_port=$kafkaPort distrib/templates/kafka/service.yaml $varsPath > distrib/kafka-1-service.yaml"
+                        sh "jinja2 -D kafka_id=1 -D kafka_address=$kafkaAddress -Dkafka_port=$kafkaPort distrib/templates/kafka/kafka-service-entry.yaml $varsPath > distrib/kafka-1-service-entry.yaml"
+                        sh "jinja2 -D kafka_id=1 -D kafka_address=$kafkaAddress -Dkafka_port=$kafkaPort -Dkafka_host=$kafkaHost -Dkafka_egress_port=9092 distrib/templates/kafka/kafka-virtual-service.yaml $varsPath > distrib/kafka-1-virtual-service.yaml"
+                        sh "jinja2 -D kafka_id=1 -D kafka_address=$kafkaAddress -Dkafka_port=$kafkaPort distrib/templates/kafka/kafka-destination-rule.yaml $varsPath > distrib/kafka-1-destination-rule.yaml"
+                        sh "jinja2 -D kafka_id=1 -D kafka_address=$kafkaAddress -Dkafka_port=$kafkaPort distrib/templates/kafka/kafka-service.yaml $varsPath > distrib/kafka-1-service.yaml"
                     }
 
                     withKubeConfig([credentialsId: 'jenkins-k8s-cert', serverUrl: KUBERNETES_API_URL, namespace: namespace]) {
