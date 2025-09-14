@@ -250,7 +250,7 @@ spec:
             - -log-level=info
           env:
             - name: VAULT_ADDR
-              value: { { vault.url } }
+              value: {{ vault.url }}
           volumeMounts:
             - mountPath: /vault/agent
               name: vault-agent-config
