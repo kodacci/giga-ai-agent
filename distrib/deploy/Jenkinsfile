@@ -151,6 +151,8 @@ pipeline {
                     withPythonEnv('Python-3') {
                         sh 'pip install -U jinja2-cli'
 
+                        sh 'jinja2 --help'
+
                         // Istio egress gateway
                         sh "jinja2 -d $varsPath distrib/templates/istio/egressgw-deployment.yaml > distrib/egressgw-deployment.yaml"
                         sh "jinja2 -d $varsPath distrib/templates/istio/egressgw-service.yaml > distrib/egressgw-service.yaml"
@@ -185,8 +187,8 @@ pipeline {
 
                         // Vault
                         vaultApply = generateExtHttp('vault', vaultHost, 443, varsPath)
-                        sh "jinja2 --d $varsPath distrib/templates/configmaps/core-vault-agent.yaml > distrib/core-vault-agent.yaml"
-                        sh "jinja2 --d $varsPath distrib/templates/configmaps/db-migrate-vault-agent.yaml > distrib/db-migrate-vault-agent.yaml"
+                        sh "jinja2 -d $varsPath distrib/templates/configmaps/core-vault-agent.yaml > distrib/core-vault-agent.yaml"
+                        sh "jinja2 -d $varsPath distrib/templates/configmaps/db-migrate-vault-agent.yaml > distrib/db-migrate-vault-agent.yaml"
 
                         // Giga Chat API
                         gigaAuthApply = generateExtHttp('giga-auth', gigaAuthHost, 9443, varsPath)
