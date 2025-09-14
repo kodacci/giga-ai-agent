@@ -22,5 +22,5 @@ spec:
     workloadSelector:
       matchLabels:
         istio: {{ namespace }}-egressgateway
-    exportTo:
-      - "."
+  exportTo:
+    - "."
