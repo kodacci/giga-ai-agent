@@ -50,7 +50,7 @@ data:
       error_on_missing_key = true
       contents = <<EOT
     [[- with secret "ra-tech-kv/data/{{ namespace }}/cert" ]]
-    [[ .Data.cert ]]
+    [[ .Data.data.cert ]]
     [[- end ]]
     EOT
     }
@@ -62,7 +62,7 @@ data:
       error_on_missing_key = true
       contents = <<EOT
     [[- with secret "ra-tech-kv/data/{{ namespace }}/cert" ]]
-    [[ .Data.key ]]
+    [[ .Data.data.key ]]
     [[- end ]]
     EOT
     }
@@ -74,7 +74,7 @@ data:
       error_on_missing_key = true
       contents = <<EOT
     [[- with secret "ra-tech-kv/data/{{ namespace }}/cert" ]]
-    [[ .Data.ca ]]
+    [[ .Data.data.ca ]]
     [[- end ]]
     EOT
     }
