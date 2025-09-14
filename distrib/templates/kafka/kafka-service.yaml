@@ -7,9 +7,9 @@ metadata:
     app.kubernetes.io/name: giga-ai-agent-kafka-{{ kafka_id }}
     app.kubernetes.io/part-of: giga-ai-agent
     app.kubernetes.io/component: core
-  spec:
-    ports:
-      - name: tcp
-        protocol: TCP
-        port: {{ kafka_port }}
-        targetPort: {{ kafka_port }}
+spec:
+  ports:
+    - name: tcp
+      protocol: TCP
+      port: {{ kafka_port }}
+      targetPort: {{ kafka_port }}
