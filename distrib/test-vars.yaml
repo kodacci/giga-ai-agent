@@ -81,7 +81,7 @@ solr:
   host: solr.ra-tech.pro
 vault:
   url: http://vault.ra-tech.pro
-  tls_url: http://vault.ra-tech.pro
+  tls_url: https://vault.ra-tech.pro
   host: vault.ra-tech.pro
 giga:
   auth:
