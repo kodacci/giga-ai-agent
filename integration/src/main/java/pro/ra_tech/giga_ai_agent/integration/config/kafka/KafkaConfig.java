@@ -12,7 +12,6 @@ import pro.ra_tech.giga_ai_agent.integration.impl.KafkaServiceImpl;
 import java.util.Map;
 
 @Configuration
-@EnableConfigurationProperties(KafkaProps.class)
 public class KafkaConfig {
     @Bean
     public ProducerFactory<String, Object> producerFactory(KafkaProps props) {

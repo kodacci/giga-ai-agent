@@ -16,7 +16,6 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
-@EnableConfigurationProperties(TelegramApiProps.class)
 public class TelegramApiConfig extends BaseIntegrationConfig {
     private static final int SEC_TO_MS = 1000;
     private static final String TELEGRAM_SERVICE = "telegram";
