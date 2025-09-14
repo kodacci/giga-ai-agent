@@ -11,7 +11,8 @@ data:
   vault-agent-config.hcl: |
     exit_after_auth = false
     vault {
-      address = "{{ vault.url }}"
+      address = "{{ ault.tls_url }}"
+      tls_skip_verify = true 
     }
     
     pid_file = "/vault/pidfile"

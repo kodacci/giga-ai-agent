@@ -40,11 +40,6 @@ spec:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution: null
           requiredDuringSchedulingIgnoredDuringExecution: null
-      securityContext:
-        fsGroup: 1337
-        runAsGroup: 1337
-        runAsNonRoot: true
-        runAsUser: 1337
       serviceAccountName: giga-ai-agent-egressgw-service-account
       volumes:
         - emptyDir: {}
@@ -206,6 +201,10 @@ spec:
             successThreshold: 1
             timeoutSeconds: 1
           securityContext:
+            fsGroup: 1337
+            runAsGroup: 1337
+            runAsNonRoot: true
+            runAsUser: 1337
             allowPrivilegeEscalation: false
             capabilities:
               drop:
@@ -254,7 +253,7 @@ spec:
                 - CAP_SETFCAP
           env:
             - name: VAULT_ADDR
-              value: {{ vault.url }}
+              value: {{ vault.tls_url }}
           volumeMounts:
             - mountPath: /vault/agent
               name: vault-agent-config
