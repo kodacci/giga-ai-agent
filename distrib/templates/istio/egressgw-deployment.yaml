@@ -45,9 +45,6 @@ spec:
         runAsGroup: 1337
         runAsNonRoot: true
         runAsUser: 1337
-        capabilities:
-          add:
-            - CAP_SETFCAP
       serviceAccountName: giga-ai-agent-egressgw-service-account
       volumes:
         - emptyDir: {}
@@ -251,6 +248,10 @@ spec:
             - agent
             - -config=/vault/agent/vault-agent-config.hcl
             - -log-level=info
+          securityContext:
+            capabilities:
+              add:
+                - CAP_SETFCAP
           env:
             - name: VAULT_ADDR
               value: {{ vault.url }}
