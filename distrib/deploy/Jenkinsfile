@@ -22,7 +22,7 @@ def resolveAddress(host) {
     sh(
             encoding: 'UTF-8',
             returnStdout: true,
-            script: """getent hosts $dbHost | awk 'NR==1{ print \$1 }'"""
+            script: """getent hosts $host | awk 'NR==1{ print \$1 }'"""
     ).trim()
 }
 
