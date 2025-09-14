@@ -7,10 +7,10 @@ def APP_DB_PORT
 def JINJA2_VARS_FILE_PATH
 
 def generateExtHttp(name, host, extHttpsPort, varsPath) {
-    sh "jinja2 name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/service-entry.yaml $varsPath > distrib/${name}-service-entry.yaml"
-    sh "jinja2 name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/virtual-service.yaml $varsPath > distrib/${name}-virtual-service.yaml"
-    sh "jinja2 name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/destination-rule.yaml $varsPath > distrib/${name}-destination-rule.yaml"
-    sh "jinja2 name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/service.yaml $varsPath > distrib/${name}-service.yaml"
+    sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/service-entry.yaml $varsPath > distrib/${name}-service-entry.yaml"
+    sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/virtual-service.yaml $varsPath > distrib/${name}-virtual-service.yaml"
+    sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/destination-rule.yaml $varsPath > distrib/${name}-destination-rule.yaml"
+    sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/service.yaml $varsPath > distrib/${name}-service.yaml"
 
     return "-f distrib/${name}-service.yaml " +
             "-f distrib/${name}-service-entry.yaml " +
