@@ -19,8 +19,8 @@ spec:
           clientCertificate: /tls/client.pem
           privateKey: /tls/key.pem
           caCertificates: /tls/ca.pem
-    workloadSelector:
-      matchLabels:
-        istio: {{ namespace }}-egressgateway
+  workloadSelector:
+    matchLabels:
+      istio: {{ namespace }}-egressgateway
   exportTo:
     - "."
