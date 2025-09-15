@@ -102,6 +102,6 @@ hfs:
 kafka:
   bootstrap_servers:
     - id: 1
-      host: kafka-1.ra-tech.po
+      host: kafka-1.ra-tech.pro
       port: 9093
       egress_port: 9092

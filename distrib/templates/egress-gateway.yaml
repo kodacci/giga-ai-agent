@@ -31,7 +31,7 @@ spec:
         - {{ db_host }}
     {% for server in kafka.bootstrap_servers %}
     - port:
-        number: {{ server.port }}
+        number: {{ server.egress_port }}
         name: kafka-port-{{ server.id }}
         protocol: TCP
       hosts:

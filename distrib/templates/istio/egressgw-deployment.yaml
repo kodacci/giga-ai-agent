@@ -250,6 +250,8 @@ spec:
             - -log-level=info
           securityContext:
             capabilities:
+              drop:
+                - ALL
               add:
                 - CAP_SETFCAP
           env:
