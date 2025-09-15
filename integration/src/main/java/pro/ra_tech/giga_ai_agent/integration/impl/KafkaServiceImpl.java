@@ -1,8 +1,12 @@
 package pro.ra_tech.giga_ai_agent.integration.impl;
 
+import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
+import pro.ra_tech.giga_ai_agent.failure.AppFailure;
+import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.kafka.DocumentProcessingTask;
@@ -13,16 +17,30 @@ public class KafkaServiceImpl implements KafkaService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final String documentProcessingTopic;
 
+    private AppFailure toFailure(Throwable cause) {
+        return new IntegrationFailure(
+                IntegrationFailure.Code.KAFKA_INTEGRATION_FAILURE,
+                getClass().getName(),
+                cause
+        );
+    }
+
     @Override
-    public void enqueueDocumentProcessing(DocumentProcessingTask task, KafkaSendResultHandler handler) {
+    public Either<AppFailure, Void> enqueueDocumentProcessing(DocumentProcessingTask task, KafkaSendResultHandler handler) {
         log.info("Sending document processing task message to topic {}", documentProcessingTopic);
 
-        kafkaTemplate.send(documentProcessingTopic, task).whenComplete((result, ex) -> {
-            if (ex == null) {
-                handler.handleSuccess();
-            } else {
-                handler.handleError(ex);
-            }
-        });
+        return Try.of(() ->
+            kafkaTemplate.send(documentProcessingTopic, task).whenComplete((result, ex) -> {
+                if (ex == null) {
+                    handler.handleSuccess();
+                } else {
+                    handler.handleError(ex);
+                }
+            })
+        )
+                .toEither()
+                .mapLeft(this::toFailure)
+                .peekLeft(failure -> log.error("Error sending document processing task to kafka:", failure.getCause()))
+                .map(res -> null);
     }
 }
