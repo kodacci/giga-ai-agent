@@ -35,12 +35,16 @@ spec:
         - {{ yandex.gpt.auth.host }}
         - {{ yandex.gpt.api.host }}
         - {{ hfs.host }}
+      tls:
+        mode: PASSTHROUGH
     - port:
         number: 9443
         name: https-9
         protocol: HTTPS
       hosts:
         - {{ giga.auth.host }}
+      tls:
+        mode: PASSTHROUGH
     - port:
         number: {{ egress_tcp_port }}
         name: tcp
@@ -54,4 +58,6 @@ spec:
         protocol: TCP
       hosts:
         - {{ server.host }}
+      tls:
+        mode: PASSTHROUGH
     {% endfor %}

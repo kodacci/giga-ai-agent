@@ -49,6 +49,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
 
         return message.entities().stream()
                 .filter(entity -> entity.type() == MENTION)
+                .filter(entity -> text.length() > entity.offset() + 1)
                 .filter(entity -> userName.equals(text.substring(entity.offset() + 1, entity.length())))
                 .findAny()
                 .map(entity -> text.substring(entity.offset() + entity.length()))
