@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: core
 spec:
   ports:
-    - name: tcp
+    - name: kafka-port-{{ kafka_id }}
       protocol: TCP
       port: {{ kafka_port }}
       targetPort: {{ kafka_port }}
