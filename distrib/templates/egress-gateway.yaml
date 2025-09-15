@@ -53,8 +53,6 @@ spec:
         protocol: TCP
       hosts:
         - {{ db_host }}
-      tls:
-        mode: PASSTHROUGH
     {% for server in kafka.bootstrap_servers %}
     - port:
         number: {{ server.port }}
@@ -62,6 +60,4 @@ spec:
         protocol: TCP
       hosts:
         - {{ server.host }}
-      tls:
-        mode: PASSTHROUGH
     {% endfor %}
