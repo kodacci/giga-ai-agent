@@ -38,3 +38,4 @@ spec:
             host: {{ kafka_host }}
             port:
               number: {{ kafka_port }}
+          weight: 100

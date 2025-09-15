@@ -17,7 +17,7 @@ spec:
   endpoints:
     - address: {{ kafka_address }}
       ports:
-        tcp: {{ kafka_port }}
+        kafka-port-{{ kafka_id }}: {{ kafka_port }}
   ports:
     - number: {{ kafka_port }}
       name: kafka-port-{{ kafka_id }}
