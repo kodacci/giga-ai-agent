@@ -32,7 +32,7 @@ spec:
     {% for server in kafka.bootstrap_servers %}
     - port:
         number: {{ server.port }}
-        name: kafka-port-{{ server.port }}
+        name: kafka-port-{{ server.id }}
         protocol: TCP
       hosts:
         - {{ server.host }}

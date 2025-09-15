@@ -20,7 +20,7 @@ spec:
         tcp: {{ kafka_port }}
   ports:
     - number: {{ kafka_port }}
-      name: tcp
+      name: kafka-port-{{ kafka_id }}
       protocol: TCP
   resolution: STATIC
   location: MESH_EXTERNAL
