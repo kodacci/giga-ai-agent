@@ -23,6 +23,8 @@ spec:
         - {{ yandex.gpt.auth.host }}
         - {{ yandex.gpt.api.host }}
         - {{ hfs.host }}
+      tls:
+        mode: PASSTHROUGH
     - port:
         number: 443
         name: https
@@ -51,6 +53,8 @@ spec:
         protocol: TCP
       hosts:
         - {{ db_host }}
+      tls:
+        mode: PASSTHROUGH
     {% for server in kafka.bootstrap_servers %}
     - port:
         number: {{ server.port }}
