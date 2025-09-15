@@ -99,6 +99,7 @@ public class PdfServiceImpl implements PdfService {
         val taskId = 0L;
 
         return hfsService.uploadFile(hfsProps.baseFolder(), hfsId, contents)
+                .flatMap(nothing -> hfsService.comment(hfsProps.baseFolder(), hfsId, name))
                 .flatMap(nothing -> kafkaService.enqueueDocumentProcessing(
                         new DocumentProcessingTask(taskId, hfsId),
                         new SendResultHandler(name, taskId)

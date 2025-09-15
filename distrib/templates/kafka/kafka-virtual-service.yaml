@@ -19,7 +19,7 @@ spec:
     - match:
       - gateways:
           - mesh
-        port: {{ kafka_port }}
+        port: {{ kafka_egress_port }}
         destinationSubnets:
           - {{ kafka_address }}/32
       route:
