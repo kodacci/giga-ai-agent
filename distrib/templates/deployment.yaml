@@ -178,6 +178,7 @@ spec:
           volumeMounts:
             - mountPath: /vault/agent
               name: vault-agent-config
+              readOnly: true
             - mountPath: /vault/secrets/application
               name: application-config
             - mountPath: /vault/token

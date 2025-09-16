@@ -12,7 +12,8 @@ data:
     exit_after_auth = false
     vault {
       address = "{{ vault.tls_url }}"
-      tls_skip_verify = true 
+      ca_cert = "/tls/ca.pem"
+      tls_skip_verify = false 
     }
     
     pid_file = "/vault/pidfile"

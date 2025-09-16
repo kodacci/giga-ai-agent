@@ -90,6 +90,12 @@ spec:
             secretName: istio-egressgateway-ca-certs
 
 #         RA-TECH CERTS
+        - name: ra-tech-ca
+          configMap:
+            name: ra-tech-ca
+            items:
+              - key: ca.pem
+                path: ca.pem
         - name: ra-tech-certs
           emptyDir:
             sizeLimit: 1Mi
@@ -262,6 +268,7 @@ spec:
           volumeMounts:
             - mountPath: /vault/agent
               name: vault-agent-config
+              readOnly: true
             - mountPath: /vault/token
               name: vault-token
             - mountPath: /vault/role
@@ -269,6 +276,9 @@ spec:
               readOnly: true
             - name: ra-tech-certs
               mountPath: /vault/secrets/certs
+            - name: ra-tech-ca
+              mountPath: /tls
+              readOnly: true
           resources:
             requests:
               cpu: {{ egress.vault.requests.cpu }}
