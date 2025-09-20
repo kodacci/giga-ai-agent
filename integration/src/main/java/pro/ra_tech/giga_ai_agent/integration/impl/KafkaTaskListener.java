@@ -9,7 +9,11 @@ import pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask;
 
 @Slf4j
 @RequiredArgsConstructor
-@KafkaListener(id = "ai-agent-group", topics = "${app.kafka.document-processing-topic}")
+@KafkaListener(
+        id = "ai-agent-group",
+        topics = "${app.kafka.document-processing-topic}",
+        containerFactory = "kafkaContainerFactory"
+)
 public class KafkaTaskListener {
     private final KafkaDocProcessingTaskHandler docProcessingTaskHandler;
 

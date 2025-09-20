@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
-import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.DefaultErrorHandler;
-import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.util.backoff.FixedBackOff;
@@ -30,7 +28,7 @@ public class KafkaConfig {
             "documentProcessingTask:pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask";
 
     @Bean
-    public ProducerFactory<String, Object> producerFactory(KafkaProps props) {
+    public ProducerFactory<String, Object> kafkaProducerFactory(KafkaProps props) {
         return new DefaultKafkaProducerFactory<>(Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, props.bootstrapServers(),
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
@@ -40,18 +38,18 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, Object> consumerFactory(KafkaProps props) {
+    public ConsumerFactory<String, Object> kafkaConsumerFactory(KafkaProps props) {
         return new DefaultKafkaConsumerFactory<>(Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, props.bootstrapServers(),
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
                 JsonDeserializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING,
-                JsonDeserializer.TRUSTED_PACKAGES, "*"
+                JsonDeserializer.TRUSTED_PACKAGES, "pro.ra_tech.giga_ai_agent.integration.kafka.model"
         ));
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListener(
+    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaContainerFactory(
             ConsumerFactory<String, Object> consumerFactory
     ) {
         val factory = new ConcurrentKafkaListenerContainerFactory<String, Object>();
@@ -65,8 +63,8 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
-        return new KafkaTemplate<>(producerFactory);
+    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> kafkaProducerFactory) {
+        return new KafkaTemplate<>(kafkaProducerFactory);
     }
 
     @Bean
