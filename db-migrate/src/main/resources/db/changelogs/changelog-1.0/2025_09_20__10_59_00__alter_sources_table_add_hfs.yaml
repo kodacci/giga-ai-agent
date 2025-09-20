@@ -1,4 +1,4 @@
-databaseChangelog:
+databaseChangeLog:
   - changeSet:
       id: 8
       author: Andrey Ryabtsev
