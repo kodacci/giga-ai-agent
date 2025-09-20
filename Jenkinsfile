@@ -36,6 +36,8 @@ pipeline {
         stage('Determine Version') {
             steps {
                 script {
+                    raTechNotify("Starting job *${JOB_NAME}*", true)
+
                     withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
                         PROJECT_VERSION = sh(
                                 encoding: 'UTF-8',
@@ -158,6 +160,23 @@ pipeline {
                             ]
                     )
                 }
+            }
+        }
+    }
+    post {
+        success {
+            script{
+                raTechNotify("Job *${JOB_NAME}* completed successfully", true)
+            }
+        }
+        failure {
+            script {
+                raTechNotify("Job *${JOB_NAME}* failed", true)
+            }
+        }
+        aborted {
+            script {
+                raTechNotify("Job *${JOB_NAME}* aborted", true)
             }
         }
     }

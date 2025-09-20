@@ -65,6 +65,10 @@ spec:
       containers:
         - name: giga-ai-agent-core
           image: {{ registry }}/{{ image_tag }}
+            securityContext:
+              capabilities:
+                drop:
+                  - ALL
           ports:
               - containerPort: 8080
                 name: core-rest-api

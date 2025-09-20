@@ -41,6 +41,10 @@ spec:
       containers:
         - name: db-migrate
           image: snapshots.docker-registry.ra-tech.pro/{{ image_tag }}
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
             - mountPath: /config/liquibase
               name: liquibase-props

@@ -9,6 +9,9 @@ import lombok.val;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.stereotype.Service;
+import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
+import pro.ra_tech.giga_ai_agent.database.repos.model.CreateDocProcessingTaskData;
+import pro.ra_tech.giga_ai_agent.database.repos.model.DocProcessingTaskStatus;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
 import pro.ra_tech.giga_ai_agent.domain.model.DocumentData;
@@ -37,6 +40,7 @@ public class PdfServiceImpl implements PdfService {
     private final KafkaService kafkaService;
     private final HfsProps hfsProps;
     private final DecimalFormat format = new DecimalFormat("###,###,###");
+    private final DocProcessingTaskRepository taskRepo;
 
     private AppFailure toFailure(Throwable cause) {
         return new DocumentProcessingFailure(
@@ -96,15 +100,22 @@ public class PdfServiceImpl implements PdfService {
             String description
     ) {
         val hfsId = UUID.randomUUID().toString();
-        val taskId = 0L;
 
         return hfsService.uploadFile(hfsProps.baseFolder(), hfsId, contents)
                 .flatMap(nothing -> hfsService.comment(hfsProps.baseFolder(), hfsId, name))
-                .flatMap(nothing -> kafkaService.enqueueDocumentProcessing(
+                .peek(nothing -> log.info("Saved document {} to HFS with id {}", name, hfsId))
+                .flatMap(nothing -> taskRepo.createTask(new CreateDocProcessingTaskData(hfsId)))
+                .peek(taskId -> log.info("Created task {} for document {} processing", taskId, name))
+                .flatMap(taskId -> kafkaService.enqueueDocumentProcessing(
                         new DocumentProcessingTask(taskId, hfsId),
                         new SendResultHandler(name, taskId)
-                ))
-                .map(nothing -> new EnqueueDocumentInfo(taskId, hfsId));
+                    ).map(nothing -> taskId)
+                )
+                .peek(taskId -> log.info("Enqueued document {}", name))
+                .flatMap(taskId ->
+                        taskRepo.updateTaskStatus(taskId, DocProcessingTaskStatus.ENQUEUED).map(count -> taskId)
+                )
+                .map(taskId -> new EnqueueDocumentInfo(taskId, hfsId));
     }
 
     private Either<AppFailure, String> toText(byte[] contents) {

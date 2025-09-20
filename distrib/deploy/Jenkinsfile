@@ -52,6 +52,8 @@ pipeline {
         stage('Determine git scope') {
             steps {
                 script {
+                    raTechNotify("Starting job *${JOB_NAME}*", true)
+
                     DEPLOY_GIT_SCOPE = BRANCH_NAME.tokenize('/').last().toLowerCase()
                     println "Git branch scope: '${DEPLOY_GIT_SCOPE}'"
                 }
@@ -67,14 +69,14 @@ pipeline {
                         APP_DB_HOST = 'giga-ai-agent.db.ra-tech.pro'
                         APP_DB_PORT = '5555'
                         REGISTRY_HOST = removeProtocol(DOCKER_REGISTRY_HOST)
-                        JINJA2_VARS_FILE_PATH = 'distrib/vars.yaml'
+                        JINJA2_VARS_FILE_PATH = 'distrib/deploy/vars.yaml'
                     } else {
                         DEPLOY_NAMESPACE = 'giga-ai-agent-test'
                         NAMESPACE_APP_HOST = 'api.giga-ai-agent.test.cloud.ra-tech.pro'
                         APP_DB_HOST = 'giga-ai-agent.db.ra-tech.pro'
                         APP_DB_PORT = '5555'
                         REGISTRY_HOST = removeProtocol(SNAPSHOTS_DOCKER_REGISTRY_HOST)
-                        JINJA2_VARS_FILE_PATH = 'distrib/test-vars.yaml'
+                        JINJA2_VARS_FILE_PATH = 'distrib/deploy/test-vars.yaml'
                     }
                     println "Namespace to deploy app: $DEPLOY_NAMESPACE"
                     println "App host: $NAMESPACE_APP_HOST"
@@ -270,6 +272,23 @@ pipeline {
                         sh "kubectl wait --for=condition=ready --timeout=5m -n $namespace pods -l app=giga-ai-agent-core"
                     }
                 }
+            }
+        }
+    }
+    post {
+        success {
+            script{
+                raTechNotify("Job *${JOB_NAME}* completed successfully", true)
+            }
+        }
+        failure {
+            script {
+                raTechNotify("Job *${JOB_NAME}* failed", true)
+            }
+        }
+        aborted {
+            script {
+                raTechNotify("Job *${JOB_NAME}* aborted", true)
             }
         }
     }

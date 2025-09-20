@@ -1,0 +1,12 @@
+databaseChangelog:
+  - changeSet:
+      id: 7
+      author: Andrey Ryabtsev
+      comment: Alter sources table, add column hfs_doc_id
+      changes:
+        - addColumn:
+            tableName: sources
+            columns:
+              - column:
+                  name: hfs_doc_id
+                  type: varchar2(255)
