@@ -5,6 +5,7 @@ def REGISTRY_HOST
 def APP_DB_HOST
 def APP_DB_PORT
 def JINJA2_VARS_FILE_PATH
+def ESCAPED_JOB_NAME
 
 def generateExtHttp(name, host, extHttpsPort, varsPath) {
     sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/service-entry.yaml $varsPath > distrib/${name}-service-entry.yaml"
@@ -52,7 +53,8 @@ pipeline {
         stage('Determine git scope') {
             steps {
                 script {
-                    raTechNotify(message: "Starting job *${JOB_NAME}*", markdown: true)
+                    ESCAPED_JOB_NAME = JOB_NAME.replaceAll("_*[]()~`>#+-=|{}.!", /\\$0/)
+                    raTechNotify(message: "Starting job *${ESCAPED_JOB_NAME}*", markdown: true)
 
                     DEPLOY_GIT_SCOPE = BRANCH_NAME.tokenize('/').last().toLowerCase()
                     println "Git branch scope: '${DEPLOY_GIT_SCOPE}'"
@@ -278,17 +280,17 @@ pipeline {
     post {
         success {
             script{
-                raTechNotify(message: "Job *${JOB_NAME}* completed successfully", markdown: true)
+                raTechNotify(message: "Job *${ESCAPED_JOB_NAME}* completed successfully", markdown: true)
             }
         }
         failure {
             script {
-                raTechNotify(message: "Job *${JOB_NAME}* failed", markdown: true)
+                raTechNotify(message: "Job *${ESCAPED_JOB_NAME}* failed", markdown: true)
             }
         }
         aborted {
             script {
-                raTechNotify(message: "Job *${JOB_NAME}* aborted", markdown: true)
+                raTechNotify(message: "Job *${ESCAPED_JOB_NAME}* aborted", markdown: true)
             }
         }
     }

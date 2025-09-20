@@ -15,10 +15,10 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  hfs_doc_id:
-                    type: varchar2(255)
-                    constraints:
-                      nullable: false
+                  name: hfs_doc_id
+                  type: varchar2(255)
+                  constraints:
+                    nullable: false
               - column:
                   name: status
                   type: doc_processing_status

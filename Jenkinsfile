@@ -2,6 +2,7 @@ def PROJECT_VERSION
 def DEPLOY_GIT_SCOPE
 def CORE_APP_IMAGE_TAG
 def CORE_DB_MIGRATE_IMAGE_TAG
+def ESCAPED_JOB_NAME
 
 static def genImageTag(name, scope, version, buildNumber) {
     return 'pro.ra-tech/giga-ai-agent/' +
@@ -36,7 +37,8 @@ pipeline {
         stage('Determine Version') {
             steps {
                 script {
-                    raTechNotify(message: "Starting job *${JOB_NAME}*", markdown: true)
+                    ESCAPED_JOB_NAME = JOB_NAME.replaceAll("_*[]()~`>#+-=|{}.!", /\\$0/)
+                    raTechNotify(message: "Starting job *${ESCAPED_JOB_NAME}*", markdown: true)
 
                     withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
                         PROJECT_VERSION = sh(
@@ -166,17 +168,17 @@ pipeline {
     post {
         success {
             script{
-                raTechNotify(message: "Job *${JOB_NAME}* completed successfully", markdown: true)
+                raTechNotify(message: "Job *${ESCAPED_JOB_NAME}* completed successfully", markdown: true)
             }
         }
         failure {
             script {
-                raTechNotify(message: "Job *${JOB_NAME}* failed", markdown: true)
+                raTechNotify(message: "Job *${ESCAPED_JOB_NAME}* failed", markdown: true)
             }
         }
         aborted {
             script {
-                raTechNotify(message: "Job *${JOB_NAME}* aborted", markdown: true)
+                raTechNotify(message: "Job *${ESCAPED_JOB_NAME}* aborted", markdown: true)
             }
         }
     }
