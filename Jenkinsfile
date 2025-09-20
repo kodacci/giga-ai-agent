@@ -36,7 +36,7 @@ pipeline {
         stage('Determine Version') {
             steps {
                 script {
-                    raTechNotify("Starting job *${JOB_NAME}*", true)
+                    raTechNotify(message: "Starting job *${JOB_NAME}*", markdown: true)
 
                     withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
                         PROJECT_VERSION = sh(
@@ -166,17 +166,17 @@ pipeline {
     post {
         success {
             script{
-                raTechNotify("Job *${JOB_NAME}* completed successfully", true)
+                raTechNotify(message: "Job *${JOB_NAME}* completed successfully", markdown: true)
             }
         }
         failure {
             script {
-                raTechNotify("Job *${JOB_NAME}* failed", true)
+                raTechNotify(message: "Job *${JOB_NAME}* failed", markdown: true)
             }
         }
         aborted {
             script {
-                raTechNotify("Job *${JOB_NAME}* aborted", true)
+                raTechNotify(message: "Job *${JOB_NAME}* aborted", markdown: true)
             }
         }
     }

@@ -52,7 +52,7 @@ pipeline {
         stage('Determine git scope') {
             steps {
                 script {
-                    raTechNotify("Starting job *${JOB_NAME}*", true)
+                    raTechNotify(message: "Starting job *${JOB_NAME}*", markdown: true)
 
                     DEPLOY_GIT_SCOPE = BRANCH_NAME.tokenize('/').last().toLowerCase()
                     println "Git branch scope: '${DEPLOY_GIT_SCOPE}'"
@@ -278,17 +278,17 @@ pipeline {
     post {
         success {
             script{
-                raTechNotify("Job *${JOB_NAME}* completed successfully", true)
+                raTechNotify(message: "Job *${JOB_NAME}* completed successfully", markdown: true)
             }
         }
         failure {
             script {
-                raTechNotify("Job *${JOB_NAME}* failed", true)
+                raTechNotify(message: "Job *${JOB_NAME}* failed", markdown: true)
             }
         }
         aborted {
             script {
-                raTechNotify("Job *${JOB_NAME}* aborted", true)
+                raTechNotify(message: "Job *${JOB_NAME}* aborted", markdown: true)
             }
         }
     }
