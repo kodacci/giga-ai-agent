@@ -12,7 +12,7 @@ import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaDocProcessingTaskHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
-import pro.ra_tech.giga_ai_agent.integration.kafka.DocumentProcessingTask;
+import pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask;
 
 @Slf4j
 @RequiredArgsConstructor

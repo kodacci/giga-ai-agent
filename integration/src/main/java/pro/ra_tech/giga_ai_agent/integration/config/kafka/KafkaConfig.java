@@ -22,7 +22,7 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
     public static final String DOCUMENT_PROCESSING_TASK_TYPE_MAPPING =
-            "documentProcessingTask:pro.ra_tech.giga_ai_agent.integration.kafka.DocumentProcessingTask";
+            "documentProcessingTask:pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask";
 
     @Bean
     public ProducerFactory<String, Object> producerFactory(KafkaProps props) {
@@ -40,7 +40,8 @@ public class KafkaConfig {
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, props.bootstrapServers(),
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
-                JsonDeserializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING
+                JsonDeserializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING,
+                JsonDeserializer.TRUSTED_PACKAGES, "documentProcessingTask:pro.ra_tech.giga_ai_agent.integration.kafka.model"
         ));
     }
 

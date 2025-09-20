@@ -2,7 +2,7 @@ package pro.ra_tech.giga_ai_agent.domain.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaDocProcessingTaskHandler;
-import pro.ra_tech.giga_ai_agent.integration.kafka.DocumentProcessingTask;
+import pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask;
 
 @Slf4j
 public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTaskHandler {

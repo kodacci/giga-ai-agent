@@ -24,8 +24,8 @@ import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.api.LlmTextProcessorService;
 import pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsProps;
-import pro.ra_tech.giga_ai_agent.integration.kafka.DocumentProcessingTask;
-import pro.ra_tech.giga_ai_agent.integration.kafka.DocumentType;
+import pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask;
+import pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentType;
 
 import java.text.DecimalFormat;
 import java.util.List;

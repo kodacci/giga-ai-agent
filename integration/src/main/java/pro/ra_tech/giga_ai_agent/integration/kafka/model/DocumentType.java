@@ -1,4 +1,4 @@
-package pro.ra_tech.giga_ai_agent.integration.kafka;
+package pro.ra_tech.giga_ai_agent.integration.kafka.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.RequiredArgsConstructor;
