@@ -3,6 +3,7 @@ def DEPLOY_GIT_SCOPE
 def CORE_APP_IMAGE_TAG
 def CORE_DB_MIGRATE_IMAGE_TAG
 def ESCAPED_JOB_NAME
+def MARKDOWN_ESCAPE_CHARS = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'] as Set
 
 static def genImageTag(name, scope, version, buildNumber) {
     return 'pro.ra-tech/giga-ai-agent/' +
@@ -26,6 +27,19 @@ def buildImage(name, dockerFilePath, scope, version, buildNumber) {
     return tag
 }
 
+def escapeMd(String input) {
+    def builder = new StringBuilder()
+
+    input.each { ch ->
+        if (MARKDOWN_ESCAPE_CHARS.contains(ch)) {
+            builder.append('\\')
+        }
+        build.append(ch)
+    }
+
+    return builder.toString()
+}
+
 pipeline {
     agent { label 'k8s' }
 
@@ -37,7 +51,7 @@ pipeline {
         stage('Determine Version') {
             steps {
                 script {
-                    ESCAPED_JOB_NAME = JOB_NAME.replaceAll("_*[]()~`>#+-=|{}.!", /\\$0/)
+                    ESCAPED_JOB_NAME = escapeMd(JOB_NAME)
                     raTechNotify(message: "Starting job *${ESCAPED_JOB_NAME}*", markdown: true)
 
                     withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {

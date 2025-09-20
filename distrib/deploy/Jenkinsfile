@@ -6,6 +6,7 @@ def APP_DB_HOST
 def APP_DB_PORT
 def JINJA2_VARS_FILE_PATH
 def ESCAPED_JOB_NAME
+def MARKDOWN_ESCAPE_CHARS = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'] as Set
 
 def generateExtHttp(name, host, extHttpsPort, varsPath) {
     sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/service-entry.yaml $varsPath > distrib/${name}-service-entry.yaml"
@@ -39,6 +40,19 @@ def generateImageTag(container) {
 
 static def removeProtocol(url) {
     return url.substring('https://'.length())
+}
+
+def escapeMd(String input) {
+    def builder = new StringBuilder()
+
+    input.each { ch ->
+        if (MARKDOWN_ESCAPE_CHARS.contains(ch)) {
+            builder.append('\\')
+        }
+        build.append(ch)
+    }
+
+    return builder.toString()
 }
 
 pipeline {
