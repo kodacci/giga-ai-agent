@@ -36,7 +36,7 @@ public class DocProcessingRepositoryImpl implements DocProcessingTaskRepository 
         return Try.of(
                 () -> client.sql(
                             "INSERT INTO doc_processing_tasks (hfs_doc_id, status) " +
-                                    "VALUES (:hfs_doc_id, 'IDLE')"
+                                    "VALUES (:hfs_doc_id, 'IDLE') RETURNING id"
                         )
                         .param("hfs_doc_id", data.hfsDocId())
                         .query(Long.class)
