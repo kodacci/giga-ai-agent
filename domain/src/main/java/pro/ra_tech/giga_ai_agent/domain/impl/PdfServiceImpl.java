@@ -125,6 +125,11 @@ public class PdfServiceImpl implements PdfService {
                 .map(taskId -> new EnqueueDocumentInfo(taskId, hfsId));
     }
 
+    @Override
+    public Either<AppFailure, List<String>> splitToChunks(byte[] contents) {
+        return toText(contents).flatMap(llmService::splitText);
+    }
+
     private Either<AppFailure, String> toText(byte[] contents) {
         return Try.withResources(() -> Loader.loadPDF(contents))
                 .of(document -> {

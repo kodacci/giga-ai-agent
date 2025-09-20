@@ -19,6 +19,7 @@ import org.springframework.util.backoff.FixedBackOff;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaDocProcessingTaskHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.impl.KafkaServiceImpl;
+import pro.ra_tech.giga_ai_agent.integration.impl.KafkaTaskListener;
 
 import java.util.Map;
 
@@ -42,10 +43,10 @@ public class KafkaConfig {
     public ConsumerFactory<String, Object> consumerFactory(KafkaProps props) {
         return new DefaultKafkaConsumerFactory<>(Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, props.bootstrapServers(),
-                JsonDeserializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING,
-                JsonDeserializer.TRUSTED_PACKAGES, "pro.ra_tech.giga_ai_agent.integration.kafka.model",
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
+                JsonDeserializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING,
+                JsonDeserializer.TRUSTED_PACKAGES, "*"
         ));
     }
 
@@ -57,7 +58,7 @@ public class KafkaConfig {
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(1);
 
-        val backOff = new FixedBackOff(1000L, 3);
+        val backOff = new FixedBackOff(1000L, 1);
         factory.setCommonErrorHandler(new DefaultErrorHandler(backOff));
 
         return factory;
@@ -71,13 +72,16 @@ public class KafkaConfig {
     @Bean
     public KafkaService kafkaService(
             KafkaProps props,
-            KafkaTemplate<String, Object> kafkaTemplate,
-            KafkaDocProcessingTaskHandler handler
+            KafkaTemplate<String, Object> kafkaTemplate
     ) {
         return new KafkaServiceImpl(
                 kafkaTemplate,
-                props.documentProcessingTopic(),
-                handler
+                props.documentProcessingTopic()
         );
+    }
+
+    @Bean
+    public KafkaTaskListener kafkaTaskListener(KafkaDocProcessingTaskHandler handler) {
+        return new KafkaTaskListener(handler);
     }
 }

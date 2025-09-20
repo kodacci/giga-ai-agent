@@ -21,4 +21,8 @@ public interface PdfService {
             String name,
             String description
     );
+
+    Either<AppFailure, List<String>> splitToChunks(
+            byte[] contents
+    );
 }
