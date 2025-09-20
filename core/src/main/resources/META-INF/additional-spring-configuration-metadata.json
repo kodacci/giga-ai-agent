@@ -275,6 +275,11 @@
       "name": "app.kafka.document-processing-error-topic",
       "description": "Documents processing tasks with errors kafka topic",
       "type": "java.lang.String"
+    },
+    {
+      "name": "app.kafka.chunks-processing-topic",
+      "description": "Document chunks processing kafka topic",
+      "type": "java.lang.String"
     }
   ],
   "hints": [
