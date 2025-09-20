@@ -34,7 +34,7 @@ def escapeMd(input, escapeChars) {
         if (escapeChars.contains(ch)) {
             builder.append('\\')
         }
-        build.append(ch)
+        builder.append(ch)
     }
 
     return builder.toString()
