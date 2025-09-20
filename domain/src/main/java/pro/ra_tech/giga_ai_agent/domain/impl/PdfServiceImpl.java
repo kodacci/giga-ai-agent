@@ -25,6 +25,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.api.LlmTextProcessorService;
 import pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsProps;
 import pro.ra_tech.giga_ai_agent.integration.kafka.DocumentProcessingTask;
+import pro.ra_tech.giga_ai_agent.integration.kafka.DocumentType;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -107,7 +108,7 @@ public class PdfServiceImpl implements PdfService {
                 .flatMap(nothing -> taskRepo.createTask(new CreateDocProcessingTaskData(hfsId)))
                 .peek(taskId -> log.info("Created task {} for document {} processing", taskId, name))
                 .flatMap(taskId -> kafkaService.enqueueDocumentProcessing(
-                        new DocumentProcessingTask(taskId, hfsId),
+                        new DocumentProcessingTask(taskId, hfsId, DocumentType.PDF),
                         new SendResultHandler(name, taskId)
                     ).map(nothing -> taskId)
                 )

@@ -19,13 +19,10 @@ import pro.ra_tech.giga_ai_agent.database.repos.api.TagRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.api.FileServerService;
-import pro.ra_tech.giga_ai_agent.domain.impl.BalanceGaugeService;
-import pro.ra_tech.giga_ai_agent.domain.impl.EmbeddingServiceImpl;
-import pro.ra_tech.giga_ai_agent.domain.impl.FileServerServiceImpl;
-import pro.ra_tech.giga_ai_agent.domain.impl.TelegramBotUpdatesHandler;
-import pro.ra_tech.giga_ai_agent.domain.impl.TelegramListener;
+import pro.ra_tech.giga_ai_agent.domain.impl.*;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.api.HfsService;
+import pro.ra_tech.giga_ai_agent.integration.api.KafkaDocProcessingTaskHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
 import pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsProps;
@@ -141,5 +138,10 @@ public class DomainConfig {
     @Bean
     FileServerService fileServerService(HfsProps props, HfsService hfs) {
         return new FileServerServiceImpl(hfs, props.baseFolder());
+    }
+
+    @Bean
+    KafkaDocProcessingTaskHandler docProcessingTaskHandler() {
+        return new KafkaDocProcessingTaskHandlerImpl();
     }
 }

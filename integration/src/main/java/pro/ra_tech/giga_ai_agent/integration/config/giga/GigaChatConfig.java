@@ -4,12 +4,16 @@ import dev.failsafe.RetryPolicy;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.val;
 import okhttp3.OkHttpClient;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
+import pro.ra_tech.giga_ai_agent.integration.config.kafka.KafkaProps;
+import pro.ra_tech.giga_ai_agent.integration.config.telegram.TelegramApiProps;
+import pro.ra_tech.giga_ai_agent.integration.config.ya_gpt.YaGptProps;
 import pro.ra_tech.giga_ai_agent.integration.impl.GigaAuthServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.impl.GigaChatServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.api.AuthApi;
@@ -20,6 +24,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 @Configuration
+@EnableConfigurationProperties(GigaChatProps.class)
 public class GigaChatConfig extends BaseIntegrationConfig {
     private static final String GIGA_CHAT_SERVICE = "giga-chat";
     private static final String GIGA_AUTH_SERVICE = "giga-auth";

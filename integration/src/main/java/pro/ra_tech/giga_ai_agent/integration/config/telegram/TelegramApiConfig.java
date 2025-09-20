@@ -3,7 +3,6 @@ package pro.ra_tech.giga_ai_agent.integration.config.telegram;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.val;
 import okhttp3.OkHttpClient;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
