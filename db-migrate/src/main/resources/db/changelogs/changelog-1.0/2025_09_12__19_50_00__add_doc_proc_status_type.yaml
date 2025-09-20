@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 6
+      author: Andrey Ryabtsev
+      comment: Adds document processing tasks status type
+      changes:
+        - sql:
+            sql: |
+              CREATE TYPE doc_processing_status AS ENUM ('IDLE', 'ENQUEUED', 'STARTED', 'CHUNKED', 'SUCCESS', 'ERROR');
+      rollback:
+        - sql:
+            sql: |
+              DROP TYPE IF EXISTS doc_processing_status;

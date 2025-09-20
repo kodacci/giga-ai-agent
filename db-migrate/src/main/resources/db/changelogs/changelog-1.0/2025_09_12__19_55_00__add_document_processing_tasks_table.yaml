@@ -1,17 +1,9 @@
 databaseChangeLog:
   - changeSet:
-      id: 6
+      id: 7
       author: Andrey Ryabtsev
       comment: Adds document processing tasks table
       changes:
-        - createType:
-            typeName: doc_processing_status
-            values:
-              - IDLE
-              - ENQUEUED
-              - STARTED
-              - SUCCESS
-              - ERROR
         - createTable:
             tableName: doc_processing_tasks
             columns:
