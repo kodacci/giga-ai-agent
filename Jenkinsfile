@@ -52,7 +52,7 @@ pipeline {
             steps {
                 script {
                     ESCAPED_JOB_NAME = escapeMd(JOB_NAME, MARKDOWN_ESCAPE_CHARS)
-                    raTechNotify(message: "Starting job *${ESCAPED_JOB_NAME}*", markdown: true)
+                    raTechNotify(message: "Job *${ESCAPED_JOB_NAME}* started", markdown: true)
 
                     withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
                         PROJECT_VERSION = sh(
