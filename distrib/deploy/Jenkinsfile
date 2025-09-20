@@ -42,11 +42,11 @@ static def removeProtocol(url) {
     return url.substring('https://'.length())
 }
 
-def escapeMd(String input) {
+def escapeMd(input, escapeChars) {
     def builder = new StringBuilder()
 
     input.each { ch ->
-        if (MARKDOWN_ESCAPE_CHARS.contains(ch)) {
+        if (escapeChars.contains(ch)) {
             builder.append('\\')
         }
         build.append(ch)
@@ -67,7 +67,7 @@ pipeline {
         stage('Determine git scope') {
             steps {
                 script {
-                    ESCAPED_JOB_NAME = JOB_NAME.replaceAll("_*[]()~`>#+-=|{}.!", /\\$0/)
+                    ESCAPED_JOB_NAME = escapeChars(JOB_NAME, MARKDOWN_ESCAPE_CHARS)
                     raTechNotify(message: "Starting job *${ESCAPED_JOB_NAME}*", markdown: true)
 
                     DEPLOY_GIT_SCOPE = BRANCH_NAME.tokenize('/').last().toLowerCase()

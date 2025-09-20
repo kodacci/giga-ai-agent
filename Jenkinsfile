@@ -27,11 +27,11 @@ def buildImage(name, dockerFilePath, scope, version, buildNumber) {
     return tag
 }
 
-def escapeMd(String input) {
+def escapeMd(input, escapeChars) {
     def builder = new StringBuilder()
 
     input.each { ch ->
-        if (MARKDOWN_ESCAPE_CHARS.contains(ch)) {
+        if (escapeChars.contains(ch)) {
             builder.append('\\')
         }
         build.append(ch)
@@ -51,7 +51,7 @@ pipeline {
         stage('Determine Version') {
             steps {
                 script {
-                    ESCAPED_JOB_NAME = escapeMd(JOB_NAME)
+                    ESCAPED_JOB_NAME = escapeMd(JOB_NAME, MARKDOWN_ESCAPE_CHARS)
                     raTechNotify(message: "Starting job *${ESCAPED_JOB_NAME}*", markdown: true)
 
                     withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
