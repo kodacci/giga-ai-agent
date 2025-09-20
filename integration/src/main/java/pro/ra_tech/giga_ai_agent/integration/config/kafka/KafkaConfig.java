@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -48,19 +49,15 @@ public class KafkaConfig {
     }
 
     @Bean
-    public DefaultErrorHandler errorHandler() {
-        val backOff = new FixedBackOff(1000L, 3);
-
-        return new DefaultErrorHandler(backOff);
-    }
-
-    @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListener(
             ConsumerFactory<String, Object> consumerFactory
     ) {
         val factory = new ConcurrentKafkaListenerContainerFactory<String, Object>();
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(1);
+
+        val backOff = new FixedBackOff(1000L, 3);
+        factory.setCommonErrorHandler(new DefaultErrorHandler(backOff));
 
         return factory;
     }

@@ -270,6 +270,11 @@
       "name": "app.kafka.document-processing-topic",
       "description": "Documents processing kafka topic",
       "type": "java.lang.String"
+    },
+    {
+      "name": "app.kafka.document-processing-error-topic",
+      "description": "Documents processing tasks with errors kafka topic",
+      "type": "java.lang.String"
     }
   ],
   "hints": [

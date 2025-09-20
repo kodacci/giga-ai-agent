@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "app.kafka")
 public record KafkaProps(
         String bootstrapServers,
-        String documentProcessingTopic
+        String documentProcessingTopic,
+        String documentProcessingErrorTopic
 ) {
 }

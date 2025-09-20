@@ -61,3 +61,4 @@ app:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     document-processing-topic: ${KAFKA_DOCUMENT_PROCESSING_TOPIC}
+    document-processing-error-topic: ${KAFKA_DOCUMENT_PROCESSING_ERROR_TOPIC}
