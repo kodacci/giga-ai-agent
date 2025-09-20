@@ -65,10 +65,10 @@ spec:
       containers:
         - name: giga-ai-agent-core
           image: {{ registry }}/{{ image_tag }}
-            securityContext:
-              capabilities:
-                drop:
-                  - ALL
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
           ports:
               - containerPort: 8080
                 name: core-rest-api
@@ -123,6 +123,10 @@ spec:
 
         - name: fluentbit
           image: fluent/fluent-bit:3.1.4
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
           resources:
             requests:
               cpu: {{ core.fluentbit.requests.cpu }}
