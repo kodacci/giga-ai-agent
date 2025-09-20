@@ -94,6 +94,12 @@ public class PdfServiceImpl implements PdfService {
     }
 
     @Override
+    @Timed(
+            value = "business.process.call",
+            extraTags = {"business.process.service", "pdf-service", "business.process.method", "enqueue-pdf"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
     public Either<AppFailure, EnqueueDocumentInfo> enqueuePdf(
             byte[] contents,
             List<String> tags,
