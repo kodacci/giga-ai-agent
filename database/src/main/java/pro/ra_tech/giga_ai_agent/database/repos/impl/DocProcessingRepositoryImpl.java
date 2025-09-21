@@ -57,15 +57,14 @@ public class DocProcessingRepositoryImpl implements DocProcessingTaskRepository 
             histogram = true,
             percentiles = {0.90, 0.95, 0.99}
     )
-    public Either<AppFailure, Long> updateTaskStatus(long id, DocProcessingTaskStatus status) {
+    public Either<AppFailure, Integer> updateTaskStatus(long id, DocProcessingTaskStatus status) {
         return Try.of(
                 () -> client.sql(
                         "UPDATE doc_processing_tasks SET status = :status WHERE id = :id"
                 )
                         .param("status", status, Types.OTHER)
                         .param("id", id)
-                        .query(Long.class)
-                        .single()
+                        .update()
         )
                 .toEither()
                 .mapLeft(this::toFailure);
