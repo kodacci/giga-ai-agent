@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.integration.config.kafka;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.val;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -17,6 +18,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.util.backoff.FixedBackOff;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaDocProcessingTaskHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
+import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
 import pro.ra_tech.giga_ai_agent.integration.impl.KafkaServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.impl.KafkaTaskListener;
 
@@ -25,9 +27,12 @@ import java.util.Map;
 @EnableKafka
 @Configuration
 @EnableConfigurationProperties(KafkaProps.class)
-public class KafkaConfig {
+public class KafkaConfig extends BaseIntegrationConfig {
+    public static final String KAFKA_SERVICE = "kafka";
     public static final String DOCUMENT_PROCESSING_TASK_TYPE_MAPPING =
             "documentProcessingTask:pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask";
+    private static final String CHUNK_PROCESSING_TASK_TYPE_MAPPING =
+            "chunkProcessingTask:pro.ra_tech.giga_ai_agent.integration.kafka.model.ChunkProcessingTask";
 
     @Bean
     public ProducerFactory<String, Object> kafkaProducerFactory(KafkaProps props) {
@@ -35,7 +40,8 @@ public class KafkaConfig {
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, props.bootstrapServers(),
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class,
-                JsonSerializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING
+                JsonSerializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING + ", " +
+                        CHUNK_PROCESSING_TASK_TYPE_MAPPING
         ));
     }
 
@@ -57,6 +63,7 @@ public class KafkaConfig {
         val factory = new ConcurrentKafkaListenerContainerFactory<String, Object>();
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(1);
+        factory.getContainerProperties().setObservationEnabled(true);
 
         val backOff = new FixedBackOff(1000L, 1);
         factory.setCommonErrorHandler(new DefaultErrorHandler(backOff));
@@ -66,18 +73,24 @@ public class KafkaConfig {
 
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> kafkaProducerFactory) {
-        return new KafkaTemplate<>(kafkaProducerFactory);
+        val template = new KafkaTemplate<>(kafkaProducerFactory);
+        template.setObservationEnabled(true);
+
+        return template;
     }
 
     @Bean
     public KafkaService kafkaService(
             KafkaProps props,
-            KafkaTemplate<String, Object> kafkaTemplate
+            KafkaTemplate<String, Object> kafkaTemplate,
+            MeterRegistry registry
     ) {
         return new KafkaServiceImpl(
                 kafkaTemplate,
                 props.documentProcessingTopic(),
-                props.chunkProcessingTopic()
+                props.chunkProcessingTopic(),
+                buildKafkaSendMonitoringDto(registry, KAFKA_SERVICE, props.documentProcessingTopic()),
+                buildKafkaSendMonitoringDto(registry, KAFKA_SERVICE, props.chunkProcessingTopic())
         );
     }
 

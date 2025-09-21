@@ -9,7 +9,8 @@ import lombok.val;
 import okhttp3.OkHttpClient;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import pro.ra_tech.giga_ai_agent.integration.util.RequestMonitoringDto;
+import pro.ra_tech.giga_ai_agent.integration.util.HttpRequestMonitoringDto;
+import pro.ra_tech.giga_ai_agent.integration.util.KafkaSendMonitoringDto;
 import retrofit2.Response;
 
 import java.time.Duration;
@@ -52,14 +53,14 @@ public abstract class BaseIntegrationConfig {
                 .build();
     }
 
-    protected <T> RequestMonitoringDto<T> buildRequestMonitoringDto(
+    protected <T> HttpRequestMonitoringDto<T> buildRequestMonitoringDto(
             MeterRegistry registry,
             String service,
             String method,
             int maxRetries,
             int retryTimeoutMs
     ) {
-        return new RequestMonitoringDto<>(
+        return new HttpRequestMonitoringDto<>(
                 buildTimer(registry, service, method),
                 buildCounter(registry, ErrorCounterType.STATUS_4XX, service, method),
                 buildCounter(registry, ErrorCounterType.STATUS_5XX, service, method),
@@ -67,10 +68,23 @@ public abstract class BaseIntegrationConfig {
         );
     }
 
+    protected KafkaSendMonitoringDto buildKafkaSendMonitoringDto(
+            MeterRegistry registry,
+            String service,
+            String topic
+    ) {
+        return new KafkaSendMonitoringDto(
+                registry,
+                buildTimer(registry, service, topic),
+                buildCounter(registry, ErrorCounterType.STATUS_KAFKA_SEND_ERROR, service, topic)
+        );
+    }
+
     @RequiredArgsConstructor
     public enum ErrorCounterType {
         STATUS_4XX("status.4xx"),
-        STATUS_5XX("status.5xx");
+        STATUS_5XX("status.5xx"),
+        STATUS_KAFKA_SEND_ERROR("status.kafka_send_error");
 
         private final String value;
 

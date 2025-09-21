@@ -5,7 +5,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Timer;
 import retrofit2.Response;
 
-public record RequestMonitoringDto <T> (
+public record HttpRequestMonitoringDto<T> (
         Timer timer,
         Counter rq4xxCounter,
         Counter rq5xxCounter,

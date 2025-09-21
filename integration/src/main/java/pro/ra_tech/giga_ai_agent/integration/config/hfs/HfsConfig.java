@@ -9,7 +9,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.HfsService;
 import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
 import pro.ra_tech.giga_ai_agent.integration.impl.HfsServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.rest.hfs.api.HfsApi;
-import pro.ra_tech.giga_ai_agent.integration.util.RequestMonitoringDto;
+import pro.ra_tech.giga_ai_agent.integration.util.HttpRequestMonitoringDto;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
@@ -21,7 +21,7 @@ import java.util.Base64;
 public class HfsConfig extends BaseIntegrationConfig {
     public static final String HFS_SERVICE = "HFS";
 
-    private <T> RequestMonitoringDto<T> buildMonitoringDto(MeterRegistry registry, HfsProps props, String method) {
+    private <T> HttpRequestMonitoringDto<T> buildMonitoringDto(MeterRegistry registry, HfsProps props, String method) {
         return buildRequestMonitoringDto(
                 registry,
                 HFS_SERVICE,
