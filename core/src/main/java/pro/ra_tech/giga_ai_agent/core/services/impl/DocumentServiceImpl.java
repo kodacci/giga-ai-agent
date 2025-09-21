@@ -12,6 +12,7 @@ import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.PdfUploadR
 import pro.ra_tech.giga_ai_agent.core.services.api.DocumentService;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
 import pro.ra_tech.giga_ai_agent.domain.model.EnqueueDocumentInfo;
+import pro.ra_tech.giga_ai_agent.domain.model.InputDocumentMetadata;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
 
@@ -59,7 +60,7 @@ public class DocumentServiceImpl implements DocumentService {
         );
 
         return toBytes(file).flatMap(data -> pdfService.enqueuePdf(
-                data, request.tags(), request.documentName(), request.description()
+                data, new InputDocumentMetadata(request.documentName(), request.description(), request.tags())
         ));
     }
 }

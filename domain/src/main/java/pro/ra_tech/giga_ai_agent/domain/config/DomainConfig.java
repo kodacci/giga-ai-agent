@@ -13,6 +13,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.TagRepository;
@@ -143,8 +144,15 @@ public class DomainConfig {
             HfsProps hfsProps,
             HfsService hfsService,
             PdfService pdfService,
-            KafkaService kafkaService
+            KafkaService kafkaService,
+            DocProcessingTaskRepository taskRepo
     ) {
-        return new KafkaDocProcessingTaskHandlerImpl(hfsProps.baseFolder(), hfsService, pdfService, kafkaService);
+        return new KafkaDocProcessingTaskHandlerImpl(
+                hfsProps.baseFolder(),
+                hfsService,
+                pdfService,
+                kafkaService,
+                taskRepo
+        );
     }
 }

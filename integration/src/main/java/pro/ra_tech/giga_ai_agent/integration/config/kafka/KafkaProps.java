@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record KafkaProps(
         String bootstrapServers,
         String documentProcessingTopic,
-        String documentProcessingErrorTopic
+        String documentProcessingErrorTopic,
+        String chunkProcessingTopic
 ) {
 }

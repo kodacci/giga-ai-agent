@@ -74,7 +74,8 @@ public class KafkaConfig {
     ) {
         return new KafkaServiceImpl(
                 kafkaTemplate,
-                props.documentProcessingTopic()
+                props.documentProcessingTopic(),
+                props.chunkProcessingTopic()
         );
     }
 

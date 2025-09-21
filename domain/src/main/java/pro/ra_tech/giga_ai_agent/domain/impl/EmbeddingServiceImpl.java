@@ -153,7 +153,8 @@ public class EmbeddingServiceImpl implements EmbeddingService {
                         .flatMap(tags -> sourceRepo.create(new CreateSourceData(
                                 data.sourceName(),
                                 data.sourceDescription(),
-                                tags
+                                tags,
+                                null
                         )))
                         .flatMap(
                                 source -> createGigaEmbeddings(data.chunks())

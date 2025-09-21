@@ -1,6 +1,8 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
 import io.micrometer.core.annotation.Timed;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +12,17 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.stereotype.Service;
 import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
+import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
+import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateDocProcessingTaskData;
+import pro.ra_tech.giga_ai_agent.database.repos.model.CreateSourceData;
 import pro.ra_tech.giga_ai_agent.database.repos.model.DocProcessingTaskStatus;
+import pro.ra_tech.giga_ai_agent.database.repos.model.TagData;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
 import pro.ra_tech.giga_ai_agent.domain.model.DocumentData;
 import pro.ra_tech.giga_ai_agent.domain.model.EnqueueDocumentInfo;
+import pro.ra_tech.giga_ai_agent.domain.model.InputDocumentMetadata;
 import pro.ra_tech.giga_ai_agent.domain.model.PdfProcessingInfo;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
@@ -42,6 +49,9 @@ public class PdfServiceImpl implements PdfService {
     private final HfsProps hfsProps;
     private final DecimalFormat format = new DecimalFormat("###,###,###");
     private final DocProcessingTaskRepository taskRepo;
+    private final SourceRepository sourceRepo;
+    private final TagServiceImpl tagsService;
+    private final Transactional trx;
 
     private AppFailure toFailure(Throwable cause) {
         return new DocumentProcessingFailure(
@@ -93,6 +103,26 @@ public class PdfServiceImpl implements PdfService {
         }
     }
 
+    private CreateSourceData toCreateSourceData(InputDocumentMetadata meta, List<TagData> tags, String hfsId) {
+        return new CreateSourceData(
+                meta.name(),
+                meta.description(),
+                tags.stream().map(TagData::id).toList(),
+                hfsId
+        );
+    }
+
+    private Either<AppFailure, Tuple2<Long, Long>> createSourceAndTask(InputDocumentMetadata meta, String hfsId) {
+        return trx.execute(status ->
+                tagsService.mergeAndSave(meta.tags())
+                        .flatMap(tags -> sourceRepo.create(toCreateSourceData(meta, tags, hfsId)))
+                        .flatMap(
+                                source -> taskRepo.create(new CreateDocProcessingTaskData(source.id(), hfsId))
+                                        .map(taskId -> Tuple.of(taskId, source.id()))
+                        )
+        );
+    }
+
     @Override
     @Timed(
             value = "business.process.call",
@@ -102,23 +132,21 @@ public class PdfServiceImpl implements PdfService {
     )
     public Either<AppFailure, EnqueueDocumentInfo> enqueuePdf(
             byte[] contents,
-            List<String> tags,
-            String name,
-            String description
+            InputDocumentMetadata meta
     ) {
         val hfsId = UUID.randomUUID().toString();
 
         return hfsService.uploadFile(hfsProps.baseFolder(), hfsId, contents)
-                .flatMap(nothing -> hfsService.comment(hfsProps.baseFolder(), hfsId, name))
-                .peek(nothing -> log.info("Saved document {} to HFS with id {}", name, hfsId))
-                .flatMap(nothing -> taskRepo.createTask(new CreateDocProcessingTaskData(hfsId)))
-                .peek(taskId -> log.info("Created task {} for document {} processing", taskId, name))
-                .flatMap(taskId -> kafkaService.enqueueDocumentProcessing(
-                        new DocumentProcessingTask(taskId, hfsId, DocumentType.PDF),
-                        new SendResultHandler(name, taskId)
-                    ).map(nothing -> taskId)
+                .flatMap(nothing -> hfsService.comment(hfsProps.baseFolder(), hfsId, meta.name()))
+                .peek(nothing -> log.info("Saved document {} to HFS with id {}", meta.name(), hfsId))
+                .flatMap(nothing -> createSourceAndTask(meta, hfsId))
+                .peek(taskId -> log.info("Created task {} for document {} processing", taskId, meta.name()))
+                .flatMap(taskAndSource -> kafkaService.enqueueDocumentProcessing(
+                        new DocumentProcessingTask(taskAndSource._1(), taskAndSource._2(), hfsId, DocumentType.PDF),
+                        new SendResultHandler(meta.name(), taskAndSource._1())
+                    ).map(nothing -> taskAndSource._2())
                 )
-                .peek(taskId -> log.info("Enqueued document {}", name))
+                .peek(taskId -> log.info("Enqueued document {} with task {}", meta.name(), taskId))
                 .flatMap(taskId ->
                         taskRepo.updateTaskStatus(taskId, DocProcessingTaskStatus.ENQUEUED).map(count -> taskId)
                 )

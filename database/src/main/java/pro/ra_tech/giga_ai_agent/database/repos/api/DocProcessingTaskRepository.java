@@ -5,7 +5,7 @@ import pro.ra_tech.giga_ai_agent.database.repos.model.CreateDocProcessingTaskDat
 import pro.ra_tech.giga_ai_agent.database.repos.model.DocProcessingTaskStatus;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
-public interface DocProcessingTaskRepository {
-    Either<AppFailure, Long> createTask(CreateDocProcessingTaskData data);
+public interface DocProcessingTaskRepository extends WritableRepository<CreateDocProcessingTaskData, Long> {
+    Either<AppFailure, Long> create(CreateDocProcessingTaskData data);
     Either<AppFailure, Long> updateTaskStatus(long id, DocProcessingTaskStatus status);
 }

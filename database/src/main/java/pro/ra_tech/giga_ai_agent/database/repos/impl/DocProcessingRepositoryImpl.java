@@ -12,6 +12,8 @@ import pro.ra_tech.giga_ai_agent.database.repos.model.DocProcessingTaskStatus;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DatabaseFailure;
 
+import java.sql.Types;
+
 @Repository
 @RequiredArgsConstructor
 public class DocProcessingRepositoryImpl implements DocProcessingTaskRepository {
@@ -32,13 +34,14 @@ public class DocProcessingRepositoryImpl implements DocProcessingTaskRepository 
             histogram = true,
             percentiles = {0.90, 0.95, 0.99}
     )
-    public Either<AppFailure, Long> createTask(CreateDocProcessingTaskData data) {
+    public Either<AppFailure, Long> create(CreateDocProcessingTaskData data) {
         return Try.of(
                 () -> client.sql(
-                            "INSERT INTO doc_processing_tasks (hfs_doc_id, status) " +
-                                    "VALUES (:hfs_doc_id, 'IDLE') RETURNING id"
+                            "INSERT INTO doc_processing_tasks (hfs_doc_id, status, source_id) " +
+                                    "VALUES (:hfsDocId, 'IDLE', :sourceId) RETURNING id"
                         )
-                        .param("hfs_doc_id", data.hfsDocId())
+                        .param("hfsDocId", data.hfsDocId())
+                        .param("sourceId", data.sourceId())
                         .query(Long.class)
                         .single()
         )
@@ -59,7 +62,7 @@ public class DocProcessingRepositoryImpl implements DocProcessingTaskRepository 
                 () -> client.sql(
                         "UPDATE doc_processing_tasks SET status = :status WHERE id = :id"
                 )
-                        .param("status", status.toString())
+                        .param("status", status, Types.OTHER)
                         .param("id", id)
                         .query(Long.class)
                         .single()
