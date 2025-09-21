@@ -3,6 +3,7 @@ package pro.ra_tech.giga_ai_agent.integration.config.telegram;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.val;
 import okhttp3.OkHttpClient;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
@@ -15,6 +16,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
+@EnableConfigurationProperties(TelegramApiProps.class)
 public class TelegramApiConfig extends BaseIntegrationConfig {
     private static final int SEC_TO_MS = 1000;
     private static final String TELEGRAM_SERVICE = "telegram";

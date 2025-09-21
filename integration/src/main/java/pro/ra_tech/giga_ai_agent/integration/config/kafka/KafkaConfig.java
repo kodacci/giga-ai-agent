@@ -5,6 +5,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -23,6 +24,7 @@ import java.util.Map;
 
 @EnableKafka
 @Configuration
+@EnableConfigurationProperties(KafkaProps.class)
 public class KafkaConfig {
     public static final String DOCUMENT_PROCESSING_TASK_TYPE_MAPPING =
             "documentProcessingTask:pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask";

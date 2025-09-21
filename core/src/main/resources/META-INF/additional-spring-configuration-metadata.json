@@ -277,7 +277,7 @@
       "type": "java.lang.String"
     },
     {
-      "name": "app.kafka.chunks-processing-topic",
+      "name": "app.kafka.chunk-processing-topic",
       "description": "Document chunks processing kafka topic",
       "type": "java.lang.String"
     }

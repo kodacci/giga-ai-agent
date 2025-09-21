@@ -62,4 +62,4 @@ app:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     document-processing-topic: ${KAFKA_DOCUMENT_PROCESSING_TOPIC}
     document-processing-error-topic: ${KAFKA_DOCUMENT_PROCESSING_ERROR_TOPIC}
-    chunks-processing-topic: ${KAFKA_CHUNKS_PROCESSING_TOPIC}
+    chunk-processing-topic: ${KAFKA_CHUNK_PROCESSING_TOPIC}

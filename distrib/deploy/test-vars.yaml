@@ -55,10 +55,10 @@ core:
 
 db_migrate:
   requests:
-    cpu: 300m
+    cpu: 500m
     memory: 400Mi
   limits:
-    cpu: 300m
+    cpu: 500m
     memory: 400Mi
 
   istio:
