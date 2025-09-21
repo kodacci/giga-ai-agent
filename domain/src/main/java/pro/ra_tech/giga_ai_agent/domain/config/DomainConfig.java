@@ -21,6 +21,7 @@ import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.api.FileServerService;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
+import pro.ra_tech.giga_ai_agent.domain.api.TagService;
 import pro.ra_tech.giga_ai_agent.domain.impl.*;
 import pro.ra_tech.giga_ai_agent.integration.api.*;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
@@ -123,7 +124,7 @@ public class DomainConfig {
     }
 
     @Bean
-    BalanceGaugeService balanceGaugeService(MeterRegistry registry, GigaChatService gigaChatService) {
+    public BalanceGaugeService balanceGaugeService(MeterRegistry registry, GigaChatService gigaChatService) {
         val aiModelsBalances = Map.of(
                 AiModelType.GIGA_CHAT.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT.toString(), new AtomicLong(0)),
                 AiModelType.GIGA_CHAT_PRO.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT_PRO.toString(), new AtomicLong(0)),
@@ -135,12 +136,17 @@ public class DomainConfig {
     }
 
     @Bean
-    FileServerService fileServerService(HfsProps props, HfsService hfs) {
+    public FileServerService fileServerService(HfsProps props, HfsService hfs) {
         return new FileServerServiceImpl(hfs, props.baseFolder());
     }
 
     @Bean
-    KafkaDocProcessingTaskHandler docProcessingTaskHandler(
+    public TagService tagService(TagRepository tagRepository) {
+        return new TagServiceImpl(tagRepository);
+    }
+
+    @Bean
+    public KafkaDocProcessingTaskHandler docProcessingTaskHandler(
             HfsProps hfsProps,
             HfsService hfsService,
             PdfService pdfService,

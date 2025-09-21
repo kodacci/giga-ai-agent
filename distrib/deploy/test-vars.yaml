@@ -18,7 +18,7 @@ egress:
       cpu: 150m
       memory: 128Mi
     limits:
-      cpu: 150m
+      cpu: 300m
       memory: 128Mi
 
 core:
@@ -42,7 +42,7 @@ core:
       cpu: 100m
       memory: 256Mi
     limits:
-      cpu: 100m
+      cpu: 200m
       memory: 256Mi
 
   vault:
@@ -50,7 +50,7 @@ core:
       cpu: 150m
       memory: 128Mi
     limits:
-      cpu: 150m
+      cpu: 300m
       memory: 128Mi
 
 db_migrate:
@@ -63,10 +63,10 @@ db_migrate:
 
   istio:
     requests:
-      cpu: 100m
+      cpu: 50m
       memory: 128Mi
     limits:
-      cpu: 100m
+      cpu: 50m
       memory: 128Mi
 
   vault:
@@ -74,7 +74,7 @@ db_migrate:
       cpu: 150m
       memory: 128Mi
     limits:
-      cpu: 150m
+      cpu: 300m
       memory: 128Mi
 
 solr:
