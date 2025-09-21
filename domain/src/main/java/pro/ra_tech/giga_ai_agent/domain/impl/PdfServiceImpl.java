@@ -20,6 +20,7 @@ import pro.ra_tech.giga_ai_agent.database.repos.model.DocProcessingTaskStatus;
 import pro.ra_tech.giga_ai_agent.database.repos.model.TagData;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
+import pro.ra_tech.giga_ai_agent.domain.api.TagService;
 import pro.ra_tech.giga_ai_agent.domain.model.DocumentData;
 import pro.ra_tech.giga_ai_agent.domain.model.EnqueueDocumentInfo;
 import pro.ra_tech.giga_ai_agent.domain.model.InputDocumentMetadata;
@@ -50,7 +51,7 @@ public class PdfServiceImpl implements PdfService {
     private final DecimalFormat format = new DecimalFormat("###,###,###");
     private final DocProcessingTaskRepository taskRepo;
     private final SourceRepository sourceRepo;
-    private final TagServiceImpl tagsService;
+    private final TagService tagsService;
     private final Transactional trx;
 
     private AppFailure toFailure(Throwable cause) {
