@@ -1,7 +1,6 @@
 package pro.ra_tech.giga_ai_agent.domain.config;
 
 import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.val;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,20 +13,17 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.TagRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.api.FileServerService;
-import pro.ra_tech.giga_ai_agent.domain.impl.BalanceGaugeService;
-import pro.ra_tech.giga_ai_agent.domain.impl.EmbeddingServiceImpl;
-import pro.ra_tech.giga_ai_agent.domain.impl.FileServerServiceImpl;
-import pro.ra_tech.giga_ai_agent.domain.impl.TelegramBotUpdatesHandler;
-import pro.ra_tech.giga_ai_agent.domain.impl.TelegramListener;
-import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
-import pro.ra_tech.giga_ai_agent.integration.api.HfsService;
-import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
+import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
+import pro.ra_tech.giga_ai_agent.domain.api.TagService;
+import pro.ra_tech.giga_ai_agent.domain.impl.*;
+import pro.ra_tech.giga_ai_agent.integration.api.*;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
 import pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsProps;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
@@ -128,7 +124,7 @@ public class DomainConfig {
     }
 
     @Bean
-    BalanceGaugeService balanceGaugeService(MeterRegistry registry, GigaChatService gigaChatService) {
+    public BalanceGaugeService balanceGaugeService(MeterRegistry registry, GigaChatService gigaChatService) {
         val aiModelsBalances = Map.of(
                 AiModelType.GIGA_CHAT.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT.toString(), new AtomicLong(0)),
                 AiModelType.GIGA_CHAT_PRO.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT_PRO.toString(), new AtomicLong(0)),
@@ -140,7 +136,29 @@ public class DomainConfig {
     }
 
     @Bean
-    FileServerService fileServerService(HfsProps props, HfsService hfs) {
+    public FileServerService fileServerService(HfsProps props, HfsService hfs) {
         return new FileServerServiceImpl(hfs, props.baseFolder());
+    }
+
+    @Bean
+    public TagService tagService(TagRepository tagRepository) {
+        return new TagServiceImpl(tagRepository);
+    }
+
+    @Bean
+    public KafkaDocProcessingTaskHandler docProcessingTaskHandler(
+            HfsProps hfsProps,
+            HfsService hfsService,
+            PdfService pdfService,
+            KafkaService kafkaService,
+            DocProcessingTaskRepository taskRepo
+    ) {
+        return new KafkaDocProcessingTaskHandlerImpl(
+                hfsProps.baseFolder(),
+                hfsService,
+                pdfService,
+                kafkaService,
+                taskRepo
+        );
     }
 }

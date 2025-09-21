@@ -4,6 +4,7 @@ metadata:
   name: egw-destination
   namespace: {{ namespace }}
   labels:
+    app.kubenetes.io/name: egw-destination
     app.kubernetes.io/part-of: giga-ai-agent
     app.kubernetes.io/component: core
 spec:
@@ -18,5 +19,8 @@ spec:
     - name: yandex-gpt-auth
     - name: yandex-gpt-api
     - name: hfs
+    {% for server in kafka.bootstrap_servers %}
+    - name: giga-ai-agent-kafka-{{ server.id }}
+    {% endfor %}
   exportTo:
     - "."

@@ -49,9 +49,10 @@ public class SourceRepositoryImpl implements SourceRepository {
     )
     public Either<AppFailure, SourceData> create(CreateSourceData data) {
         return Try.of(
-                () -> jdbc.sql("INSERT INTO sources (name, description) VALUES (:name, :description) RETURNING id")
+                () -> jdbc.sql("INSERT INTO sources (name, description, hfs_doc_id) VALUES (:name, :description, :hfsDocId) RETURNING id")
                         .param("name", data.name())
                         .param("description", data.description())
+                        .param("hfsDocId", data.hfsDocId())
                         .query(Long.class)
                         .single()
         )

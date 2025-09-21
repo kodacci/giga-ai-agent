@@ -9,6 +9,8 @@ spring:
     url: ${DATABASE_URL}
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
 
 app:
   giga-chat:
@@ -56,3 +58,8 @@ app:
     base-folder: ${HFS_BASE_FOLDER}
     user: ${HFS_USER}
     password: ${HFS_PASSWORD}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    document-processing-topic: ${KAFKA_DOCUMENT_PROCESSING_TOPIC}
+    document-processing-error-topic: ${KAFKA_DOCUMENT_PROCESSING_ERROR_TOPIC}
+    chunk-processing-topic: ${KAFKA_CHUNK_PROCESSING_TOPIC}

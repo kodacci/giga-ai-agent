@@ -1,6 +1,8 @@
 package pro.ra_tech.giga_ai_agent.domain.api;
 
 import io.vavr.control.Either;
+import pro.ra_tech.giga_ai_agent.domain.model.EnqueueDocumentInfo;
+import pro.ra_tech.giga_ai_agent.domain.model.InputDocumentMetadata;
 import pro.ra_tech.giga_ai_agent.domain.model.PdfProcessingInfo;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
@@ -12,5 +14,14 @@ public interface PdfService {
             List<String> tags,
             String name,
             String description
+    );
+
+    Either<AppFailure, EnqueueDocumentInfo> enqueuePdf(
+            byte[] contents,
+            InputDocumentMetadata meta
+    );
+
+    Either<AppFailure, List<String>> splitToChunks(
+            byte[] contents
     );
 }

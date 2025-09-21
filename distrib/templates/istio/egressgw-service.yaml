@@ -15,6 +15,12 @@ spec:
       port: {{ egress_tcp_port }}
       protocol: TCP
       targetPort: {{ egress_tcp_port }}
+    {% for server in kafka.bootstrap_servers %}
+    - name: tcp-kafka-{{ server.id }}
+      port: {{ server.egress_port }}
+      protocol: TCP
+      targetPort: {{ server.egress_port }}
+    {% endfor %}
     - name: http
       port: 80
       protocol: TCP

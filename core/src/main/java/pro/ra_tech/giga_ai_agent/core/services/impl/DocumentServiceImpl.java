@@ -6,10 +6,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import pro.ra_tech.giga_ai_agent.core.controllers.document_enqueue.dto.EnqueueDocumentRequest;
 import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.DocumentMetadata;
 import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.PdfUploadResponse;
 import pro.ra_tech.giga_ai_agent.core.services.api.DocumentService;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
+import pro.ra_tech.giga_ai_agent.domain.model.EnqueueDocumentInfo;
+import pro.ra_tech.giga_ai_agent.domain.model.InputDocumentMetadata;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
 
@@ -45,5 +48,19 @@ public class DocumentServiceImpl implements DocumentService {
                     data, metadata.tags(), metadata.documentName(), metadata.description()
                 ))
                 .map(PdfUploadResponse::of);
+    }
+
+    @Override
+    public Either<AppFailure, EnqueueDocumentInfo> enqueuePdf(MultipartFile file, EnqueueDocumentRequest request) {
+        log.info(
+                "Enqueueing pdf document {} of size {}, metadata: {}",
+                file.getOriginalFilename(),
+                format.format(file.getSize()),
+                request
+        );
+
+        return toBytes(file).flatMap(data -> pdfService.enqueuePdf(
+                data, new InputDocumentMetadata(request.documentName(), request.description(), request.tags())
+        ));
     }
 }

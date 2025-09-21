@@ -5,12 +5,14 @@ import io.micrometer.core.instrument.MeterRegistry;
 import lombok.val;
 import okhttp3.OkHttpClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import pro.ra_tech.giga_ai_agent.integration.api.AuthService;
 import pro.ra_tech.giga_ai_agent.integration.api.YaGptService;
 import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
+import pro.ra_tech.giga_ai_agent.integration.config.telegram.TelegramApiProps;
 import pro.ra_tech.giga_ai_agent.integration.impl.YaGptAuthServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.impl.YaGptServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.rest.ya_gpt.api.AuthApi;
@@ -22,6 +24,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 
 @Configuration
 @ConditionalOnProperty(name = "app.ya-gpt.enabled", havingValue = "true")
+@EnableConfigurationProperties(YaGptProps.class)
 public class YaGptConfig extends BaseIntegrationConfig {
     private static final String YA_GPT_AUTH_SERVICE = "ya-gpt-auth";
     private static final String YA_GPT_AUTH_AUTHENTICATE = "authenticate";

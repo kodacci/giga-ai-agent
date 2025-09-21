@@ -34,6 +34,11 @@
       "name": "app.hfs",
       "description": "Application HFS API integration configuration",
       "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsProps"
+    },
+    {
+      "name": "app.kafka",
+      "description": "Application Kafka integration configuration",
+      "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.kafka.KafkaProps"
     }
   ],
   "properties": [
@@ -253,6 +258,27 @@
     {
       "name": "app.hfs.password",
       "description": "HFS user password",
+      "type": "java.lang.String"
+    },
+
+    {
+      "name": "app.kafka.bootstrap-servers",
+      "description": "RA-Tech Kafka bootstrap servers",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.kafka.document-processing-topic",
+      "description": "Documents processing kafka topic",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.kafka.document-processing-error-topic",
+      "description": "Documents processing tasks with errors kafka topic",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.kafka.chunk-processing-topic",
+      "description": "Document chunks processing kafka topic",
       "type": "java.lang.String"
     }
   ],

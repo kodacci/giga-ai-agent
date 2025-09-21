@@ -1,0 +1,107 @@
+host: api.giga-ai-agent.test.cloud.ra-tech.pro
+namespace: giga-ai-agent-test
+registry: snapshots.docker-registry.ra-tech.pro
+solr_collection: giga-ai-agent-test
+db_host: giga-ai-agent.db.ra-tech.pro
+db_port: 5555
+egress_tcp_port: 9999
+
+egress:
+  limits:
+    cpu: 150m
+    memory: 128Mi
+  requests:
+    cpu: 150m
+    memory: 128Mi
+  vault:
+    requests:
+      cpu: 150m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 128Mi
+
+core:
+  requests:
+    cpu: 1
+    memory: 2Gi
+  limits:
+    cpu: 1
+    memory: 2Gi
+
+  istio:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+  fluentbit:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+  vault:
+    requests:
+      cpu: 150m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 128Mi
+
+db_migrate:
+  requests:
+    cpu: 500m
+    memory: 400Mi
+  limits:
+    cpu: 500m
+    memory: 400Mi
+
+  istio:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 50m
+      memory: 128Mi
+
+  vault:
+    requests:
+      cpu: 150m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 128Mi
+
+solr:
+  host: solr.ra-tech.pro
+vault:
+  url: http://vault.ra-tech.pro
+  tls_url: https://vault.ra-tech.pro
+  host: vault.ra-tech.pro
+giga:
+  auth:
+    host: ngw.devices.sberbank.ru
+  chat:
+    host: gigachat.devices.sberbank.ru
+telegram:
+  api:
+    host: api.telegram.org
+yandex:
+  gpt:
+    auth:
+      host: iam.api.cloud.yandex.net
+    api:
+      host: llm.api.cloud.yandex.net
+hfs:
+  host: hfs.ra-tech.pro
+kafka:
+  bootstrap_servers:
+    - id: 1
+      host: kafka-1.ra-tech.pro
+      port: 9093
+      egress_port: 9092

@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 7
+      author: Andrey Ryabtsev
+      comment: Adds document processing tasks table
+      changes:
+        - createTable:
+            tableName: doc_processing_tasks
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: hfs_doc_id
+                  type: varchar2(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: doc_processing_status
+                  constraints:
+                    nullable: false
+              - column:
+                  name: chunks_count
+                  type: int
+              - column:
+                  name: processed_chunks_count
+                  type: int
+              - column:
+                  name: source_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: doc_processing_tasks_sources_fk
+                    referencedTableName: sources
+                    referencedColumnNames: id
+                    onDelete: CASCADE
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValue: now()
+                  constraints:
+                    nullable: false

@@ -26,10 +26,10 @@ spec:
         app.kubernetes.io/component: core
         app.kubernetes.io/part-of: giga-ai-agent
         app.network.policy: restricted
-        sidecar.istio.io/proxyCPU: '150m'
-        sidecar.istio.io/proxyCPULimit: '150m'
-        sidecar.istio.io/proxyMemory: '128Mi'
-        sidecar.istio.io/proxyMemoryLimit: '256Mi'
+        sidecar.istio.io/proxyCPU: {{ core.istio.requests.cpu }}
+        sidecar.istio.io/proxyCPULimit: {{ core.istio.limits.cpu }}
+        sidecar.istio.io/proxyMemory: {{ core.istio.requests.memory }}
+        sidecar.istio.io/proxyMemoryLimit: {{ core.istio.limits.memory }}
     spec:
       volumes:
         - name: logs-volume
@@ -65,6 +65,10 @@ spec:
       containers:
         - name: giga-ai-agent-core
           image: {{ registry }}/{{ image_tag }}
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
           ports:
               - containerPort: 8080
                 name: core-rest-api
@@ -111,21 +115,25 @@ spec:
             failureThreshold: 5
           resources:
             requests:
-              cpu: 1000m
-              memory: 2000Mi
+              cpu: {{ core.requests.cpu }}
+              memory: {{ core.requests.memory }}
             limits:
-              cpu: 1000m
-              memory: 2000Mi
+              cpu: {{ core.limits.cpu }}
+              memory: {{ core.limits.memory }}
 
         - name: fluentbit
           image: fluent/fluent-bit:3.1.4
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
           resources:
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: {{ core.fluentbit.requests.cpu }}
+              memory: {{ core.fluentbit.requests.memory }}
             limits:
-              cpu: 100m
-              memory: 200Mi
+              cpu: {{ core.fluentbit.limits.cpu }}
+              memory: {{ core.fluentbit.limits.memory }}
           env:
             - name: POD_NAME
               valueFrom:
@@ -174,10 +182,11 @@ spec:
             - -log-level=info
           env:
             - name: VAULT_ADDR
-              value: {{ vault_address }}
+              value: {{ vault.url }}
           volumeMounts:
             - mountPath: /vault/agent
               name: vault-agent-config
+              readOnly: true
             - mountPath: /vault/secrets/application
               name: application-config
             - mountPath: /vault/token
@@ -187,11 +196,11 @@ spec:
               readOnly: true
           resources:
             requests:
-              cpu: 150m
-              memory: 100Mi
+              cpu: {{ core.vault.requests.cpu }}
+              memory: {{ core.vault.requests.memory }}
             limits:
-              cpu: 150m
-              memory: 150Mi
+              cpu: {{ core.vault.limits.cpu }}
+              memory: {{ core.vault.limits.memory }}
 
       imagePullSecrets:
         - name: docker-registry-creds

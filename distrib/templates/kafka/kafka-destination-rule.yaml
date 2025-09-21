@@ -1,0 +1,26 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: giga-ai-agent-kafka-{{ kafka_id }}
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/name: giga-ai-agent-kafka-{{ kafka_id }}
+    app.kubernetes.io/part-of: giga-ai-agent
+    app.kubernetes.io/component: core
+spec:
+  host: {{ kafka_host }}
+  trafficPolicy:
+    portLevelSettings:
+      - port:
+          number: {{ kafka_port }}
+        tls:
+          mode: MUTUAL
+          sni: {{ kafka_host }}
+          clientCertificate: /tls/client.pem
+          privateKey: /tls/key.pem
+          caCertificates: /tls/ca.pem
+  workloadSelector:
+    matchLabels:
+      istio: {{ namespace }}-egressgateway
+  exportTo:
+    - "."

@@ -15,39 +15,25 @@ spec:
         name:  http
         protocol: HTTP
       hosts:
-        - {{ solr_host }}
-        - {{ vault_host }}
-        - {{ giga_auth_host }}
-        - {{ giga_chat_host }}
-        - {{ telegram_api_host }}
-        - {{ yandex_gpt_auth_host }}
-        - {{ yandex_gpt_api_host }}
-        - {{ hfs_host }}
-    - port:
-        number: 443
-        name: https
-        protocol: HTTPS
-      hosts:
-        - {{ solr_host }}
-        - {{ vault_host }}
-        - {{ giga_chat_host }}
-        - {{ telegram_api_host }}
-        - {{ yandex_gpt_auth_host }}
-        - {{ yandex_gpt_api_host }}
-        - {{ hfs_host }}
-      tls:
-        mode: PASSTHROUGH
-    - port:
-        number: 9443
-        name: https-9
-        protocol: HTTPS
-      hosts:
-        - {{ giga_auth_host }}
-      tls:
-        mode: PASSTHROUGH
+        - {{ solr.host }}
+        - {{ vault.host }}
+        - {{ giga.auth.host }}
+        - {{ giga.chat.host }}
+        - {{ telegram.api.host }}
+        - {{ yandex.gpt.auth.host }}
+        - {{ yandex.gpt.api.host }}
+        - {{ hfs.host }}
     - port:
         number: {{ egress_tcp_port }}
         name: tcp
         protocol: TCP
       hosts:
         - {{ db_host }}
+    {% for server in kafka.bootstrap_servers %}
+    - port:
+        number: {{ server.egress_port }}
+        name: kafka-port-{{ server.id }}
+        protocol: TCP
+      hosts:
+        - {{ server.host }}
+    {% endfor %}

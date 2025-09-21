@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: egress-vault-agent
+  namespace: {{ namespace }}
+  labels:
+    app.kubernetes.io/name: egress-vault-agent-config
+    app.kubernetes.io/part-of: giga-ai-agent
+    app.kubernetes.io/component: core
+data:
+  vault-agent-config.hcl: |
+    exit_after_auth = false
+    vault {
+      address = "{{ vault.tls_url }}"
+      ca_cert = "/tls/ca.pem"
+      tls_skip_verify = false 
+    }
+    
+    pid_file = "/vault/pidfile"
+    
+    auto_auth {
+      method {
+        type = "approle"
+    
+        config = {
+          role_id_file_path = "/vault/role/role_id"
+          secret_id_file_path = "/vault/role/.secret_id"
+          remove_secret_id_file_after_reading = false
+        }
+      }
+    
+      sink "file" {
+        config {
+          path = "/vault/token/.token"
+        }
+      }
+    }
+    
+    listener "tcp" {
+      address = "0.0.0.0:8200"
+      tls_disable = true
+      role = "metrics_only"
+    }
+    
+    # Render certificate files from vault
+    
+    template {
+      left_delimiter = "[["
+      right_delimiter = "]]"
+      destination = "/vault/secrets/certs/client.pem"
+      error_on_missing_key = true
+      contents = <<EOT
+    [[- with secret "ra-tech-kv/data/{{ namespace }}/cert" ]]
+    [[ .Data.data.cert ]]
+    [[- end ]]
+    EOT
+    }
+    
+    template {
+      left_delimiter = "[["
+      right_delimiter = "]]"
+      destination = "/vault/secrets/certs/key.pem"
+      error_on_missing_key = true
+      contents = <<EOT
+    [[- with secret "ra-tech-kv/data/{{ namespace }}/cert" ]]
+    [[ .Data.data.key ]]
+    [[- end ]]
+    EOT
+    }
+    
+    template {
+      left_delimiter = "[["
+      right_delimiter = "]]"
+      destination = "/vault/secrets/certs/ca.pem"
+      error_on_missing_key = true
+      contents = <<EOT
+    [[- with secret "ra-tech-kv/data/{{ namespace }}/cert" ]]
+    [[ .Data.data.ca ]]
+    [[- end ]]
+    EOT
+    }

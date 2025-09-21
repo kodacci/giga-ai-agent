@@ -15,10 +15,10 @@ spec:
         app.kubernetes.io/component: core
         app.kubernetes.io/part-of: giga-ai-agent
         app.network.policy: restricted
-        sidecar.istio.io/proxyCPU: '100m'
-        sidecar.istio.io/proxyCPULimit: '100m'
-        sidecar.istio.io/proxyMemory: '128Mi'
-        sidecar.istio.io/proxyMemoryLimit: '256Mi'
+        sidecar.istio.io/proxyCPU: {{ db_migrate.istio.requests.cpu }}
+        sidecar.istio.io/proxyCPULimit: {{ db_migrate.istio.limits.cpu }}
+        sidecar.istio.io/proxyMemory: {{ db_migrate.istio.requests.memory }}
+        sidecar.istio.io/proxyMemoryLimit: {{ db_migrate.istio.limits.memory }}
     spec:
       restartPolicy: Never
       volumes:
@@ -41,17 +41,21 @@ spec:
       containers:
         - name: db-migrate
           image: snapshots.docker-registry.ra-tech.pro/{{ image_tag }}
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
             - mountPath: /config/liquibase
               name: liquibase-props
               readOnly: true
           resources:
             requests:
-              cpu: 250m
-              memory: 400Mi
+              cpu: {{ db_migrate.requests.cpu }}
+              memory: {{ db_migrate.requests.memory }}
             limits:
-              cpu: 250m
-              memory: 400Mi
+              cpu: {{ db_migrate.limits.cpu }}
+              memory: {{ db_migrate.limits.memory }}
         - name: vault-agent
           image: hashicorp/vault:1.18
           args:
@@ -60,7 +64,7 @@ spec:
             - -log-level=info
           env:
             - name: VAULT_ADDR
-              value: {{ vault_address }}
+              value: {{ vault.url }}
           volumeMounts:
             - mountPath: /vault/agent
               name: vault-agent-config
@@ -73,11 +77,11 @@ spec:
               readOnly: true
           resources:
             requests:
-              cpu: 150m
-              memory: 100Mi
+              cpu: {{ db_migrate.vault.requests.cpu }}
+              memory: {{ db_migrate.vault.requests.memory }}
             limits:
-              cpu: 150m
-              memory: 150Mi
+              cpu: {{ db_migrate.vault.limits.cpu }}
+              memory: {{ db_migrate.vault.limits.memory }}
 
       imagePullSecrets:
         - name: docker-registry-creds

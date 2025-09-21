@@ -13,7 +13,7 @@ import lombok.val;
 import org.springframework.lang.Nullable;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
-import pro.ra_tech.giga_ai_agent.integration.util.RequestMonitoringDto;
+import pro.ra_tech.giga_ai_agent.integration.util.HttpRequestMonitoringDto;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -108,7 +108,7 @@ public abstract class BaseRestService {
     }
 
     protected <R> Either<AppFailure, R> sendMeteredRequest(
-            RequestMonitoringDto<R> mon,
+            HttpRequestMonitoringDto<R> mon,
             Call<R> call,
             Function<Throwable, AppFailure> toFailure
     ) {
