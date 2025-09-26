@@ -280,6 +280,11 @@
       "name": "app.kafka.chunk-processing-topic",
       "description": "Document chunks processing kafka topic",
       "type": "java.lang.String"
+    },
+    {
+      "name": "app.kafka.consumer-thread-pool-size",
+      "description": "Kafka consumer thread pool size",
+      "type": "java.lang.Integer"
     }
   ],
   "hints": [

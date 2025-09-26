@@ -1,6 +1,8 @@
 package pro.ra_tech.giga_ai_agent.integration.config.kafka;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -14,6 +16,9 @@ public record KafkaProps(
         @NotEmpty
         String documentProcessingErrorTopic,
         @NotEmpty
-        String chunkProcessingTopic
+        String chunkProcessingTopic,
+        @NotNull
+        @Min(1)
+        Integer consumerThreadPoolSize
 ) {
 }
