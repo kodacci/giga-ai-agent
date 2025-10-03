@@ -12,7 +12,7 @@ import pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask;
 @RequiredArgsConstructor
 @KafkaListener(
         id = "ai-agent-group",
-        topics = "${app.kafka.document-processing-topic}",
+        topics = {"${app.kafka.document-processing-topic}", "${app.kafka.chunk-processing-topic}"},
         containerFactory = "kafkaContainerFactory"
 )
 public class KafkaTaskListener {
@@ -25,7 +25,7 @@ public class KafkaTaskListener {
         docProcessingTaskHandler.onDocumentProcessingTask(task);
     }
 
-    @KafkaListener
+    @KafkaHandler
     public void onChunkProcessingTask(ChunkProcessingTask task) {
         log.info("Got chunk processing task: {}", task);
 
