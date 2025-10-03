@@ -120,6 +120,18 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
                         : Either.right(data)
                 )
                 .flatMap(data -> embeddingService.createEmbedding(task.text(), task.sourceId()))
+                .flatMap(nothing -> {
+                    if (task.chunkIdx() == task.chunksCount() - 1) {
+                        return taskRepo.updateTaskStatus(task.taskId(), DocProcessingTaskStatus.SUCCESS)
+                                .peekLeft(failure -> log.error(
+                                        "Error setting SUCCESS status to task {}:",
+                                        task.taskId(),
+                                        failure.getCause()
+                                ));
+                    }
+
+                    return Either.right(0);
+                })
                 .fold(
                         failure -> {
                             taskRepo.updateTaskStatus(task.taskId(), DocProcessingTaskStatus.ERROR)
