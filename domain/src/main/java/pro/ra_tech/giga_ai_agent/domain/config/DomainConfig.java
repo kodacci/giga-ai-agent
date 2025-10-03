@@ -151,14 +151,16 @@ public class DomainConfig {
             HfsService hfsService,
             PdfService pdfService,
             KafkaService kafkaService,
-            DocProcessingTaskRepository taskRepo
+            DocProcessingTaskRepository taskRepo,
+            EmbeddingService embeddingService
     ) {
         return new KafkaDocProcessingTaskHandlerImpl(
                 hfsProps.baseFolder(),
                 hfsService,
                 pdfService,
                 kafkaService,
-                taskRepo
+                taskRepo,
+                embeddingService
         );
     }
 }

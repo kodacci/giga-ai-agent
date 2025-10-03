@@ -1,10 +1,11 @@
 package pro.ra_tech.giga_ai_agent.integration.kafka.model;
 
 public record ChunkProcessingTask(
-        Long taskId,
-        Long sourceId,
+        long taskId,
+        long sourceId,
         String hfsDocumentId,
-        Integer chunkIdx,
-        String text
+        int chunkIdx,
+        String text,
+        int chunksCount
 ) {
 }

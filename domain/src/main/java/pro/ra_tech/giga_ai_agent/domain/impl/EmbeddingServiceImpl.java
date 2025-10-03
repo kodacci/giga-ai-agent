@@ -58,6 +58,14 @@ public class EmbeddingServiceImpl implements EmbeddingService {
         );
     }
 
+    private void logEmbeddingResponse(CreateEmbeddingsResponse res) {
+        log.info(
+                "Got {} embeddings with overall cost {}",
+                res.data().size(),
+                res.data().stream().mapToInt(data -> data.usage().promptTokens()).sum()
+        );
+    }
+
     private Either<AppFailure, CreateEmbeddingsResponse> createEmbeddingsFromChunk(
             List<String> chunks,
             int startIdx,
@@ -68,11 +76,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
                 .toEither()
                 .mapLeft(this::toFailure)
                 .flatMap(gigaChatService::createEmbeddings)
-                .peek(res -> log.info(
-                        "Got {} embeddings with overall cost {}",
-                        res.data().size(),
-                        res.data().stream().mapToInt(data -> data.usage().promptTokens()).sum()
-                ))
+                .peek(this::logEmbeddingResponse)
                 .peek(
                         res -> res.data().forEach(
                                 data -> vectors.set(startIdx + data.index(), data.embedding())
@@ -163,5 +167,21 @@ public class EmbeddingServiceImpl implements EmbeddingService {
                         .flatMap(embeddingRepo::createEmbeddings)
         )
                 .map(List::size);
+    }
+
+    private Either<AppFailure, CreateEmbeddingData> toEmbeddingData(long sourceId, CreateEmbeddingsResponse res, String text) {
+        return Try.of(() -> new CreateEmbeddingData(sourceId, res.data().getFirst().embedding(), text))
+                .toEither()
+                .mapLeft(this::toFailure);
+    }
+
+    @Override
+    public Either<AppFailure, Void> createEmbedding(String text, long sourceId) {
+        return gigaChatService.createEmbeddings(List.of(text))
+                .peek(this::logEmbeddingResponse)
+                .flatMap(res -> toEmbeddingData(sourceId, res, text))
+                .flatMap(embeddingRepo::createEmbedding)
+                .peek(data -> log.info("Created embedding in db"))
+                .map(data -> null);
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateDocProcessingTaskData;
+import pro.ra_tech.giga_ai_agent.database.repos.model.DocProcessingTaskData;
 import pro.ra_tech.giga_ai_agent.database.repos.model.DocProcessingTaskStatus;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DatabaseFailure;
@@ -25,6 +26,22 @@ public class DocProcessingRepositoryImpl implements DocProcessingTaskRepository 
                 getClass().getName(),
                 cause
         );
+    }
+
+    @Override
+    public Either<AppFailure, DocProcessingTaskData> findById(long id) {
+        return Try.of(
+                () -> client.sql(
+                        "SELECT id, hfs_doc_id, status, chunks_count, processed_chunks_count, source_id created_at" +
+                                "FROM doc_processing_tasks " +
+                                "WHERE id = :id"
+                )
+                        .param("id", id)
+                        .query(DocProcessingTaskData.class)
+                        .single()
+        )
+                .toEither()
+                .mapLeft(this::toFailure);
     }
 
     @Override

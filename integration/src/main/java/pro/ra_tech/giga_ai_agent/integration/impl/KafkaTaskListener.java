@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaDocProcessingTaskHandler;
+import pro.ra_tech.giga_ai_agent.integration.kafka.model.ChunkProcessingTask;
 import pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask;
 
 @Slf4j
@@ -22,5 +23,12 @@ public class KafkaTaskListener {
         log.info("Got document processing task: {}", task);
 
         docProcessingTaskHandler.onDocumentProcessingTask(task);
+    }
+
+    @KafkaListener
+    public void onChunkProcessingTask(ChunkProcessingTask task) {
+        log.info("Got chunk processing task: {}", task);
+
+        docProcessingTaskHandler.onChunkProcessingTask(task);
     }
 }
