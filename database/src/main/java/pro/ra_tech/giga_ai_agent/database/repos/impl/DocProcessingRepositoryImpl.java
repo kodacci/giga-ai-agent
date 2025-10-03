@@ -86,4 +86,18 @@ public class DocProcessingRepositoryImpl implements DocProcessingTaskRepository 
                 .toEither()
                 .mapLeft(this::toFailure);
     }
+
+    @Override
+    public Either<AppFailure, Integer> updateTaskProgress(long id, int processedChunks) {
+        return Try.of(
+                () -> client.sql(
+                        "UPDATE doc_processing_tasks (processed_chunks_count = :processedChunks) WHERE id = :id"
+                )
+                        .param("processedChunks", processedChunks)
+                        .param("id", id)
+                        .update()
+        )
+                .toEither()
+                .mapLeft(this::toFailure);
+    }
 }
