@@ -141,7 +141,6 @@ pipeline {
                     def namespace = DEPLOY_NAMESPACE
                     def host = NAMESPACE_APP_HOST
                     def egressTcpPort = '9999'
-                    def solrHost = SOLR_HOST
                     def vaultHost = removeProtocol(VAULT_HOST)
                     def gigaAuthHost = GIGA_AUTH_HOST
                     def gigaChatHost = GIGA_CHAT_HOST
@@ -155,7 +154,6 @@ pipeline {
                     def hfsHost = HFS_HOST
                     def elasticsearchHost = ELASTICSEARCH_HOST
 
-                    def solrApply = ""
                     def vaultApply = ""
                     def gigaAuthApply = ""
                     def gigaChatApply = ""
@@ -201,9 +199,6 @@ pipeline {
 
                         // db-migrate
                         sh "jinja2 -D image_tag=$dbMigrateImageTag distrib/templates/core-db-migrate-job.yaml $varsPath > distrib/core-db-migrate-job.yaml"
-
-                        // Solr
-                        solrApply = generateExtHttp('solr', solrHost, 443, varsPath)
 
                         // Vault
                         vaultApply = generateExtHttp('vault', vaultHost, 443, varsPath)
@@ -267,7 +262,6 @@ pipeline {
                                 '-f distrib/db-service-entry.yaml ' +
                                 '-f distrib/db-virtual-service.yaml ' +
                                 '-f distrib/db-destination-rule.yaml ' +
-                                solrApply +
                                 vaultApply +
                                 gigaAuthApply +
                                 gigaChatApply +
