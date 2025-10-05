@@ -51,11 +51,12 @@ data:
       json_date_key     false
     
     [OUTPUT]
-      Name              es
-      Match             *
-      Host              elasticsearch.ra-tech.pro
-      Port              80
-      Index             {{ elasticsearch.index }}-logs
+      Name                  es
+      Match                 *
+      Host                  elasticsearch.ra-tech.pro
+      Port                  80
+      Index                 {{ elasticsearch.index }}-logs
+      Suppress_Type_Name    ON
 
   parsers.conf: |
     [PARSER]
