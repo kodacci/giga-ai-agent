@@ -153,6 +153,7 @@ pipeline {
                     def yandexAuthHost = YANDEX_GPT_AUTH_HOST
                     def yandexApiHost = YANDEX_GPT_API_HOST
                     def hfsHost = HFS_HOST
+                    def elasticsearchHost = ELASTICSEARCH_HOST
 
                     def solrApply = ""
                     def vaultApply = ""
@@ -162,6 +163,7 @@ pipeline {
                     def yandexAuthApply = ""
                     def yandexApiApply = ""
                     def hfsApply = ""
+                    def elasticsearchApply = ""
 
                     def coreImageTag = params.core_app_image ? params.core_app_image : generateImageTag('giga-ai-agent-core')
                     def dbMigrateImageTag = params.core_db_migrate_image ? params.core_db_migrate_image : generateImageTag('core-db-migrate')
@@ -222,6 +224,9 @@ pipeline {
                         // HFS
                         hfsApply = generateExtHttp('hfs', hfsHost, 443, varsPath)
 
+                        // ELASTICSEARCH
+                        elasticsearchApply = generateExtHttp('elasticsearch', elasticsearchHost, 443, varsPath)
+
                         // Kafka
                         def kafkaHost = 'kafka-1.ra-tech.pro'
                         def kafkaAddress = resolveAddress(kafkaHost)
@@ -270,6 +275,7 @@ pipeline {
                                 yandexAuthApply +
                                 yandexApiApply +
                                 hfsApply +
+                                elasticsearchApply +
                                 '-f distrib/kafka-1-service-entry.yaml ' +
                                 '-f distrib/kafka-1-virtual-service.yaml ' +
                                 '-f distrib/kafka-1-destination-rule.yaml ' +
