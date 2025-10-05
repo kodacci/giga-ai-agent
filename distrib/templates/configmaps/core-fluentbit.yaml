@@ -55,7 +55,7 @@ data:
       Match                 *
       Host                  elasticsearch.ra-tech.pro
       Port                  80
-      Index                 {{ elasticsearch.index }}-logs
+      Index                 {{ elasticsearch.index }}
       Suppress_Type_Name    ON
 
   parsers.conf: |
