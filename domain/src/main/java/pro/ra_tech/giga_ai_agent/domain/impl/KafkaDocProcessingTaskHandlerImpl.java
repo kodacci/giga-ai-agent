@@ -93,6 +93,7 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
                 .flatMap(rows -> hfsService.downloadFile(baseFolder, task.hfsDocumentId()))
                 .flatMap(pdfService::splitToChunks)
                 .peek(chunks -> log.info("Got {} chunks for task {}", chunks.size(), task.taskId()))
+                .flatMap(chunks -> taskRepo.updateTaskProgress(0, chunks.size()).map(count -> chunks))
                 .peek(chunks -> enqueueChunks(task.taskId(), task.sourceId(), task.hfsDocumentId(), chunks))
                 .peekLeft(failure -> log.error("Error processing task {}", task.taskId()))
                 .peekLeft(failure -> setErrorStatus(task.taskId()));

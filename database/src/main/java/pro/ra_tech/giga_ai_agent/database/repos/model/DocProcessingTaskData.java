@@ -6,8 +6,8 @@ public record DocProcessingTaskData(
         long id,
         String hfsDocId,
         DocProcessingTaskStatus status,
-        int chunksCount,
-        int processedChunksCount,
+        Integer chunksCount,
+        Integer processedChunksCount,
         long sourceId,
         OffsetDateTime createdAt
 ) {
