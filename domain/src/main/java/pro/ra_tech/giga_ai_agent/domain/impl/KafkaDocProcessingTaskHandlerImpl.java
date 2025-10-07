@@ -139,7 +139,7 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
                                             .peekLeft(ff ->
                                                     log.error("Error setting task error status:", ff.getCause())
                                             );
-                            log.error("Error processing task {}, chunk {}", task.taskId(), task.chunkIdx());
+                            log.error("Error processing task {}, chunk {}:", task.taskId(), task.chunkIdx(), failure.getCause());
 
                             return null;
                         },
