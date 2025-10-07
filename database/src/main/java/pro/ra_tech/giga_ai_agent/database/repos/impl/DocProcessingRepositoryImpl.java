@@ -97,7 +97,7 @@ public class DocProcessingRepositoryImpl implements DocProcessingTaskRepository 
     public Either<AppFailure, Integer> updateTaskProgress(long id, int processedChunks) {
         return Try.of(
                 () -> client.sql(
-                        "UPDATE doc_processing_tasks (processed_chunks_count = :processedChunks) WHERE id = :id"
+                        "UPDATE doc_processing_tasks SET processed_chunks_count = :processedChunks WHERE id = :id"
                 )
                         .param("processedChunks", processedChunks)
                         .param("id", id)
@@ -117,7 +117,7 @@ public class DocProcessingRepositoryImpl implements DocProcessingTaskRepository 
     public Either<AppFailure, Integer> updateTaskChunksCount(long id, int chunksCount) {
         return Try.of(
                 () -> client.sql(
-                        "UPDATE doc_processing_tasks (chunks_count = :chunksCount) WHERE id = :id"
+                        "UPDATE doc_processing_tasks SET chunks_count = :chunksCount WHERE id = :id"
                 )
                         .param("chunksCount", chunksCount)
                         .param("id", id)
