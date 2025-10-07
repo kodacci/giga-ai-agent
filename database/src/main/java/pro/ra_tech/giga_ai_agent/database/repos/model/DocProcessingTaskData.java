@@ -4,7 +4,7 @@ import java.time.OffsetDateTime;
 
 public record DocProcessingTaskData(
         long id,
-        long hfsDocId,
+        String hfsDocId,
         DocProcessingTaskStatus status,
         int chunksCount,
         int processedChunksCount,

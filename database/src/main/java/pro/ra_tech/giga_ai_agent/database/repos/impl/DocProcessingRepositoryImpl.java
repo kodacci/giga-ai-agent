@@ -32,7 +32,7 @@ public class DocProcessingRepositoryImpl implements DocProcessingTaskRepository 
     public Either<AppFailure, DocProcessingTaskData> findById(long id) {
         return Try.of(
                 () -> client.sql(
-                        "SELECT id, hfs_doc_id, status, chunks_count, processed_chunks_count, source_id created_at " +
+                        "SELECT id, hfs_doc_id, status, chunks_count, processed_chunks_count, source_id, created_at " +
                                 "FROM doc_processing_tasks " +
                                 "WHERE id = :id"
                 )
