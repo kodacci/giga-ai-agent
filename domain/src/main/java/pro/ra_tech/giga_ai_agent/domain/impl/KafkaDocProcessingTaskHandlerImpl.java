@@ -125,6 +125,7 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
                 .flatMap(nothing -> {
                     if (task.chunkIdx() == task.chunksCount() - 1) {
                         return taskRepo.updateTaskStatus(task.taskId(), DocProcessingTaskStatus.SUCCESS)
+                                .peek(count -> log.info("Successfully finished task {} processing", task.taskId()))
                                 .peekLeft(failure -> log.error(
                                         "Error setting SUCCESS status to task {}:",
                                         task.taskId(),
@@ -146,7 +147,7 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
                         },
                         success -> {
                             log.info(
-                                    "Successfully created embedding for task {} for chunk {}", task.taskId(), task.chunkIdx()
+                                    "Successfully handled chunk {} for task {}", task.chunkIdx(), task.taskId()
                             );
 
                             return null;
