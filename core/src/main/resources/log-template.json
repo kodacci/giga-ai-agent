@@ -17,16 +17,8 @@
     "field": "name"
   },
   "class": {
-    "$resolver": "source",
-    "field": "className"
-  },
-  "method": {
-    "$resolver": "source",
-    "field": "methodName"
-  },
-  "line": {
-    "$resolver": "source",
-    "field": "lineNumber"
+    "$resolver": "logger",
+    "field": "name"
   },
   "message": {
     "$resolver": "message",
