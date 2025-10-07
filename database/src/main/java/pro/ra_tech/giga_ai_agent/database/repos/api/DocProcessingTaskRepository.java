@@ -11,4 +11,5 @@ public interface DocProcessingTaskRepository extends WritableRepository<CreateDo
     Either<AppFailure, Long> create(CreateDocProcessingTaskData data);
     Either<AppFailure, Integer> updateTaskStatus(long id, DocProcessingTaskStatus status);
     Either<AppFailure, Integer> updateTaskProgress(long id, int processedChunks);
+    Either<AppFailure, Integer> updateTaskChunksCount(long id, int chunksCount);
 }
