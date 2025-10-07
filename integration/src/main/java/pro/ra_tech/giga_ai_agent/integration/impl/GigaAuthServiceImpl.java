@@ -69,7 +69,9 @@ public class GigaAuthServiceImpl extends BaseAuthService implements GigaAuthServ
                 AuthScope.GIGA_CHAT_API_PERS
         );
 
-        return Try.of(() -> Failsafe.with(retryPolicy).get(() -> authTimer.recordCallable(call::execute)))
+        return Try.of(() -> Failsafe.with(retryPolicy).get(() -> authTimer.recordCallable(
+                () -> call.isExecuted() ? call.clone().execute() : call.execute()
+                )))
                 .map(res -> onResponse(res, auth4xxCounter, auth5xxCounter))
                 .onSuccess(res ->
                         log.info(
