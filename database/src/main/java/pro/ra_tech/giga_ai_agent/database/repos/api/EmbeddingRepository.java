@@ -8,6 +8,7 @@ import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import java.util.List;
 
 public interface EmbeddingRepository {
+    Either<AppFailure, EmbeddingPersistentData> createEmbedding(CreateEmbeddingData data);
     Either<AppFailure, List<EmbeddingPersistentData>> createEmbeddings(List<CreateEmbeddingData> data);
     Either<AppFailure, List<EmbeddingPersistentData>> vectorSearch(List<Double> promptVector);
 }

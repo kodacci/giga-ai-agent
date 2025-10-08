@@ -6,4 +6,5 @@ import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
 public interface EmbeddingService {
     Either<AppFailure, Integer> createEmbeddings(DocumentData data);
+    Either<AppFailure, Void> createEmbedding(String text, long sourceId);
 }

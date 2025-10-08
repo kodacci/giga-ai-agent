@@ -64,6 +64,20 @@ public class EmbeddingRepositoryImpl implements EmbeddingRepository {
     @Override
     @Timed(
             value = "repository.call",
+            extraTags = {"repository.name", "embedding", "repository.method", "create-embedding"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
+    public Either<AppFailure, EmbeddingPersistentData> createEmbedding(CreateEmbeddingData data) {
+        return Try.of(() -> insert(data))
+                .toEither()
+                .map(res -> new EmbeddingPersistentData(res, data.sourceId(), data.textData()))
+                .mapLeft(this::toFailure);
+    }
+
+    @Override
+    @Timed(
+            value = "repository.call",
             extraTags = {"repository.name", "embedding", "repository.method", "vector-search"},
             histogram = true,
             percentiles = {0.90, 0.95, 0.99}

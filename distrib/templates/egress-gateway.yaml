@@ -23,6 +23,7 @@ spec:
         - {{ yandex.gpt.auth.host }}
         - {{ yandex.gpt.api.host }}
         - {{ hfs.host }}
+        - {{ elasticsearch.host }}
     - port:
         number: {{ egress_tcp_port }}
         name: tcp

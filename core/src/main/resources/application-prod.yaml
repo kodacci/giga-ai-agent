@@ -63,3 +63,4 @@ app:
     document-processing-topic: ${KAFKA_DOCUMENT_PROCESSING_TOPIC}
     document-processing-error-topic: ${KAFKA_DOCUMENT_PROCESSING_ERROR_TOPIC}
     chunk-processing-topic: ${KAFKA_CHUNK_PROCESSING_TOPIC}
+    consumer-thread-pool-size: ${KAFKA_CONSUMER_THREAD_POOL_SIZE}

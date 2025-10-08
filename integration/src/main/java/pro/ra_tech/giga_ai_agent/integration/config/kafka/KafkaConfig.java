@@ -9,12 +9,14 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.backoff.FixedBackOff;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaDocProcessingTaskHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
@@ -51,19 +53,22 @@ public class KafkaConfig extends BaseIntegrationConfig {
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, props.bootstrapServers(),
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
-                JsonDeserializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING,
+                JsonDeserializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING + ", " +
+                CHUNK_PROCESSING_TASK_TYPE_MAPPING,
                 JsonDeserializer.TRUSTED_PACKAGES, "pro.ra_tech.giga_ai_agent.integration.kafka.model"
         ));
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaContainerFactory(
-            ConsumerFactory<String, Object> consumerFactory
+            ConsumerFactory<String, Object> consumerFactory,
+            AsyncTaskExecutor kafkaConsumerExecutor
     ) {
         val factory = new ConcurrentKafkaListenerContainerFactory<String, Object>();
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(1);
         factory.getContainerProperties().setObservationEnabled(true);
+        factory.getContainerProperties().setListenerTaskExecutor(kafkaConsumerExecutor);
 
         val backOff = new FixedBackOff(1000L, 1);
         factory.setCommonErrorHandler(new DefaultErrorHandler(backOff));
@@ -97,5 +102,17 @@ public class KafkaConfig extends BaseIntegrationConfig {
     @Bean
     public KafkaTaskListener kafkaTaskListener(KafkaDocProcessingTaskHandler handler) {
         return new KafkaTaskListener(handler);
+    }
+
+    @Bean
+    public AsyncTaskExecutor kafkaConsumerExecutor(KafkaProps props) {
+        val executor = new ThreadPoolTaskExecutor();
+
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(5);
+        executor.setThreadNamePrefix("kafka-consumer-");
+        executor.initialize();
+
+        return executor;
     }
 }

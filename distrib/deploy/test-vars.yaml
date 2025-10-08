@@ -1,7 +1,6 @@
 host: api.giga-ai-agent.test.cloud.ra-tech.pro
 namespace: giga-ai-agent-test
 registry: snapshots.docker-registry.ra-tech.pro
-solr_collection: giga-ai-agent-test
 db_host: giga-ai-agent.db.ra-tech.pro
 db_port: 5555
 egress_tcp_port: 9999
@@ -79,6 +78,7 @@ db_migrate:
 
 solr:
   host: solr.ra-tech.pro
+  collection: giga-ai-agent-test
 vault:
   url: http://vault.ra-tech.pro
   tls_url: https://vault.ra-tech.pro
@@ -99,6 +99,9 @@ yandex:
       host: llm.api.cloud.yandex.net
 hfs:
   host: hfs.ra-tech.pro
+elasticsearch:
+  host: elasticsearch.ra-tech.pro
+  index: giga-ai-agent-test-logs
 kafka:
   bootstrap_servers:
     - id: 1

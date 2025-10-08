@@ -6,12 +6,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import pro.ra_tech.giga_ai_agent.core.controllers.document_enqueue.dto.DocumentProcessingTaskStatusResponse;
 import pro.ra_tech.giga_ai_agent.core.controllers.document_enqueue.dto.EnqueueDocumentRequest;
+import pro.ra_tech.giga_ai_agent.core.controllers.document_enqueue.dto.EnqueueDocumentResponse;
 import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.DocumentMetadata;
 import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.PdfUploadResponse;
 import pro.ra_tech.giga_ai_agent.core.services.api.DocumentService;
+import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
-import pro.ra_tech.giga_ai_agent.domain.model.EnqueueDocumentInfo;
 import pro.ra_tech.giga_ai_agent.domain.model.InputDocumentMetadata;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
@@ -22,8 +24,10 @@ import java.text.DecimalFormat;
 @RequiredArgsConstructor
 @Slf4j
 public class DocumentServiceImpl implements DocumentService {
+    private static final DecimalFormat format = new DecimalFormat("###,###,###");
+
     private final PdfService pdfService;
-    private final DecimalFormat format = new DecimalFormat("###,###,###");
+    private final DocProcessingTaskRepository taskRepo;
 
     private Either<AppFailure, byte[]> toBytes(MultipartFile file) {
         return Try.of(file::getBytes)
@@ -51,7 +55,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public Either<AppFailure, EnqueueDocumentInfo> enqueuePdf(MultipartFile file, EnqueueDocumentRequest request) {
+    public Either<AppFailure, EnqueueDocumentResponse> enqueuePdf(MultipartFile file, EnqueueDocumentRequest request) {
         log.info(
                 "Enqueueing pdf document {} of size {}, metadata: {}",
                 file.getOriginalFilename(),
@@ -61,6 +65,15 @@ public class DocumentServiceImpl implements DocumentService {
 
         return toBytes(file).flatMap(data -> pdfService.enqueuePdf(
                 data, new InputDocumentMetadata(request.documentName(), request.description(), request.tags())
-        ));
+        ))
+                .map(info -> new EnqueueDocumentResponse(info.taskId(), info.hfsFileName()));
+    }
+
+    @Override
+    public Either<AppFailure, DocumentProcessingTaskStatusResponse> getTaskStatus(long taskId) {
+        log.info("Getting task {} status", taskId);
+
+        return taskRepo.findById(taskId)
+                .map(DocumentProcessingTaskStatusResponse::of);
     }
 }

@@ -8,10 +8,14 @@ def JINJA2_VARS_FILE_PATH
 def ESCAPED_JOB_NAME
 def MARKDOWN_ESCAPE_CHARS = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'] as Set
 
-def generateExtHttp(name, host, extHttpsPort, varsPath) {
+def generateExtHttp(name, host, extHttpsPort, varsPath, useMtls) {
     sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/service-entry.yaml $varsPath > distrib/${name}-service-entry.yaml"
     sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/virtual-service.yaml $varsPath > distrib/${name}-virtual-service.yaml"
-    sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/destination-rule.yaml $varsPath > distrib/${name}-destination-rule.yaml"
+    if (useMtls) {
+        sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/destination-rule-mtls.yaml $varsPath > distrib/${name}-destination-rule.yaml"
+    } else {
+        sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/destination-rule.yaml $varsPath > distrib/${name}-destination-rule.yaml"
+    }
     sh "jinja2 -D name=$name -D host=$host -Dext_https_port=$extHttpsPort distrib/templates/ext-http/service.yaml $varsPath > distrib/${name}-service.yaml"
 
     return "-f distrib/${name}-service.yaml " +
@@ -141,7 +145,6 @@ pipeline {
                     def namespace = DEPLOY_NAMESPACE
                     def host = NAMESPACE_APP_HOST
                     def egressTcpPort = '9999'
-                    def solrHost = SOLR_HOST
                     def vaultHost = removeProtocol(VAULT_HOST)
                     def gigaAuthHost = GIGA_AUTH_HOST
                     def gigaChatHost = GIGA_CHAT_HOST
@@ -153,8 +156,8 @@ pipeline {
                     def yandexAuthHost = YANDEX_GPT_AUTH_HOST
                     def yandexApiHost = YANDEX_GPT_API_HOST
                     def hfsHost = HFS_HOST
+                    def elasticsearchHost = ELASTICSEARCH_HOST
 
-                    def solrApply = ""
                     def vaultApply = ""
                     def gigaAuthApply = ""
                     def gigaChatApply = ""
@@ -162,6 +165,7 @@ pipeline {
                     def yandexAuthApply = ""
                     def yandexApiApply = ""
                     def hfsApply = ""
+                    def elasticsearchApply = ""
 
                     def coreImageTag = params.core_app_image ? params.core_app_image : generateImageTag('giga-ai-agent-core')
                     def dbMigrateImageTag = params.core_db_migrate_image ? params.core_db_migrate_image : generateImageTag('core-db-migrate')
@@ -200,27 +204,27 @@ pipeline {
                         // db-migrate
                         sh "jinja2 -D image_tag=$dbMigrateImageTag distrib/templates/core-db-migrate-job.yaml $varsPath > distrib/core-db-migrate-job.yaml"
 
-                        // Solr
-                        solrApply = generateExtHttp('solr', solrHost, 443, varsPath)
-
                         // Vault
-                        vaultApply = generateExtHttp('vault', vaultHost, 443, varsPath)
+                        vaultApply = generateExtHttp('vault', vaultHost, 443, varsPath, true)
                         sh "jinja2 distrib/templates/configmaps/core-vault-agent.yaml $varsPath > distrib/core-vault-agent.yaml"
                         sh "jinja2 distrib/templates/configmaps/db-migrate-vault-agent.yaml $varsPath > distrib/db-migrate-vault-agent.yaml"
 
                         // Giga Chat API
-                        gigaAuthApply = generateExtHttp('giga-auth', gigaAuthHost, 9443, varsPath)
-                        gigaChatApply = generateExtHttp('giga-chat', gigaChatHost, 443, varsPath)
+                        gigaAuthApply = generateExtHttp('giga-auth', gigaAuthHost, 9443, varsPath, false)
+                        gigaChatApply = generateExtHttp('giga-chat', gigaChatHost, 443, varsPath, false)
 
                         // Telegram API
-                        telegramApply = generateExtHttp('telegram-bot', telegramHost, 443, varsPath)
+                        telegramApply = generateExtHttp('telegram-bot', telegramHost, 443, varsPath, false)
 
                         // Yandex GPT
-                        yandexAuthApply = generateExtHttp('yandex-gpt-auth', yandexAuthHost, 443, varsPath)
-                        yandexApiApply = generateExtHttp('yandex-gpt-api', yandexApiHost, 443, varsPath)
+                        yandexAuthApply = generateExtHttp('yandex-gpt-auth', yandexAuthHost, 443, varsPath, false)
+                        yandexApiApply = generateExtHttp('yandex-gpt-api', yandexApiHost, 443, varsPath, false)
 
                         // HFS
-                        hfsApply = generateExtHttp('hfs', hfsHost, 443, varsPath)
+                        hfsApply = generateExtHttp('hfs', hfsHost, 443, varsPath, false)
+
+                        // ELASTICSEARCH
+                        elasticsearchApply = generateExtHttp('elasticsearch', elasticsearchHost, 443, varsPath, true)
 
                         // Kafka
                         def kafkaHost = 'kafka-1.ra-tech.pro'
@@ -262,7 +266,6 @@ pipeline {
                                 '-f distrib/db-service-entry.yaml ' +
                                 '-f distrib/db-virtual-service.yaml ' +
                                 '-f distrib/db-destination-rule.yaml ' +
-                                solrApply +
                                 vaultApply +
                                 gigaAuthApply +
                                 gigaChatApply +
@@ -270,6 +273,7 @@ pipeline {
                                 yandexAuthApply +
                                 yandexApiApply +
                                 hfsApply +
+                                elasticsearchApply +
                                 '-f distrib/kafka-1-service-entry.yaml ' +
                                 '-f distrib/kafka-1-virtual-service.yaml ' +
                                 '-f distrib/kafka-1-destination-rule.yaml ' +

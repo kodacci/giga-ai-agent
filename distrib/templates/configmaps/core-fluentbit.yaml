@@ -42,14 +42,12 @@ data:
       Match *
     
     [OUTPUT]
-      Name              http
-      Match             *
-      host              solr.ra-tech.pro
-      port              80
-      uri               /solr/{{ solr_collection }}/update/json/docs
-      format            json
-      json_date_key     false
-  
+      Name                  es
+      Match                 *
+      Host                  elasticsearch.ra-tech.pro
+      Port                  80
+      Index                 {{ elasticsearch.index }}
+      Suppress_Type_Name    ON
 
   parsers.conf: |
     [PARSER]

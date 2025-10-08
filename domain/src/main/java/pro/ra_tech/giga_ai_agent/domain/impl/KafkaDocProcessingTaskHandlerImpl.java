@@ -1,11 +1,16 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
 import io.vavr.control.Either;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.DocProcessingTaskStatus;
+import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
+import pro.ra_tech.giga_ai_agent.failure.AppFailure;
+import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.HfsService;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaDocProcessingTaskHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
@@ -24,6 +29,13 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
     private final PdfService pdfService;
     private final KafkaService kafka;
     private final DocProcessingTaskRepository taskRepo;
+    private final EmbeddingService embeddingService;
+
+    public static class TaskErrorStatusException extends RuntimeException {
+        public TaskErrorStatusException(long taskId) {
+            super("Task " + taskId + " in error status, skipping processing chunk");
+        }
+    }
 
     @RequiredArgsConstructor
     private static class KafkaSendResultHandlerImpl implements KafkaSendResultHandler {
@@ -54,7 +66,7 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
         IntStream.range(0, chunks.size())
                 .boxed()
                 .map(idx -> kafka.enqueueChunkProcessing(
-                        new ChunkProcessingTask(taskId, sourceId, hfsDocId, idx, chunks.get(idx)),
+                        new ChunkProcessingTask(taskId, sourceId, hfsDocId, idx, chunks.get(idx), chunks.size()),
                         new KafkaSendResultHandlerImpl(idx, hfsDocId)
                 ))
                 .filter(Either::isLeft)
@@ -81,8 +93,65 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
                 .flatMap(rows -> hfsService.downloadFile(baseFolder, task.hfsDocumentId()))
                 .flatMap(pdfService::splitToChunks)
                 .peek(chunks -> log.info("Got {} chunks for task {}", chunks.size(), task.taskId()))
+                .flatMap(chunks -> taskRepo.updateTaskChunksCount(task.taskId(), chunks.size()).map(count -> chunks))
                 .peek(chunks -> enqueueChunks(task.taskId(), task.sourceId(), task.hfsDocumentId(), chunks))
-                .peekLeft(failure -> log.error("Error processing task {}", task.taskId()))
+                .peekLeft(failure -> log.error("Error processing task {}", task.taskId(), failure.getCause()))
                 .peekLeft(failure -> setErrorStatus(task.taskId()));
+    }
+
+    private AppFailure toFailure(Throwable cause) {
+        return new DocumentProcessingFailure(
+                DocumentProcessingFailure.Code.CHUNK_PROCESSING_TASK_ERROR,
+                getClass().getName(),
+                cause
+        );
+    }
+
+    @Override
+    public void onChunkProcessingTask(ChunkProcessingTask task) {
+        log.info(
+                "Handling chunk processing task: {}, progress: {}",
+                task,
+                Math.floor(100.0 * task.chunkIdx() / task.chunksCount())
+        );
+
+        taskRepo.findById(task.taskId())
+                .flatMap(data -> data.status() == DocProcessingTaskStatus.ERROR
+                        ? Either.left(toFailure(new TaskErrorStatusException(task.taskId())))
+                        : Either.right(data)
+                )
+                .flatMap(data -> embeddingService.createEmbedding(task.text(), task.sourceId()))
+                .flatMap(nothing -> taskRepo.updateTaskProgress(task.taskId(), task.chunkIdx() + 1))
+                .flatMap(nothing -> {
+                    if (task.chunkIdx() == task.chunksCount() - 1) {
+                        return taskRepo.updateTaskStatus(task.taskId(), DocProcessingTaskStatus.SUCCESS)
+                                .peek(count -> log.info("Successfully finished task {} processing", task.taskId()))
+                                .peekLeft(failure -> log.error(
+                                        "Error setting SUCCESS status to task {}:",
+                                        task.taskId(),
+                                        failure.getCause()
+                                ));
+                    }
+
+                    return Either.right(0);
+                })
+                .fold(
+                        failure -> {
+                            taskRepo.updateTaskStatus(task.taskId(), DocProcessingTaskStatus.ERROR)
+                                            .peekLeft(ff ->
+                                                    log.error("Error setting task error status:", ff.getCause())
+                                            );
+                            log.error("Error processing task {}, chunk {}:", task.taskId(), task.chunkIdx(), failure.getCause());
+
+                            return null;
+                        },
+                        success -> {
+                            log.info(
+                                    "Successfully handled chunk {} for task {}", task.chunkIdx(), task.taskId()
+                            );
+
+                            return null;
+                        }
+                );
     }
 }
