@@ -36,7 +36,7 @@ public class EnqueueDocumentController extends BaseController implements Enqueue
     }
 
     @Override
-    @GetMapping("/task/{taskId}/status")
+    @GetMapping(value = "/tasks/{taskId}/status", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<Object> getTaskStatus(@PathVariable("taskId") @Positive @NotNull Long taskId) {
         return toResponse(service.getTaskStatus(taskId));
     }
