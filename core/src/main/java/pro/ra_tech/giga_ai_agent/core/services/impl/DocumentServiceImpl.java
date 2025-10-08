@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pro.ra_tech.giga_ai_agent.core.controllers.document_enqueue.dto.DocumentProcessingTaskStatusResponse;
 import pro.ra_tech.giga_ai_agent.core.controllers.document_enqueue.dto.EnqueueDocumentRequest;
+import pro.ra_tech.giga_ai_agent.core.controllers.document_enqueue.dto.EnqueueDocumentResponse;
 import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.DocumentMetadata;
 import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.PdfUploadResponse;
 import pro.ra_tech.giga_ai_agent.core.services.api.DocumentService;
 import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
-import pro.ra_tech.giga_ai_agent.domain.model.EnqueueDocumentInfo;
 import pro.ra_tech.giga_ai_agent.domain.model.InputDocumentMetadata;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
@@ -55,7 +55,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public Either<AppFailure, EnqueueDocumentInfo> enqueuePdf(MultipartFile file, EnqueueDocumentRequest request) {
+    public Either<AppFailure, EnqueueDocumentResponse> enqueuePdf(MultipartFile file, EnqueueDocumentRequest request) {
         log.info(
                 "Enqueueing pdf document {} of size {}, metadata: {}",
                 file.getOriginalFilename(),
@@ -65,7 +65,8 @@ public class DocumentServiceImpl implements DocumentService {
 
         return toBytes(file).flatMap(data -> pdfService.enqueuePdf(
                 data, new InputDocumentMetadata(request.documentName(), request.description(), request.tags())
-        ));
+        ))
+                .map(info -> new EnqueueDocumentResponse(info.taskId(), info.hfsFileName()));
     }
 
     @Override

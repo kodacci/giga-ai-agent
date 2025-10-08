@@ -141,11 +141,11 @@ public class PdfServiceImpl implements PdfService {
                 .flatMap(nothing -> hfsService.comment(hfsProps.baseFolder(), hfsId, meta.name()))
                 .peek(nothing -> log.info("Saved document {} to HFS with id {}", meta.name(), hfsId))
                 .flatMap(nothing -> createSourceAndTask(meta, hfsId))
-                .peek(taskId -> log.info("Created task {} for document {} processing", taskId, meta.name()))
+                .peek(taskAndSource -> log.info("Created task&source {} for document {} processing", taskAndSource, meta.name()))
                 .flatMap(taskAndSource -> kafkaService.enqueueDocumentProcessing(
                         new DocumentProcessingTask(taskAndSource._1(), taskAndSource._2(), hfsId, DocumentType.PDF),
                         new SendResultHandler(meta.name(), taskAndSource._1())
-                    ).map(nothing -> taskAndSource._2())
+                    ).map(nothing -> taskAndSource._1())
                 )
                 .peek(taskId -> log.info("Enqueued document {} with task {}", meta.name(), taskId))
                 .flatMap(taskId ->
