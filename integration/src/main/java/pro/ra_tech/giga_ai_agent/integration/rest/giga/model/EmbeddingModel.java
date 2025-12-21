@@ -6,7 +6,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 public enum EmbeddingModel {
-    EMBEDDINGS("Embeddings");
+    EMBEDDINGS("Embeddings"),
+    EMBEDDINGS_2("Embeddings-2"),
+    EMBEDDINGS_GIGA_R("EmbeddingsGigaR"),
+    GIGA_EMBEDDINGS_3B_2025_09("GigaEmbeddings-3B-2025-09");
 
     private final String value;
     @Getter
@@ -23,6 +26,11 @@ public enum EmbeddingModel {
 
     @JsonCreator
     public static EmbeddingModel of(@JsonProperty("model") String model) {
-        return EMBEDDINGS;
+        return switch(model) {
+            case "Embeddings-2" -> EMBEDDINGS_2;
+            case "EmbeddingsGigaR" -> EMBEDDINGS_GIGA_R;
+            case "GigaEmbeddings-3B-2025-09" -> GIGA_EMBEDDINGS_3B_2025_09;
+            default -> EMBEDDINGS;
+        };
     }
 }

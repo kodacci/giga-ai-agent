@@ -2,7 +2,7 @@ package pro.ra_tech.giga_ai_agent.integration.rest.telegram.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record SendMessageRequest(

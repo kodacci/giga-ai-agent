@@ -10,10 +10,13 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateEmbeddingData;
+import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingModel;
 import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingPersistentData;
+import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingTextData;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DatabaseFailure;
 
+import java.sql.Types;
 import java.util.List;
 
 @Repository
@@ -91,6 +94,70 @@ public class EmbeddingRepositoryImpl implements EmbeddingRepository {
                         .param("search_vector", new PGvector(promptVector))
                         .query(DataClassRowMapper.newInstance(EmbeddingPersistentData.class))
                         .list()
+        )
+                .toEither()
+                .mapLeft(this::toFailure);
+    }
+
+    @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "embedding", "repository.method", "update-vector"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
+    public Either<AppFailure, Boolean> updateVector(long id, List<Double> vector, EmbeddingModel model) {
+        return Try.of(
+                () -> client.sql(
+                        "UPDATE embeddings SET vector_data=:vector, model=:model WHERE id = :id"
+                )
+                        .param("vector", new PGvector(vector))
+                        .param("model", model, Types.OTHER)
+                        .param("id", id)
+                        .update()
+        )
+                .toEither()
+                .mapLeft(this::toFailure)
+                .map(res -> res > 0);
+    }
+
+    @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "embedding", "repository.method", "find-texts-by-source-id"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
+    public Either<AppFailure, List<EmbeddingTextData>> findBySourceId(long sourceId, long offset, int limit) {
+        return Try.of(
+                () -> client.sql(
+                        "SELECT id, text_data as text FROM embeddings WHERE source_id = :sourceId OFFSET :offset LIMIT :limit"
+                )
+                        .param("sourceId", sourceId)
+                        .param("offset", offset)
+                        .param("limit", limit)
+                        .query(EmbeddingTextData.class)
+                        .list()
+        )
+                .toEither()
+                .mapLeft(this::toFailure);
+    }
+
+    @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "embedding", "repository.method", "count-by-source-id"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
+    public Either<AppFailure, Long> countBySourceId(long sourceId) {
+        return Try.of(
+                () -> client.sql(
+                        "SELECT count(*) FROM embeddings WHERE source_id = :sourceId"
+                )
+                        .param("sourceId", sourceId)
+                        .query(Long.class)
+                        .single()
         )
                 .toEither()
                 .mapLeft(this::toFailure);

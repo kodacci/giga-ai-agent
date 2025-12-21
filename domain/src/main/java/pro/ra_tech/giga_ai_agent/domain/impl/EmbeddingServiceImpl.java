@@ -20,6 +20,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.impl.BaseRestService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingUsage;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     private final EmbeddingRepository embeddingRepo;
     private final GigaChatService gigaChatService;
     private final int gigaInputMaxSize;
+    private final EmbeddingModel embeddingModel;
 
     private Either<AppFailure, List<TagData>> saveAllTags(List<TagData> known, List<String> all) {
         val unknown = all.stream()
@@ -75,7 +77,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
         return Try.of(() -> chunks.subList(startIdx, endIdx))
                 .toEither()
                 .mapLeft(this::toFailure)
-                .flatMap(gigaChatService::createEmbeddings)
+                .flatMap(texts -> gigaChatService.createEmbeddings(texts, embeddingModel))
                 .peek(this::logEmbeddingResponse)
                 .peek(
                         res -> res.data().forEach(
@@ -177,7 +179,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
 
     @Override
     public Either<AppFailure, Void> createEmbedding(String text, long sourceId) {
-        return gigaChatService.createEmbeddings(List.of(text))
+        return gigaChatService.createEmbeddings(List.of(text), embeddingModel)
                 .peek(this::logEmbeddingResponse)
                 .flatMap(res -> toEmbeddingData(sourceId, res, text))
                 .flatMap(embeddingRepo::createEmbedding)

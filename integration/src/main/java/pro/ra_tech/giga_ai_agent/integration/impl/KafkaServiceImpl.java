@@ -6,19 +6,21 @@ import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.jspecify.annotations.NonNull;
 import org.springframework.kafka.core.KafkaTemplate;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.kafka.model.ChunkProcessingTask;
+import pro.ra_tech.giga_ai_agent.integration.kafka.model.EmbeddingRecalculationTask;
 import pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask;
 import pro.ra_tech.giga_ai_agent.integration.util.KafkaSendMonitoringDto;
 
 @Slf4j
 @RequiredArgsConstructor
 public class KafkaServiceImpl implements KafkaService {
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<@NonNull String, @NonNull Object> kafkaTemplate;
     private final String documentProcessingTopic;
     private final String chunkProcessingTopic;
     private final KafkaSendMonitoringDto docMonitoring;
@@ -68,5 +70,12 @@ public class KafkaServiceImpl implements KafkaService {
         return send(chunkProcessingTopic, task, resultHandler, chunkMonitoring)
                 .peekLeft(failure -> log.error("Error sending chunk processing task to kafka: ", failure.getCause()))
                 .peekLeft(failure -> chunkMonitoring.sendErrorCounter().increment());
+    }
+
+    @Override
+    public Either<AppFailure, Void> enqueueEmbeddingRecalculation(EmbeddingRecalculationTask task, KafkaSendResultHandler resultHandler) {
+        log.info("Sending embedding for recalculation task {} to topic {}", task.taskId(), "");
+
+        return null;
     }
 }

@@ -6,9 +6,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -33,7 +34,7 @@ public interface AiModelApi {
             )
         }
     )
-    ResponseEntity<Object> listAiModels();
+    ResponseEntity<@NonNull Object> listAiModels();
 
     @Operation(summary = "Ask AI model with prompt")
     @ApiResponses(value = {
@@ -46,7 +47,7 @@ public interface AiModelApi {
                     )
             )
     })
-    ResponseEntity<Object> askModel(
+    ResponseEntity<@NonNull Object> askModel(
             @RequestHeader("RqUID") String rqUid,
             @RequestHeader("X-Session-ID") @Nullable String sessionID,
             @RequestBody AskAiModelRequest data
@@ -65,7 +66,7 @@ public interface AiModelApi {
                     )
             }
     )
-    ResponseEntity<Object> createEmbedding(
+    ResponseEntity<@NonNull Object> createEmbedding(
             @RequestHeader("RqUID") String rqUid,
             @RequestBody CreateEmbeddingRequest request
     );

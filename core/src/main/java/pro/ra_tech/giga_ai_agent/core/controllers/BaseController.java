@@ -12,7 +12,6 @@ import org.springframework.util.MultiValueMap;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 

@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 12
+      author: Andrey Ryabtsev
+      comment: Adds embeddings recalculation tasks table
+      changes:
+        - createTable:
+            tableName: embeddings_recalculation_tasks
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: status
+                  type: embeddings_recalculation_status
+                  constraints:
+                    nullable: false
+              - column:
+                  name: embeddings_count
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: processed_embeddings_count
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: source_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: embeddings_recalculation_tasks_sources_fk
+                    referencedTableName: sources
+                    referencedColumnNames: id
+                    onDelete: CASCADE
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValue: now()
+                  constraints:
+                    nullable: false

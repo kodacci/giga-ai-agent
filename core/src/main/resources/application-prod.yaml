@@ -24,6 +24,7 @@ app:
     auth-retry-timeout-ms: ${GIGA_CHAT_AUTH_RETRY_TIMEOUT_MS}
     embeddings-inputs-max-count: ${GIGA_CHAT_EMBEDDINGS_INPUTS_MAX_COUNT}
     stub-embeddings: ${GIGA_CHAT_STUB_EMBEDDINGS}
+    embeddings-model: ${GIGA_CHAT_EMBEDDINGS_MODEL}
   telegram:
     api:
       rest-api-base-url: ${TELEGRAM_BOT_REST_BASE_URL}
@@ -63,4 +64,5 @@ app:
     document-processing-topic: ${KAFKA_DOCUMENT_PROCESSING_TOPIC}
     document-processing-error-topic: ${KAFKA_DOCUMENT_PROCESSING_ERROR_TOPIC}
     chunk-processing-topic: ${KAFKA_CHUNK_PROCESSING_TOPIC}
+    embeddings-recalculation-topic: ${KAFKA_EMBEDDINGS_RECALCULATION_TOPIC}
     consumer-thread-pool-size: ${KAFKA_CONSUMER_THREAD_POOL_SIZE}

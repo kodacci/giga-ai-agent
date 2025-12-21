@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 10
+      author: Andrey Ryabtsev
+      comment: Adds model column of enum type to embeddings table
+      changes:
+        - addColumn:
+            tableName: embeddings
+            columns:
+              - column:
+                  name: model
+                  type: embedding_model

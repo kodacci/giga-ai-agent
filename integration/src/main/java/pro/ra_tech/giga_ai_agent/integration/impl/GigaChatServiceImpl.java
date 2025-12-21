@@ -8,7 +8,7 @@ import io.vavr.control.Either;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
@@ -242,7 +242,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
 
     @Override
     @Synchronized("mutex")
-    public Either<AppFailure, CreateEmbeddingsResponse> createEmbeddings(List<String> input) {
+    public Either<AppFailure, CreateEmbeddingsResponse> createEmbeddings(List<String> input, EmbeddingModel model) {
         log.info("Creating {} new embeddings for {} inputs", stubEmbeddings ? "stub" : "real", input.size());
 
         if (stubEmbeddings) {

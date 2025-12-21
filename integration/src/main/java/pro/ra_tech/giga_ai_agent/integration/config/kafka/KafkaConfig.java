@@ -15,7 +15,6 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.backoff.FixedBackOff;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaDocProcessingTaskHandler;
@@ -41,8 +40,8 @@ public class KafkaConfig extends BaseIntegrationConfig {
         return new DefaultKafkaProducerFactory<>(Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, props.bootstrapServers(),
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class,
-                JsonSerializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING + ", " +
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
+                JsonDeserializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING + ", " +
                         CHUNK_PROCESSING_TASK_TYPE_MAPPING
         ));
     }
