@@ -92,7 +92,7 @@ public class EmbeddingRepositoryImpl implements EmbeddingRepository {
                                 "FROM embeddings ORDER BY vector_data <-> :search_vector LIMIT 5"
                 )
                         .param("search_vector", new PGvector(promptVector))
-                        .query(DataClassRowMapper.newInstance(EmbeddingPersistentData.class))
+                        .query(EmbeddingPersistentData.class)
                         .list()
         )
                 .toEither()

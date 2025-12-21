@@ -33,13 +33,13 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class EmbeddingRepositoryIT implements DatabaseIT {
     @Container
     private static final PostgreSQLContainer pgContainer = new PostgreSQLContainer(
-            DockerImageName.parse("pgvector/pgvector:0.8.1-pg18-trixie")
+            DockerImageName.parse(Constants.PG_VECTOR_DOCKER_IMAGE_NAME)
     )
             .withDatabaseName("giga_ai_agent")
             .withUsername("test")
             .withPassword("test")
             .withInitScript("init-db.sql")
-            .withExposedPorts(5432);
+            .withExposedPorts(Constants.PG_VECTOR_DOCKER_PORT);
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {

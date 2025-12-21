@@ -34,7 +34,7 @@ public interface AiModelApi {
             )
         }
     )
-    ResponseEntity<@NonNull Object> listAiModels();
+    ResponseEntity<Object> listAiModels();
 
     @Operation(summary = "Ask AI model with prompt")
     @ApiResponses(value = {
@@ -47,7 +47,7 @@ public interface AiModelApi {
                     )
             )
     })
-    ResponseEntity<@NonNull Object> askModel(
+    ResponseEntity<Object> askModel(
             @RequestHeader("RqUID") String rqUid,
             @RequestHeader("X-Session-ID") @Nullable String sessionID,
             @RequestBody AskAiModelRequest data
@@ -66,7 +66,7 @@ public interface AiModelApi {
                     )
             }
     )
-    ResponseEntity<@NonNull Object> createEmbedding(
+    ResponseEntity<Object> createEmbedding(
             @RequestHeader("RqUID") String rqUid,
             @RequestBody CreateEmbeddingRequest request
     );
