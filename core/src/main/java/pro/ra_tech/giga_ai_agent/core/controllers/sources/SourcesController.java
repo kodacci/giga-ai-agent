@@ -3,6 +3,7 @@ package pro.ra_tech.giga_ai_agent.core.controllers.sources;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pro.ra_tech.giga_ai_agent.core.controllers.BaseController;
@@ -19,6 +20,7 @@ public class SourcesController extends BaseController implements SourcesApi {
     private final SourcesService service;
 
     @Override
+    @GetMapping(value = "/", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<Object> listSources() {
         return toResponse(service.listSources());
     }
