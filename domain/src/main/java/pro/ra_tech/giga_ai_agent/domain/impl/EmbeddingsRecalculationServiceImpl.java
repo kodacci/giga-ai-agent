@@ -4,6 +4,7 @@ import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.stereotype.Service;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingsRecalculationTaskRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
@@ -22,6 +23,7 @@ import java.util.stream.LongStream;
 
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class EmbeddingsRecalculationServiceImpl implements EmbeddingsRecalculationService {
     private static final int EMBEDDINGS_LIMIT = 100;
 
