@@ -93,8 +93,10 @@ public class KafkaConfig extends BaseIntegrationConfig {
                 kafkaTemplate,
                 props.documentProcessingTopic(),
                 props.chunkProcessingTopic(),
+                props.embeddingsRecalculationTopic(),
                 buildKafkaSendMonitoringDto(registry, KAFKA_SERVICE, props.documentProcessingTopic()),
-                buildKafkaSendMonitoringDto(registry, KAFKA_SERVICE, props.chunkProcessingTopic())
+                buildKafkaSendMonitoringDto(registry, KAFKA_SERVICE, props.chunkProcessingTopic()),
+                buildKafkaSendMonitoringDto(registry, KAFKA_SERVICE, props.embeddingsRecalculationTopic())
         );
     }
 

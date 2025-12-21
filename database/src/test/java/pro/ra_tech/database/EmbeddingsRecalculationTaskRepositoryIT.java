@@ -18,6 +18,7 @@ import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingsRecalculationTaskR
 import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateRecalculationTaskData;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateSourceData;
+import pro.ra_tech.giga_ai_agent.database.repos.model.RecalculationTaskStatus;
 
 import java.util.List;
 
@@ -81,5 +82,17 @@ public class EmbeddingsRecalculationTaskRepositoryIT implements DatabaseIT {
         assertThat(task.embeddingsCount()).isEqualTo(count);
         assertThat(task.processedEmbeddingsCount()).isEqualTo(0);
         assertThat(task.sourceId()).isEqualTo(sourceId);
+    }
+
+    @Test
+    void shouldUpdateTaskStatus() {
+        val result = repo.create(new CreateRecalculationTaskData(sourceId, 10))
+                .flatMap(id -> repo.updateStatus(id, RecalculationTaskStatus.SUCCESS).map(res -> id))
+                .flatMap(id -> repo.findById(id))
+                .peekLeft(failure -> log.error("Error updating task status", failure.getCause()));
+
+        assertThat(result.isRight()).isTrue();
+        val task = result.get();
+        assertThat(task.status()).isEqualTo(RecalculationTaskStatus.SUCCESS);
     }
 }

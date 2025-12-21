@@ -22,8 +22,10 @@ public class KafkaServiceImpl implements KafkaService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final String documentProcessingTopic;
     private final String chunkProcessingTopic;
+    private final String embeddingsRecalculationTopic;
     private final KafkaSendMonitoringDto docMonitoring;
     private final KafkaSendMonitoringDto chunkMonitoring;
+    private final KafkaSendMonitoringDto embeddingsRecalcMonitoring;
 
     private AppFailure toFailure(Throwable cause) {
         return new IntegrationFailure(
@@ -75,6 +77,8 @@ public class KafkaServiceImpl implements KafkaService {
     public Either<AppFailure, Void> enqueueEmbeddingRecalculation(EmbeddingRecalculationTask task, KafkaSendResultHandler resultHandler) {
         log.info("Sending embedding for recalculation task {} to topic {}", task.taskId(), "");
 
-        return null;
+        return send(embeddingsRecalculationTopic, task, resultHandler, embeddingsRecalcMonitoring)
+                .peekLeft(failure -> log.error("Error sending embeddings recalculation task to kafka: ", failure.getCause()))
+                .peekLeft(failure -> embeddingsRecalcMonitoring.sendErrorCounter().increment());
     }
 }

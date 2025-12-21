@@ -1,6 +1,5 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
-import io.vavr.collection.Stream;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +9,7 @@ import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingsRecalculationTaskR
 import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateRecalculationTaskData;
 import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingTextData;
+import pro.ra_tech.giga_ai_agent.database.repos.model.RecalculationTaskStatus;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingsRecalculationService;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
@@ -17,6 +17,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.kafka.model.EmbeddingRecalculationTask;
 
 import java.util.List;
+import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 @Slf4j
@@ -49,19 +50,20 @@ public class EmbeddingsRecalculationServiceImpl implements EmbeddingsRecalculati
         }
     }
 
-    private void enqueueEmbeddings(
+    private Either<AppFailure, Void> enqueueEmbeddings(
             long taskId,
             long offset,
             long count,
             long sourceId,
             List<EmbeddingTextData> embeddings
     ) {
-        Stream.range(0, embeddings.size())
-                .forEach(idx -> {
+        return IntStream.range(0, embeddings.size())
+                .boxed()
+                .map(idx -> {
                     val embedding = embeddings.get(idx);
                     val chunkIdx = idx + offset;
 
-                    kafkaService.enqueueEmbeddingRecalculation(
+                    return kafkaService.enqueueEmbeddingRecalculation(
                             new EmbeddingRecalculationTask(
                                     taskId,
                                     sourceId,
@@ -70,26 +72,37 @@ public class EmbeddingsRecalculationServiceImpl implements EmbeddingsRecalculati
                                     count
                             ),
                             new SendResultHandler(chunkIdx, taskId)
-                    );
-                });
+                    )
+                            .peekLeft(failure -> log.error("Error enqueueing recalculation chunk {} to Kafka, task {}", chunkIdx, taskId, failure.getCause()));
+                })
+                .filter(Either::isLeft)
+                .findAny()
+                .orElse(Either.right(null));
     }
 
     private Either<AppFailure, Void> enqueueAll(long count, long sourceId) {
-        return trx.execute(status ->
-                taskRepo.create(new CreateRecalculationTaskData(sourceId, count))
-                    .flatMap(taskId ->
-                            LongStream.iterate(0, i -> i < count, i -> i += EMBEDDINGS_LIMIT)
-                                    .boxed()
-                                    .map(i -> embeddingRepo.findBySourceId(sourceId, i, EMBEDDINGS_LIMIT)
-                                            .peek(embeddings -> enqueueEmbeddings(taskId, i, count, sourceId, embeddings))
-                                    )
-                                    .filter(Either::isLeft)
-                                    .findAny()
-                                    .orElse(Either.right(List.of()))
-                    )
-
-        )
-                .map(data -> null);
+        return taskRepo.create(new CreateRecalculationTaskData(sourceId, count))
+            .flatMap(taskId ->
+                    LongStream.iterate(0, i -> i < count, i -> i + EMBEDDINGS_LIMIT)
+                            .boxed()
+                            .map(i -> embeddingRepo.findBySourceId(sourceId, i, EMBEDDINGS_LIMIT)
+                                    .flatMap(embeddings -> enqueueEmbeddings(taskId, i, count, sourceId, embeddings))
+                                    .map(data -> taskId)
+                            )
+                            .filter(Either::isLeft)
+                            .findAny()
+                            .orElse(Either.right(taskId))
+                            .peekLeft(failure -> log.error("Error creating embeddings recalculation task for source {}", sourceId, failure.getCause()))
+                            .peekLeft(failure ->
+                                    taskRepo.updateStatus(taskId, RecalculationTaskStatus.ERROR)
+                                            .peekLeft(ff -> log.error(
+                                                    "Error setting embeddings recalculation task {} status to ERROR",
+                                                    taskId,
+                                                    ff.getCause()
+                                            ))
+                            )
+            )
+                .map(taskId -> null);
     }
 
     @Override

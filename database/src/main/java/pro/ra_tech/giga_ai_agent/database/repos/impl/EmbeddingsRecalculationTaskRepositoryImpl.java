@@ -9,8 +9,11 @@ import org.springframework.stereotype.Repository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingsRecalculationTaskRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateRecalculationTaskData;
 import pro.ra_tech.giga_ai_agent.database.repos.model.RecalculationTaskData;
+import pro.ra_tech.giga_ai_agent.database.repos.model.RecalculationTaskStatus;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DatabaseFailure;
+
+import java.sql.Types;
 
 @Repository
 @RequiredArgsConstructor
@@ -53,5 +56,20 @@ public class EmbeddingsRecalculationTaskRepositoryImpl extends BaseRepository im
         )
                 .toEither()
                 .mapLeft(this::toFailure);
+    }
+
+    @Override
+    public Either<AppFailure, Void> updateStatus(long id, RecalculationTaskStatus status) {
+        return Try.of(
+                () -> jdbc.sql(
+                        "UPDATE embeddings_recalculation_tasks SET status=:status WHERE id=:id"
+                )
+                        .param("status", status, Types.OTHER)
+                        .param("id", id)
+                        .update()
+        )
+                .toEither()
+                .mapLeft(this::toFailure)
+                .map(res -> null);
     }
 }
