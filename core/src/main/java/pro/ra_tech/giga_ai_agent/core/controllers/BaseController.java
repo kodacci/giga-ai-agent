@@ -3,11 +3,7 @@ package pro.ra_tech.giga_ai_agent.core.controllers;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
-import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.MultiValueMap;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
@@ -34,12 +30,15 @@ public abstract class BaseController {
     }
 
     protected <T> ResponseEntity<Object> toResponse(Either<AppFailure, T> result) {
+        val headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
         return result.fold(
                 failure -> {
                     log.error("Request error:", failure.getCause());
                     return new ResponseEntity<>(
                             toProblemDetail(failure),
-                            MultiValueMap.fromSingleValue(Map.of("Content-Type", MediaType.APPLICATION_PROBLEM_JSON_VALUE)),
+                            headers,
                             HttpStatus.INTERNAL_SERVER_ERROR
                     );
                 },

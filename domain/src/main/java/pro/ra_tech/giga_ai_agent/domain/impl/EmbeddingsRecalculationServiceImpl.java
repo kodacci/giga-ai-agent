@@ -25,7 +25,6 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingService implements EmbeddingsRecalculationService {
     private static final int EMBEDDINGS_LIMIT = 100;
