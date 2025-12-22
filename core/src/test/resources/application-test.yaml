@@ -29,7 +29,7 @@ app:
   telegram:
     api:
       rest-api-base-url: https://api.telegram.org
-      api-token: 7584464649:AAFTNpTNxSw46MOp5yLKV1uILoua7XR1dv0
+      api-token: test
       update-limit: 100
       update-timeout-sec: 5
       request-timeout-ms: 10000
