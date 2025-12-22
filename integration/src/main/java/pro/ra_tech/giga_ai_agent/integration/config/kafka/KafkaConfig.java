@@ -35,6 +35,15 @@ public class KafkaConfig extends BaseIntegrationConfig {
             "documentProcessingTask:pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask";
     private static final String CHUNK_PROCESSING_TASK_TYPE_MAPPING =
             "chunkProcessingTask:pro.ra_tech.giga_ai_agent.integration.kafka.model.ChunkProcessingTask";
+    private static final String EMBEDDINGS_RECALCULATION_TASK_TYPE_MAPPING =
+            "embeddingsRecalculationTask:pro.ra_tech.giga_ai_agent.integration.kafka.model.EmbeddingRecalculationTask";
+
+    private static final String TYPE_MAPPINGS = String.join(
+            ", ",
+            DOCUMENT_PROCESSING_TASK_TYPE_MAPPING,
+            CHUNK_PROCESSING_TASK_TYPE_MAPPING,
+            EMBEDDINGS_RECALCULATION_TASK_TYPE_MAPPING
+    );
 
     @Bean
     public ProducerFactory<String, Object> kafkaProducerFactory(KafkaProps props) {
@@ -42,8 +51,7 @@ public class KafkaConfig extends BaseIntegrationConfig {
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, props.bootstrapServers(),
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
-                JsonDeserializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING + ", " +
-                        CHUNK_PROCESSING_TASK_TYPE_MAPPING
+                JsonDeserializer.TYPE_MAPPINGS, TYPE_MAPPINGS
         ));
     }
 
@@ -53,8 +61,7 @@ public class KafkaConfig extends BaseIntegrationConfig {
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, props.bootstrapServers(),
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
-                JsonDeserializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING + ", " +
-                CHUNK_PROCESSING_TASK_TYPE_MAPPING,
+                JsonDeserializer.TYPE_MAPPINGS, TYPE_MAPPINGS,
                 JsonDeserializer.TRUSTED_PACKAGES, "pro.ra_tech.giga_ai_agent.integration.kafka.model"
         ));
     }
