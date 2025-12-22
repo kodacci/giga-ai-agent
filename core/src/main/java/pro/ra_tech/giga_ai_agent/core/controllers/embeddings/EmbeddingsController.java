@@ -1,12 +1,15 @@
 package pro.ra_tech.giga_ai_agent.core.controllers.embeddings;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pro.ra_tech.giga_ai_agent.core.controllers.BaseController;
+import pro.ra_tech.giga_ai_agent.core.controllers.embeddings.dto.RecalculateRequest;
 import pro.ra_tech.giga_ai_agent.core.services.api.EmbeddingsService;
 
 @RestController
@@ -21,7 +24,7 @@ public class EmbeddingsController extends BaseController implements EmbeddingsAp
 
     @Override
     @PostMapping("/enqueue")
-    public ResponseEntity<Object> enqueueEmbeddingsForRecalculation(Long sourceId) {
-        return toResponse(service.enqueueRecalculation(sourceId));
+    public ResponseEntity<Object> enqueueEmbeddingsForRecalculation(@NotNull @RequestBody RecalculateRequest request) {
+        return toResponse(service.enqueueRecalculation(request.sourceId()));
     }
 }

@@ -82,7 +82,7 @@ public class EmbeddingsRecalculationServiceImpl implements EmbeddingsRecalculati
                 .orElse(Either.right(null));
     }
 
-    private Either<AppFailure, Void> enqueueAll(long count, long sourceId) {
+    private Either<AppFailure, Long> enqueueAll(long count, long sourceId) {
         return taskRepo.create(new CreateRecalculationTaskData(sourceId, count))
             .flatMap(taskId ->
                     LongStream.iterate(0, i -> i < count, i -> i + EMBEDDINGS_LIMIT)
@@ -104,11 +104,11 @@ public class EmbeddingsRecalculationServiceImpl implements EmbeddingsRecalculati
                                             ))
                             )
             )
-                .map(taskId -> null);
+                .map(taskId -> count);
     }
 
     @Override
-    public Either<AppFailure, Void> enqueueAll(long sourceId) {
+    public Either<AppFailure, Long> enqueueAll(long sourceId) {
         return embeddingRepo.countBySourceId(sourceId)
                 .flatMap(count -> enqueueAll(count, sourceId));
     }
