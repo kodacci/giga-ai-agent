@@ -13,6 +13,7 @@ import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingTextData;
 import pro.ra_tech.giga_ai_agent.database.repos.model.RecalculationTaskStatus;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingsRecalculationService;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
+import pro.ra_tech.giga_ai_agent.failure.RecalculationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
@@ -28,6 +29,12 @@ import java.util.stream.LongStream;
 @Service
 public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingService implements EmbeddingsRecalculationService {
     private static final int EMBEDDINGS_LIMIT = 100;
+
+    public static class EmptyEmbeddingException extends RuntimeException {
+        public EmptyEmbeddingException(long embeddingId) {
+            super("Got empty embedding from model for embeddingId " + embeddingId);
+        }
+    }
 
     private final EmbeddingsRecalculationTaskRepository taskRepo;
     private final EmbeddingRepository embeddingRepo;
@@ -124,14 +131,27 @@ public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingService imp
         };
     }
 
+    private AppFailure toFailure(Throwable cause) {
+        return new RecalculationFailure(
+                RecalculationFailure.Code.EMPTY_EMBEDDING_FROM_MODEL_FAILURE,
+                getClass().getName(),
+                cause
+        );
+    }
+
     @Override
     public Either<AppFailure, Void> recalculateEmbedding(long embeddingId) {
         return embeddingRepo.findById(embeddingId)
-                .flatMap(found -> gigaService.createEmbeddings(List.of(), props.embeddingModel()))
+                .flatMap(found -> gigaService.createEmbeddings(List.of(found.textData()), props.embeddingModel()))
                 .peek(this::logEmbeddingResponse)
-                .flatMap(embedding -> embeddingRepo.updateVector(
+                .map(this::toVector)
+                .flatMap(vector -> vector.isEmpty()
+                        ? Either.left(toFailure(new EmptyEmbeddingException(embeddingId)))
+                        : Either.right(vector)
+                )
+                .flatMap(vector -> embeddingRepo.updateVector(
                         embeddingId,
-                        toVector(embedding),
+                        vector,
                         toEmbeddingModel(props.embeddingModel())
                 ))
                 .map(res -> null);

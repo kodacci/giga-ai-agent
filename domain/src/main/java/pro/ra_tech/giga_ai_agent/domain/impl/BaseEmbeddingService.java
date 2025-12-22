@@ -16,6 +16,10 @@ public abstract class BaseEmbeddingService {
     }
 
     protected List<Double> toVector(CreateEmbeddingsResponse res) {
+        if (res.data().isEmpty()) {
+            return List.of();
+        }
+
         return res.data().getFirst().embedding();
     }
 }
