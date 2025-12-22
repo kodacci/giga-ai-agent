@@ -1,4 +1,4 @@
-package pro.ra_tech.database;
+package pro.ra_tech.giga_ai_agent.core;
 
 public record Constants() {
     public static final String PG_VECTOR_DOCKER_IMAGE_NAME = "pgvector/pgvector:0.8.1-pg18-trixie";

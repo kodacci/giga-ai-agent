@@ -103,8 +103,7 @@ public class EmbeddingsRecalculationServiceImpl implements EmbeddingsRecalculati
                                                     ff.getCause()
                                             ))
                             )
-            )
-                .map(taskId -> count);
+            );
     }
 
     @Override

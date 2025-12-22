@@ -1,4 +1,4 @@
-package pro.ra_tech.database;
+package pro.ra_tech.giga_ai_agent.database;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;

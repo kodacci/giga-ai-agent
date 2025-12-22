@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.0</version>
+		<version>4.0.1</version>
 	</parent>
 
 	<groupId>pro.ra-tech.ai</groupId>
@@ -29,7 +29,7 @@
 	<properties>
 		<revision>1.0.0</revision>
 		<java.version>21</java.version>
-		<spring.boot.version>4.0.0</spring.boot.version>
+		<spring.boot.version>4.0.1</spring.boot.version>
 		<lombok.version>1.18.42</lombok.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -169,6 +169,12 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-json</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-resttestclient</artifactId>
                 <version>${spring.boot.version}</version>
             </dependency>
 

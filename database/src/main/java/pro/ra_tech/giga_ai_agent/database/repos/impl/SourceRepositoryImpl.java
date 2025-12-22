@@ -63,10 +63,11 @@ public class SourceRepositoryImpl extends BaseRepository implements SourceReposi
         return Try.of(
                 () -> jdbc.sql(
                         "SELECT s.id as id, s.name as name, s.description as description, " +
-                                "json_agg(t.name ORDER BY t.id ASC) as tags, s.hfs_doc_id as \"hfsDocId\" " +
+                                "COALESCE(json_agg(t.name ORDER BY t.id ASC) " +
+                                "FILTER (WHERE t.id IS NOT NULL), '[]'::json) as tags, s.hfs_doc_id as \"hfsDocId\" " +
                                 "FROM sources s " +
-                                "INNER JOIN sources_tags_join st ON s.id = st.source_id " +
-                                "INNER JOIN tags t ON st.tag_id = t.id " +
+                                "LEFT JOIN sources_tags_join st ON s.id = st.source_id " +
+                                "LEFT JOIN tags t ON st.tag_id = t.id " +
                                 "GROUP BY s.id ORDER BY s.id ASC limit :limit OFFSET :offset"
                 )
                         .param("limit", limit)

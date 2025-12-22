@@ -1,9 +1,11 @@
-package pro.ra_tech.database;
+package pro.ra_tech.giga_ai_agent.database;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.junit.jupiter.Container;
@@ -43,6 +45,15 @@ public class SourceRepositoryIT implements DatabaseIT {
     private SourceRepository repo;
     @Autowired
     private TagRepository tagRepo;
+    @Autowired
+    private JdbcClient jdbc;
+
+    @AfterEach
+    void afterEach() {
+        jdbc.sql("DELETE from sources_tags_join").update();
+        jdbc.sql("DELETE from tags").update();
+        jdbc.sql("DELETE from sources").update();
+    }
 
     @Test
     void shouldListSources() {
@@ -65,5 +76,17 @@ public class SourceRepositoryIT implements DatabaseIT {
         assertThat(sources.get(1).name()).isEqualTo("test2");
         assertThat(sources.get(1).description()).isEqualTo("test2");
         assertThat(sources.get(1).tags()).isEqualTo(tagNames);
+    }
+
+    @Test
+    void shouldListSourcesWithoutTags() {
+        val result = repo.create(new CreateSourceData("test1", "test1", List.of(), "hfs1"))
+                .flatMap(sources -> repo.list(0, 10));
+
+        assertThat(result.isRight()).isTrue();
+        val sources = result.get();
+        assertThat(sources.size()).isEqualTo(1);
+        assertThat(sources.getFirst().name()).isEqualTo("test1");
+        assertThat(sources.getFirst().tags()).isEqualTo(List.of());
     }
 }

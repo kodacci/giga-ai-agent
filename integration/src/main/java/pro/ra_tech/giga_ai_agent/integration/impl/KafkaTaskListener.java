@@ -14,7 +14,11 @@ import pro.ra_tech.giga_ai_agent.integration.kafka.model.EmbeddingRecalculationT
 @RequiredArgsConstructor
 @KafkaListener(
         id = "ai-agent-group",
-        topics = {"${app.kafka.document-processing-topic}", "${app.kafka.chunk-processing-topic}", "${app.kafka.embeddings-recalculation-topic"},
+        topics = {
+                "${app.kafka.document-processing-topic}",
+                "${app.kafka.chunk-processing-topic}",
+                "${app.kafka.embeddings-recalculation-topic}"
+        },
         containerFactory = "kafkaContainerFactory"
 )
 public class KafkaTaskListener {

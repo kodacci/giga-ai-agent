@@ -1,0 +1,68 @@
+logging:
+  level:
+    root: DEBUG
+
+spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog-root.yaml
+  datasource:
+    username: test
+    password: test
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+
+app:
+  giga-chat:
+    auth-api-base-url: http://localhost
+    api-base-url: http://localhost
+    request-timeout-ms: 1000
+    max-retries: 0
+    retry-timeout-ms: 1000
+    client-id: test
+    auth-key: test
+    auth-retry-timeout-ms: 1000000
+    embeddings-inputs-max-count: 1
+    stub-embeddings: true
+    embeddings-model: EMBEDDINGS
+  telegram:
+    api:
+      rest-api-base-url: https://api.telegram.org
+      api-token: 7584464649:AAFTNpTNxSw46MOp5yLKV1uILoua7XR1dv0
+      update-limit: 100
+      update-timeout-sec: 5
+      request-timeout-ms: 10000
+      max-retries: 0
+    bot:
+      enabled: false
+      updates-queue-capacity: 100
+      ai-model-type: GIGA_CHAT
+      updates-handlers-count: 3
+  llm-text-processor:
+    base-url: http://localhost:8181
+    request-timeout-ms: 10000
+    max-retries: 0
+  ya-gpt:
+    enabled: true
+    retry-timeout-ms: 100000
+    request-timeout-ms: 1000
+    auth-api-base-url: http://localhost
+    api-base-url: http://localhost
+    o-auth-token: test
+    max-retries: 1
+    cloud-catalog-id: test
+  hfs:
+    api-base-url: https://localhost
+    request-timeout-ms: 1000
+    max-retries: 1
+    retry-timeout-ms: 100
+    base-folder: test
+    user: giga-ai-agent
+    password: abc12345
+  kafka:
+    document-processing-topic: giga-ai-agent-documents-queue
+    document-processing-error-topic: giga-ai-agent-documents-errors
+    chunk-processing-topic: giga-ai-agent-recalculation-queue
+    embeddings-recalculation-topic: giga-ai-agent-embeddings-recalculation-queue
+    consumer-thread-pool-size: 1
