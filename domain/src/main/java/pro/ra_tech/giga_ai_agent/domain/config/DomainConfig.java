@@ -86,7 +86,7 @@ public class DomainConfig {
                         gigaChatService,
                         props.aiModelType(),
                         embeddingRepository,
-                        gigaChatProps.embeddingModel()
+                        gigaChatProps.embeddingsModel()
                 )));
 
         return executor;
@@ -108,7 +108,7 @@ public class DomainConfig {
                 embeddingRepo,
                 chatService,
                 gigaProps.embeddingsInputsMaxCount(),
-                gigaProps.embeddingModel()
+                gigaProps.embeddingsModel()
         );
     }
 

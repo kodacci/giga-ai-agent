@@ -35,7 +35,7 @@ public class AiModelServiceImpl implements AiModelService {
             String prompt,
             @Nullable String sessionId
     ) {
-        return gigaService.createEmbeddings(List.of(prompt), props.embeddingModel())
+        return gigaService.createEmbeddings(List.of(prompt), props.embeddingsModel())
                 .peek(res -> log.info("Created embedding for prompt: {}", res))
                 .flatMap(res -> embeddingRepo.vectorSearch(
                         res.data()
@@ -78,7 +78,7 @@ public class AiModelServiceImpl implements AiModelService {
 
     @Override
     public Either<AppFailure, CreateEmbeddingResponse> createEmbedding(CreateEmbeddingRequest request) {
-        return gigaService.createEmbeddings(List.of(request.text()), props.embeddingModel())
+        return gigaService.createEmbeddings(List.of(request.text()), props.embeddingsModel())
                 .map(CreateEmbeddingResponse::of);
     }
 }

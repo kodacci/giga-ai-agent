@@ -41,6 +41,22 @@ public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingService imp
     private final KafkaService kafkaService;
     private final GigaChatService gigaService;
     private final GigaChatProps props;
+    private final EmbeddingModel dbModel;
+
+    public EmbeddingsRecalculationServiceImpl(
+            EmbeddingsRecalculationTaskRepository taskRepo,
+            EmbeddingRepository embeddingRepo,
+            KafkaService kafkaService,
+            GigaChatService gigaService,
+            GigaChatProps props
+    ) {
+        this.taskRepo = taskRepo;
+        this.embeddingRepo = embeddingRepo;
+        this.kafkaService = kafkaService;
+        this.gigaService = gigaService;
+        this.props = props;
+        this.dbModel = toEmbeddingModel(props.embeddingsModel());
+    }
 
     private record SendResultHandler(
             long chunkIdx,
@@ -142,7 +158,7 @@ public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingService imp
     @Override
     public Either<AppFailure, Void> recalculateEmbedding(long embeddingId) {
         return embeddingRepo.findById(embeddingId)
-                .flatMap(found -> gigaService.createEmbeddings(List.of(found.textData()), props.embeddingModel()))
+                .flatMap(found -> gigaService.createEmbeddings(List.of(found.textData()), props.embeddingsModel()))
                 .peek(this::logEmbeddingResponse)
                 .map(this::toVector)
                 .flatMap(vector -> vector.isEmpty()
@@ -152,7 +168,7 @@ public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingService imp
                 .flatMap(vector -> embeddingRepo.updateVector(
                         embeddingId,
                         vector,
-                        toEmbeddingModel(props.embeddingModel())
+                        dbModel
                 ))
                 .map(res -> null);
     }
