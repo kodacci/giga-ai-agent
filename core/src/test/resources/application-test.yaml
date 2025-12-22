@@ -1,6 +1,6 @@
 logging:
   level:
-    root: DEBUG
+    root: INFO
 
 spring:
   liquibase:
@@ -61,6 +61,7 @@ app:
     user: giga-ai-agent
     password: abc12345
   kafka:
+    bootstrap-servers: localhost:9092
     document-processing-topic: giga-ai-agent-documents-queue
     document-processing-error-topic: giga-ai-agent-documents-errors
     chunk-processing-topic: giga-ai-agent-recalculation-queue
