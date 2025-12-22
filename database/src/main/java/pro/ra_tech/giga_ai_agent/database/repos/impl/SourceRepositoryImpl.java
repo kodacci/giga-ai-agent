@@ -59,6 +59,12 @@ public class SourceRepositoryImpl extends BaseRepository implements SourceReposi
     }
 
     @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "source", "repository.method", "list"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
     public Either<AppFailure, List<SourceWithTagsDto>> list(long offset, int limit) {
         return Try.of(
                 () -> jdbc.sql(

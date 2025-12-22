@@ -136,4 +136,15 @@ public class EmbeddingRepositoryIT implements DatabaseIT {
         assertThat(result.isRight()).isTrue();
         assertThat(result.get()).isEqualTo(embeddings.size());
     }
+
+    @Test
+    void shouldFindEmbeddingById() {
+        val result = repo.createEmbedding(new CreateEmbeddingData(sourceId, generateEmbedding(), "embedding1"))
+                .flatMap(data -> repo.findById(data.id()))
+                .peekLeft(failure -> log.error("Error finding embedding", failure.getCause()));
+
+        assertThat(result.isRight()).isTrue();
+        val found = result.get();
+        assertThat(found.textData()).isEqualTo("embedding1");
+    }
 }

@@ -13,16 +13,11 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
-import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
-import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
-import pro.ra_tech.giga_ai_agent.database.repos.api.TagRepository;
+import pro.ra_tech.giga_ai_agent.database.repos.api.*;
 import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
-import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
-import pro.ra_tech.giga_ai_agent.domain.api.FileServerService;
-import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
-import pro.ra_tech.giga_ai_agent.domain.api.TagService;
+import pro.ra_tech.giga_ai_agent.domain.api.*;
 import pro.ra_tech.giga_ai_agent.domain.impl.*;
+import pro.ra_tech.giga_ai_agent.domain.impl.BalanceGaugeService;
 import pro.ra_tech.giga_ai_agent.integration.api.*;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
 import pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsProps;
@@ -168,7 +163,10 @@ public class DomainConfig {
     }
 
     @Bean
-    public KafkaRecalculationTaskHandler recalculationTaskHandler() {
-        return new KafkaRecalculationTaskHandlerImpl();
+    public KafkaRecalculationTaskHandler recalculationTaskHandler(
+            EmbeddingsRecalculationTaskRepository taskRepo,
+            EmbeddingsRecalculationService recalculationService
+    ) {
+        return new KafkaRecalculationTaskHandlerImpl(taskRepo, recalculationService);
     }
 }

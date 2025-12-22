@@ -7,14 +7,16 @@ import lombok.val;
 import org.springframework.stereotype.Service;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingsRecalculationTaskRepository;
-import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateRecalculationTaskData;
+import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingModel;
 import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingTextData;
 import pro.ra_tech.giga_ai_agent.database.repos.model.RecalculationTaskStatus;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingsRecalculationService;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
+import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
+import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
 import pro.ra_tech.giga_ai_agent.integration.kafka.model.EmbeddingRecalculationTask;
 
 import java.util.List;
@@ -24,13 +26,14 @@ import java.util.stream.LongStream;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class EmbeddingsRecalculationServiceImpl implements EmbeddingsRecalculationService {
+public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingService implements EmbeddingsRecalculationService {
     private static final int EMBEDDINGS_LIMIT = 100;
 
     private final EmbeddingsRecalculationTaskRepository taskRepo;
     private final EmbeddingRepository embeddingRepo;
     private final KafkaService kafkaService;
-    private final Transactional trx;
+    private final GigaChatService gigaService;
+    private final GigaChatProps props;
 
     private record SendResultHandler(
             long chunkIdx,
@@ -70,7 +73,7 @@ public class EmbeddingsRecalculationServiceImpl implements EmbeddingsRecalculati
                                     taskId,
                                     sourceId,
                                     idx + offset,
-                                    embedding.text(),
+                                    embedding.id(),
                                     count
                             ),
                             new SendResultHandler(chunkIdx, taskId)
@@ -110,5 +113,27 @@ public class EmbeddingsRecalculationServiceImpl implements EmbeddingsRecalculati
     public Either<AppFailure, Long> enqueueAll(long sourceId) {
         return embeddingRepo.countBySourceId(sourceId)
                 .flatMap(count -> enqueueAll(count, sourceId));
+    }
+
+    public EmbeddingModel toEmbeddingModel(pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel model) {
+        return switch (model) {
+            case EMBEDDINGS -> EmbeddingModel.EMBEDDINGS;
+            case EMBEDDINGS_2 -> EmbeddingModel.EMBEDDINGS2;
+            case EMBEDDINGS_GIGA_R -> EmbeddingModel.EMBEDDINGS_GIGA_R;
+            case GIGA_EMBEDDINGS_3B_2025_09 -> EmbeddingModel.GIGA_EMBEDDINGS_3B_2025_09;
+        };
+    }
+
+    @Override
+    public Either<AppFailure, Void> recalculateEmbedding(long embeddingId) {
+        return embeddingRepo.findById(embeddingId)
+                .flatMap(found -> gigaService.createEmbeddings(List.of(), props.embeddingModel()))
+                .peek(this::logEmbeddingResponse)
+                .flatMap(embedding -> embeddingRepo.updateVector(
+                        embeddingId,
+                        toVector(embedding),
+                        toEmbeddingModel(props.embeddingModel())
+                ))
+                .map(res -> null);
     }
 }

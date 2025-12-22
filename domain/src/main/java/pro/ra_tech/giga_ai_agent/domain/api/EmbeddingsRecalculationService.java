@@ -5,4 +5,5 @@ import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
 public interface EmbeddingsRecalculationService {
     Either<AppFailure, Long> enqueueAll(long sourceId);
+    Either<AppFailure, Void> recalculateEmbedding(long embeddingId);
 }

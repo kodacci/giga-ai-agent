@@ -162,4 +162,24 @@ public class EmbeddingRepositoryImpl implements EmbeddingRepository {
                 .toEither()
                 .mapLeft(this::toFailure);
     }
+
+    @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "embedding", "repository.method", "find-by-id"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
+    public Either<AppFailure, EmbeddingPersistentData> findById(long id) {
+        return Try.of(
+                () -> client.sql(
+                        "SELECT id, source_id, text_data FROM embeddings WHERE id = :id"
+                )
+                        .param("id", id)
+                        .query(EmbeddingPersistentData.class)
+                        .single()
+        )
+                .toEither()
+                .mapLeft(this::toFailure);
+    }
 }

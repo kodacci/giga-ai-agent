@@ -4,7 +4,7 @@ public record EmbeddingRecalculationTask(
         long taskId,
         long sourceId,
         long idx,
-        String text,
+        long embeddingId,
         long embeddingsCount
 ) {
 }

@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
-public class EmbeddingServiceImpl implements EmbeddingService {
+public class EmbeddingServiceImpl extends BaseEmbeddingService implements EmbeddingService {
     private static final int TOO_MANY_TOKENS_HTTP_STATUS = 413;
 
     private final Transactional trx;
@@ -57,14 +57,6 @@ public class EmbeddingServiceImpl implements EmbeddingService {
                 DocumentProcessingFailure.Code.EMBEDDING_FAILURE,
                 getClass().getName(),
                 cause
-        );
-    }
-
-    private void logEmbeddingResponse(CreateEmbeddingsResponse res) {
-        log.info(
-                "Got {} embeddings with overall cost {}",
-                res.data().size(),
-                res.data().stream().mapToInt(data -> data.usage().promptTokens()).sum()
         );
     }
 
@@ -172,7 +164,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     }
 
     private Either<AppFailure, CreateEmbeddingData> toEmbeddingData(long sourceId, CreateEmbeddingsResponse res, String text) {
-        return Try.of(() -> new CreateEmbeddingData(sourceId, res.data().getFirst().embedding(), text))
+        return Try.of(() -> new CreateEmbeddingData(sourceId, toVector(res), text))
                 .toEither()
                 .mapLeft(this::toFailure);
     }

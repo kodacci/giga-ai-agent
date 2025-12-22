@@ -95,4 +95,15 @@ public class EmbeddingsRecalculationTaskRepositoryIT implements DatabaseIT {
         val task = result.get();
         assertThat(task.status()).isEqualTo(RecalculationTaskStatus.SUCCESS);
     }
+
+    @Test
+    void shouldIncrementTaskProgress() {
+        val result = repo.create(new CreateRecalculationTaskData(sourceId, 10))
+                .flatMap(id -> repo.incrementTaskProgress(id).map(nothing -> id))
+                .flatMap(repo::findById)
+                .peekLeft(failure -> log.error("error incrementing task progress", failure.getCause()));
+
+        assertThat(result.isRight()).isTrue();
+        assertThat(result.get().processedEmbeddingsCount()).isEqualTo(1);
+    }
 }
