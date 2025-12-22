@@ -46,7 +46,7 @@ public class KafkaRecalculationTaskHandlerImpl implements KafkaRecalculationTask
                 .flatMap(progress -> progress == task.embeddingsCount()
                         ? taskRepo.updateStatus(task.taskId(), RecalculationTaskStatus.SUCCESS)
                             .peek(nothing -> log.info("Successfully finished embeddings recalculation task {}", task.taskId()))
-                        : null
+                        : Either.right(null)
                 )
                 .peekLeft(failure -> log.error("Error recalculating embeddings for task {}", task.taskId(), failure.getCause()))
                 .peekLeft(failure -> taskRepo.updateStatus(task.taskId(), RecalculationTaskStatus.ERROR)
