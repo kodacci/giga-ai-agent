@@ -18,6 +18,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.backoff.FixedBackOff;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaDocProcessingTaskHandler;
+import pro.ra_tech.giga_ai_agent.integration.api.KafkaRecalculationTaskHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
 import pro.ra_tech.giga_ai_agent.integration.impl.KafkaServiceImpl;
@@ -101,8 +102,11 @@ public class KafkaConfig extends BaseIntegrationConfig {
     }
 
     @Bean
-    public KafkaTaskListener kafkaTaskListener(KafkaDocProcessingTaskHandler handler) {
-        return new KafkaTaskListener(handler);
+    public KafkaTaskListener kafkaTaskListener(
+            KafkaDocProcessingTaskHandler docHandler,
+            KafkaRecalculationTaskHandler recalculationHandler
+    ) {
+        return new KafkaTaskListener(docHandler, recalculationHandler);
     }
 
     @Bean

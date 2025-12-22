@@ -166,4 +166,9 @@ public class DomainConfig {
                 embeddingService
         );
     }
+
+    @Bean
+    public KafkaRecalculationTaskHandler recalculationTaskHandler() {
+        return new KafkaRecalculationTaskHandlerImpl();
+    }
 }
