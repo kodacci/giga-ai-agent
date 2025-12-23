@@ -4,11 +4,9 @@ import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.http.*;
-import org.springframework.util.MultiValueMap;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
 import java.net.URI;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j

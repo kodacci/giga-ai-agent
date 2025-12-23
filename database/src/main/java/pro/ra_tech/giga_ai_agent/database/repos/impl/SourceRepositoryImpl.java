@@ -54,8 +54,7 @@ public class SourceRepositoryImpl extends BaseRepository implements SourceReposi
         )
                 .map(id -> joinWithTags(id, data.tags()))
                 .toEither()
-                .map(id -> new SourceData(id, data.name(), data.tags()))
-                .mapLeft(this::toFailure);
+                .bimap(this::toFailure, id -> new SourceData(id, data.name(), data.tags()));
     }
 
     @Override

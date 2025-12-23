@@ -243,7 +243,7 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
     @Override
     @Synchronized("mutex")
     public Either<AppFailure, CreateEmbeddingsResponse> createEmbeddings(List<String> input, EmbeddingModel model) {
-        log.info("Creating {} new embeddings for {} inputs", stubEmbeddings ? "stub" : "real", input.size());
+        log.info("Creating {} new embeddings with model {} for {} inputs", stubEmbeddings ? "stub" : "real", model, input.size());
 
         if (stubEmbeddings) {
             return Either.right(stubEmbeddings(input));
