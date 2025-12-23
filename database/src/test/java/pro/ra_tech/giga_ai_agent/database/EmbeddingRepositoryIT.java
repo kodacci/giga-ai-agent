@@ -147,4 +147,15 @@ public class EmbeddingRepositoryIT implements DatabaseIT {
         val found = result.get();
         assertThat(found.textData()).isEqualTo("embedding1");
     }
+
+    @Test
+    void shouldFindVectorsByDistance() {
+        val vector = generateEmbedding();
+        val result = repo.createEmbedding(new CreateEmbeddingData(sourceId, vector, "vector search"))
+                .flatMap(data -> repo.vectorSearch(vector))
+                .peekLeft(failure -> log.error("Error searching embeddings", failure.getCause()));
+
+        assertThat(result.isRight()).isTrue();
+        assertThat(result.get().size()).isEqualTo(1);
+    }
 }

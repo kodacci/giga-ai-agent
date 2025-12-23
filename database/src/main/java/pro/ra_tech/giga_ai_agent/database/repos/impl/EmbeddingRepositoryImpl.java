@@ -88,7 +88,7 @@ public class EmbeddingRepositoryImpl implements EmbeddingRepository {
     public Either<AppFailure, List<EmbeddingPersistentData>> vectorSearch(List<Double> promptVector) {
         return Try.of(
                 () -> client.sql(
-                        "SELECT id, source_id as source, text_data " +
+                        "SELECT id, source_id, text_data " +
                                 "FROM embeddings ORDER BY vector_data <-> :search_vector LIMIT 5"
                 )
                         .param("search_vector", new PGvector(promptVector))
