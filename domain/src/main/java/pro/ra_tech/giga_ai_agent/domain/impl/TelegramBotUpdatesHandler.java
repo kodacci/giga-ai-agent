@@ -121,7 +121,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
         val replyTo = message.messageId();
         log.info("Asking AI model rq: {}, session: {}, with: {}", id, user, prompt);
 
-        botService.sendMessage(chatId, "Request to library assistant accepted \uD83E\uDD14", replyTo, MessageParseMode.MARKDOWN)
+        botService.sendMessage(chatId, "Ассистент-библиотекарь задумался \uD83E\uDD14", replyTo, MessageParseMode.MARKDOWN)
                 .peekLeft(failure -> log.error("Error sending informing message: {}", failure.getMessage()));
 
         gigaService.createEmbeddings(List.of(prompt), embeddingModel)
