@@ -89,4 +89,16 @@ public class SourceRepositoryIT implements DatabaseIT {
         assertThat(sources.getFirst().name()).isEqualTo("test1");
         assertThat(sources.getFirst().tags()).isEqualTo(List.of());
     }
+
+    @Test
+    void shouldGetNamesByIds() {
+        val result = repo.create(new CreateSourceData("test1", "test1", List.of(), null))
+                .flatMap(created -> repo.create(new CreateSourceData("test2", "test2", List.of(), null))
+                        .map(sources -> List.of(created.id(), sources.id()))
+                )
+                .flatMap(ids -> repo.getNames(ids));
+
+        assertThat(result.isRight()).isTrue();
+        assertThat(result.get()).isEqualTo(List.of("test1", "test2"));
+    }
 }
