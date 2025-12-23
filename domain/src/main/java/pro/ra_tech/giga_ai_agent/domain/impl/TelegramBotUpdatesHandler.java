@@ -149,7 +149,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
                     if (!ctx.getUsedSources().isEmpty()) {
                         botService.sendMessage(
                                 chatId,
-                                "Использовались источники: \uD83D\uDCDA" + String.join(", ", ctx.getUsedSources()),
+                                "*Использовались источники*:\n\uD83D\uDCDA" + String.join(", \uD83D\uDCDA\n", ctx.getUsedSources()),
                                 null,
                                 MessageParseMode.MARKDOWN
                         );
