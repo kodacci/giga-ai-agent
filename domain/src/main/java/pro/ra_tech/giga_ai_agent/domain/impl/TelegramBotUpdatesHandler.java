@@ -1,9 +1,11 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
+import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingPersistentData;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.api.TelegramBotService;
@@ -25,18 +27,26 @@ import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
 
+import static java.awt.SystemColor.text;
 import static pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageEntityType.MENTION;
 import static pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramChatType.PRIVATE;
 
 @RequiredArgsConstructor
 @Slf4j
 public class TelegramBotUpdatesHandler implements Runnable {
+
+    @Data
+    private static class ProcessingContext {
+        private List<String> usedSources = List.of();
+    }
+
     private final BlockingQueue<BotUpdate> botUpdatesQueue;
     private final TelegramBotService botService;
     private final GigaChatService gigaService;
     private final AiModelType aiModelType;
     private final EmbeddingRepository embeddingRepo;
     private final EmbeddingModel embeddingModel;
+    private final SourceRepository sourceRepo;
 
     private final DecimalFormat balanceFormatter = new DecimalFormat("###,###,###");
 
@@ -95,11 +105,24 @@ public class TelegramBotUpdatesHandler implements Runnable {
                 .collect(Collectors.joining("\n---------\n"));
     }
 
+    private void attachSources(List<EmbeddingPersistentData> embeddings, ProcessingContext ctx) {
+        if (embeddings.isEmpty()) {
+            return;
+        }
+
+        sourceRepo.getNames(embeddings.stream().map(EmbeddingPersistentData::sourceId).toList())
+                .peek(ctx::setUsedSources);
+    }
+
     private void sendResponse(TelegramMessage message, String prompt, String user) {
+        val ctx = new ProcessingContext();
         val id = UUID.randomUUID().toString();
         val chatId = message.chat().id();
         val replyTo = message.messageId();
         log.info("Asking AI model rq: {}, session: {}, with: {}", id, user, prompt);
+
+        botService.sendMessage(chatId, "Request to library assistant accepted \uD83E\uDD14", replyTo, MessageParseMode.MARKDOWN)
+                .peekLeft(failure -> log.error("Error sending informing message: {}", failure.getMessage()));
 
         gigaService.createEmbeddings(List.of(prompt), embeddingModel)
                 .peek(res -> log.info("Created embedding for prompt: {}", res))
@@ -111,6 +134,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
                                 .orElse(List.of())
                 ))
                 .peek(embeddings -> log.info("Found embeddings {} in db for prompt {}", embeddings, prompt))
+                .peek(embeddings -> attachSources(embeddings, ctx))
                 .flatMap(embeddings -> gigaService.askModel(
                         id,
                         aiModelType,
@@ -121,6 +145,16 @@ public class TelegramBotUpdatesHandler implements Runnable {
                                 .toList()
                 ))
                 .map(res -> sendAnswerParts(res, chatId, replyTo))
+                .peek(usage -> {
+                    if (!ctx.getUsedSources().isEmpty()) {
+                        botService.sendMessage(
+                                chatId,
+                                "Использовались источники: \uD83D\uDCDA" + String.join(", ", ctx.getUsedSources()),
+                                null,
+                                MessageParseMode.MARKDOWN
+                        );
+                    }
+                })
                 .flatMap(usage -> botService.sendMessage(chatId, toUsageMessage(usage), null, MessageParseMode.MARKDOWN))
                 .flatMap(sent -> gigaService.getBalance(null))
                 .map(this::toBalanceMessage)

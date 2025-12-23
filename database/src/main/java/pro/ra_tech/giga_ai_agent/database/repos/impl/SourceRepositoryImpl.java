@@ -83,4 +83,16 @@ public class SourceRepositoryImpl extends BaseRepository implements SourceReposi
                 .toEither()
                 .mapLeft(this::toFailure);
     }
+
+    @Override
+    public Either<AppFailure, List<String>> getNames(List<Long> ids) {
+        return Try.of(
+                () -> jdbc.sql("SELECT name FROM sources WHERE id IN (:ids)")
+                        .param("ids", ids)
+                        .query(String.class)
+                        .list()
+        )
+                .toEither()
+                .mapLeft(this::toFailure);
+    }
 }

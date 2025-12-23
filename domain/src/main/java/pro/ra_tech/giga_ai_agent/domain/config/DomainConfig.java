@@ -71,7 +71,8 @@ public class DomainConfig {
             TelegramBotService botService,
             GigaChatService gigaChatService,
             EmbeddingRepository embeddingRepository,
-            GigaChatProps gigaChatProps
+            GigaChatProps gigaChatProps,
+            SourceRepository sourceRepo
     ) {
         val executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(props.updatesHandlersCount());
@@ -86,7 +87,8 @@ public class DomainConfig {
                         gigaChatService,
                         props.aiModelType(),
                         embeddingRepository,
-                        gigaChatProps.embeddingsModel()
+                        gigaChatProps.embeddingsModel(),
+                        sourceRepo
                 )));
 
         return executor;
