@@ -17,6 +17,8 @@ public record KafkaProps(
         String documentProcessingErrorTopic,
         @NotEmpty
         String chunkProcessingTopic,
+        @NotEmpty
+        String embeddingsRecalculationTopic,
         @NotNull
         @Min(1)
         Integer consumerThreadPoolSize

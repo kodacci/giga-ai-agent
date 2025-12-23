@@ -1,0 +1,14 @@
+logging:
+  level:
+    root: INFO
+
+spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog-root.yaml
+  datasource:
+    username: test
+    password: test
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1

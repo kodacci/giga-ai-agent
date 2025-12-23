@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 11
+      author: Andrey Ryabtsev
+      comment: Adds embeddings recalculation tasks status type
+      changes:
+        - sql:
+            sql: |
+              CREATE TYPE embeddings_recalculation_status AS ENUM ('STARTED', 'SUCCESS', 'ERROR');
+      rollback:
+        - sql:
+            sql: |
+              DROP TYPE IF EXISTS embeddings_recalculation_status;

@@ -20,6 +20,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.impl.BaseRestService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingUsage;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
-public class EmbeddingServiceImpl implements EmbeddingService {
+public class EmbeddingServiceImpl extends BaseEmbeddingService implements EmbeddingService {
     private static final int TOO_MANY_TOKENS_HTTP_STATUS = 413;
 
     private final Transactional trx;
@@ -39,6 +40,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     private final EmbeddingRepository embeddingRepo;
     private final GigaChatService gigaChatService;
     private final int gigaInputMaxSize;
+    private final EmbeddingModel embeddingModel;
 
     private Either<AppFailure, List<TagData>> saveAllTags(List<TagData> known, List<String> all) {
         val unknown = all.stream()
@@ -58,14 +60,6 @@ public class EmbeddingServiceImpl implements EmbeddingService {
         );
     }
 
-    private void logEmbeddingResponse(CreateEmbeddingsResponse res) {
-        log.info(
-                "Got {} embeddings with overall cost {}",
-                res.data().size(),
-                res.data().stream().mapToInt(data -> data.usage().promptTokens()).sum()
-        );
-    }
-
     private Either<AppFailure, CreateEmbeddingsResponse> createEmbeddingsFromChunk(
             List<String> chunks,
             int startIdx,
@@ -75,7 +69,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
         return Try.of(() -> chunks.subList(startIdx, endIdx))
                 .toEither()
                 .mapLeft(this::toFailure)
-                .flatMap(gigaChatService::createEmbeddings)
+                .flatMap(texts -> gigaChatService.createEmbeddings(texts, embeddingModel))
                 .peek(this::logEmbeddingResponse)
                 .peek(
                         res -> res.data().forEach(
@@ -170,14 +164,14 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     }
 
     private Either<AppFailure, CreateEmbeddingData> toEmbeddingData(long sourceId, CreateEmbeddingsResponse res, String text) {
-        return Try.of(() -> new CreateEmbeddingData(sourceId, res.data().getFirst().embedding(), text))
+        return Try.of(() -> new CreateEmbeddingData(sourceId, toVector(res), text))
                 .toEither()
                 .mapLeft(this::toFailure);
     }
 
     @Override
     public Either<AppFailure, Void> createEmbedding(String text, long sourceId) {
-        return gigaChatService.createEmbeddings(List.of(text))
+        return gigaChatService.createEmbeddings(List.of(text), embeddingModel)
                 .peek(this::logEmbeddingResponse)
                 .flatMap(res -> toEmbeddingData(sourceId, res, text))
                 .flatMap(embeddingRepo::createEmbedding)

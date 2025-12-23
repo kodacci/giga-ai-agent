@@ -36,6 +36,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
     private final GigaChatService gigaService;
     private final AiModelType aiModelType;
     private final EmbeddingRepository embeddingRepo;
+    private final EmbeddingModel embeddingModel;
 
     private final DecimalFormat balanceFormatter = new DecimalFormat("###,###,###");
 
@@ -100,7 +101,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
         val replyTo = message.messageId();
         log.info("Asking AI model rq: {}, session: {}, with: {}", id, user, prompt);
 
-        gigaService.createEmbeddings(List.of(prompt))
+        gigaService.createEmbeddings(List.of(prompt), embeddingModel)
                 .peek(res -> log.info("Created embedding for prompt: {}", res))
                 .flatMap(res -> embeddingRepo.vectorSearch(
                         res.data()
@@ -160,11 +161,15 @@ public class TelegramBotUpdatesHandler implements Runnable {
                     if (message.chat().type() == PRIVATE) {
                         sendResponse(message, message.text(), user);
                         continue;
+                    } else {
+                        log.info("Request not in private chat");
                     }
 
                     val prompt = findPrompt(message, name);
                     if(!prompt.isEmpty()) {
                         sendResponse(message, prompt, user);
+                    } else {
+                        log.info("Prompt after name {} is empty, skipping", name);
                     }
                 }
             } catch (InterruptedException ex) {

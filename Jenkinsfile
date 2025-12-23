@@ -52,7 +52,7 @@ pipeline {
             steps {
                 script {
                     ESCAPED_JOB_NAME = escapeMd(JOB_NAME, MARKDOWN_ESCAPE_CHARS)
-                    raTechNotify(message: "🚀 Job *${ESCAPED_JOB_NAME}* started 🚀", markdown: true)
+                    raTechNotify(message: "🚀 Job *${ESCAPED_JOB_NAME}* started [BUILD](${BUILD_URL}) 🚀", markdown: true)
 
                     withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
                         PROJECT_VERSION = sh(
@@ -182,17 +182,17 @@ pipeline {
     post {
         success {
             script{
-                raTechNotify(message: "✅ Job *${ESCAPED_JOB_NAME}* completed successfully ✅", markdown: true)
+                raTechNotify(message: "✅ Job *${ESCAPED_JOB_NAME}* completed successfully [BUILD](${BUILD_URL}) ✅", markdown: true)
             }
         }
         failure {
             script {
-                raTechNotify(message: "❌ Job *${ESCAPED_JOB_NAME}* failed ❌", markdown: true)
+                raTechNotify(message: "❌ Job *${ESCAPED_JOB_NAME}* failed [BUILD](${BUILD_URL}) ❌", markdown: true)
             }
         }
         aborted {
             script {
-                raTechNotify(message: "✋ Job *${ESCAPED_JOB_NAME}* aborted ✋", markdown: true)
+                raTechNotify(message: "✋ Job *${ESCAPED_JOB_NAME}* aborted [BUILD](${BUILD_URL}) ✋", markdown: true)
             }
         }
     }

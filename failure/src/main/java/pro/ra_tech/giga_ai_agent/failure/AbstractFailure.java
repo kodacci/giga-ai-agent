@@ -2,7 +2,7 @@ package pro.ra_tech.giga_ai_agent.failure;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @RequiredArgsConstructor
 public abstract class AbstractFailure implements AppFailure {

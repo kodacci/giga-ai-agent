@@ -1,7 +1,7 @@
 package pro.ra_tech.giga_ai_agent.failure;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class IntegrationFailure extends AbstractFailure {
     private static final String DETAIL = "Integration service API call error";

@@ -1,6 +1,6 @@
 package pro.ra_tech.giga_ai_agent.integration.rest.giga.api;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAskRequest;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsRequest;

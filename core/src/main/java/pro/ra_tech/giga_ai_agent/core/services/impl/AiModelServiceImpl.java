@@ -3,7 +3,7 @@ package pro.ra_tech.giga_ai_agent.core.services.impl;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelRequest;
 import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelResponse;
@@ -15,6 +15,7 @@ import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingPersistentData;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
+import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
 
@@ -26,6 +27,7 @@ import java.util.List;
 public class AiModelServiceImpl implements AiModelService {
     private final GigaChatService gigaService;
     private final EmbeddingRepository embeddingRepo;
+    private final GigaChatProps props;
 
     private Either<AppFailure, AskAiModelResponse> askWithEmbeddings(
             String rqUid,
@@ -33,7 +35,7 @@ public class AiModelServiceImpl implements AiModelService {
             String prompt,
             @Nullable String sessionId
     ) {
-        return gigaService.createEmbeddings(List.of(prompt))
+        return gigaService.createEmbeddings(List.of(prompt), props.embeddingsModel())
                 .peek(res -> log.info("Created embedding for prompt: {}", res))
                 .flatMap(res -> embeddingRepo.vectorSearch(
                         res.data()
@@ -76,7 +78,7 @@ public class AiModelServiceImpl implements AiModelService {
 
     @Override
     public Either<AppFailure, CreateEmbeddingResponse> createEmbedding(CreateEmbeddingRequest request) {
-        return gigaService.createEmbeddings(List.of(request.text()))
+        return gigaService.createEmbeddings(List.of(request.text()), props.embeddingsModel())
                 .map(CreateEmbeddingResponse::of);
     }
 }

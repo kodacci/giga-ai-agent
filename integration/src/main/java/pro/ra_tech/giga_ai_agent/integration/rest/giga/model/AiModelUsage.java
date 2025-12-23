@@ -1,7 +1,7 @@
 package pro.ra_tech.giga_ai_agent.integration.rest.giga.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record AiModelUsage(
         @JsonProperty("prompt_tokens") @Nullable Integer promptTokens,

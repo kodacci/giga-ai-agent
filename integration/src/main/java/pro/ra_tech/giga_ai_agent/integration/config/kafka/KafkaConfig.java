@@ -14,11 +14,12 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.DefaultErrorHandler;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
+import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.backoff.FixedBackOff;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaDocProcessingTaskHandler;
+import pro.ra_tech.giga_ai_agent.integration.api.KafkaRecalculationTaskHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
 import pro.ra_tech.giga_ai_agent.integration.impl.KafkaServiceImpl;
@@ -35,15 +36,23 @@ public class KafkaConfig extends BaseIntegrationConfig {
             "documentProcessingTask:pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask";
     private static final String CHUNK_PROCESSING_TASK_TYPE_MAPPING =
             "chunkProcessingTask:pro.ra_tech.giga_ai_agent.integration.kafka.model.ChunkProcessingTask";
+    private static final String EMBEDDINGS_RECALCULATION_TASK_TYPE_MAPPING =
+            "embeddingsRecalculationTask:pro.ra_tech.giga_ai_agent.integration.kafka.model.EmbeddingRecalculationTask";
+
+    private static final String TYPE_MAPPINGS = String.join(
+            ", ",
+            DOCUMENT_PROCESSING_TASK_TYPE_MAPPING,
+            CHUNK_PROCESSING_TASK_TYPE_MAPPING,
+            EMBEDDINGS_RECALCULATION_TASK_TYPE_MAPPING
+    );
 
     @Bean
     public ProducerFactory<String, Object> kafkaProducerFactory(KafkaProps props) {
         return new DefaultKafkaProducerFactory<>(Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, props.bootstrapServers(),
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class,
-                JsonSerializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING + ", " +
-                        CHUNK_PROCESSING_TASK_TYPE_MAPPING
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class,
+                JacksonJsonSerializer.TYPE_MAPPINGS, TYPE_MAPPINGS
         ));
     }
 
@@ -52,10 +61,9 @@ public class KafkaConfig extends BaseIntegrationConfig {
         return new DefaultKafkaConsumerFactory<>(Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, props.bootstrapServers(),
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
-                JsonDeserializer.TYPE_MAPPINGS, DOCUMENT_PROCESSING_TASK_TYPE_MAPPING + ", " +
-                CHUNK_PROCESSING_TASK_TYPE_MAPPING,
-                JsonDeserializer.TRUSTED_PACKAGES, "pro.ra_tech.giga_ai_agent.integration.kafka.model"
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class,
+                JacksonJsonDeserializer.TYPE_MAPPINGS, TYPE_MAPPINGS,
+                JacksonJsonDeserializer.TRUSTED_PACKAGES, "pro.ra_tech.giga_ai_agent.integration.kafka.model"
         ));
     }
 
@@ -94,14 +102,19 @@ public class KafkaConfig extends BaseIntegrationConfig {
                 kafkaTemplate,
                 props.documentProcessingTopic(),
                 props.chunkProcessingTopic(),
+                props.embeddingsRecalculationTopic(),
                 buildKafkaSendMonitoringDto(registry, KAFKA_SERVICE, props.documentProcessingTopic()),
-                buildKafkaSendMonitoringDto(registry, KAFKA_SERVICE, props.chunkProcessingTopic())
+                buildKafkaSendMonitoringDto(registry, KAFKA_SERVICE, props.chunkProcessingTopic()),
+                buildKafkaSendMonitoringDto(registry, KAFKA_SERVICE, props.embeddingsRecalculationTopic())
         );
     }
 
     @Bean
-    public KafkaTaskListener kafkaTaskListener(KafkaDocProcessingTaskHandler handler) {
-        return new KafkaTaskListener(handler);
+    public KafkaTaskListener kafkaTaskListener(
+            KafkaDocProcessingTaskHandler docHandler,
+            KafkaRecalculationTaskHandler recalculationHandler
+    ) {
+        return new KafkaTaskListener(docHandler, recalculationHandler);
     }
 
     @Bean

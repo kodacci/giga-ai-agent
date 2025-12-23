@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 9
+      author: Andrey Ryabtsev
+      comment: Adds embedding model type
+      changes:
+        - sql:
+            sql: |
+              CREATE TYPE embedding_model AS ENUM ('EMBEDDINGS', 'EMBEDDINGS_2', 'EMBEDDINGS_GIGA_R', 'GIGA_EMBEDDINGS_3B_2025_09');
+      rollback:
+        - sql:
+            sql: |
+              DROP TYPE IF EXISTS embedding_model

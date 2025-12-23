@@ -96,7 +96,7 @@ public class PdfServiceImpl implements PdfService {
         @Override
         public void handleError(Throwable cause) {
             log.error(
-                    "Error enqueueing document {} to Kafka, tass {}, error: {}",
+                    "Error enqueueing document {} to Kafka, task {}, error: {}",
                     documentName,
                     taskId,
                     cause

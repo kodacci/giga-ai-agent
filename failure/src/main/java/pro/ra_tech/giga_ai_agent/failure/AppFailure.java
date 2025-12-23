@@ -1,6 +1,6 @@
 package pro.ra_tech.giga_ai_agent.failure;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface AppFailure {
     String getCode();

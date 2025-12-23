@@ -17,15 +17,12 @@ import java.sql.Types;
 
 @Repository
 @RequiredArgsConstructor
-public class DocProcessingRepositoryImpl implements DocProcessingTaskRepository {
+public class DocProcessingRepositoryImpl extends BaseRepository implements DocProcessingTaskRepository {
     private final JdbcClient client;
 
-    private AppFailure toFailure(Throwable cause) {
-        return new DatabaseFailure(
-                DatabaseFailure.Code.DOC_PROCESSING_TASK_REPOSITORY_FAILURE,
-                getClass().getName(),
-                cause
-        );
+    @Override
+    protected DatabaseFailure.Code failureCode() {
+        return DatabaseFailure.Code.DOC_PROCESSING_TASK_REPOSITORY_FAILURE;
     }
 
     @Override

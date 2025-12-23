@@ -117,8 +117,11 @@
       "description": "Stub giga chat embeddings creation",
       "type": "java.lang.Boolean"
     },
-
-
+    {
+      "name": "app.giga-chat.embeddings-model",
+      "description": "Use giga chat embeddings model",
+      "type": "pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel"
+    },
     {
       "name": "app.telegram.api.rest-api-base-url",
       "description": "Telegram bot API rest base URL",
@@ -282,6 +285,11 @@
       "type": "java.lang.String"
     },
     {
+      "name": "app.kafka.embeddings-recalculation-topic",
+      "description": "Embeddings recalculation kafka topic",
+      "type": "java.lang.String"
+    },
+    {
       "name": "app.kafka.consumer-thread-pool-size",
       "description": "Kafka consumer thread pool size",
       "type": "java.lang.Integer"
@@ -306,6 +314,27 @@
         {
           "value": "GIGA_CHAT_MAX",
           "description": "Giga Chat Max"
+        }
+      ]
+    },
+    {
+      "name": "app.giga-chat.embeddings-model",
+      "values": [
+        {
+          "value": "EMBEDDINGS",
+          "description": "Basic embeddings model"
+        },
+        {
+          "value": "EMBEDDINGS_2",
+          "description": "Better basic embedding model"
+        },
+        {
+          "value": "EMBEDDINGS_GIGA_R",
+          "description": "Embeddings model with extended context size"
+        },
+        {
+          "value": "GIGA_EMBEDDINGS_3B_2025_09",
+          "description": "GIGA Embeddings model, september 2025 update"
         }
       ]
     }

@@ -1,7 +1,9 @@
 package pro.ra_tech.giga_ai_agent.integration.config.giga;
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
 
 @ConfigurationProperties("app.giga-chat")
 public record GigaChatProps (
@@ -15,6 +17,8 @@ public record GigaChatProps (
     int authRetryTimeoutMs,
     @Min(1)
     int embeddingsInputsMaxCount,
-    boolean stubEmbeddings
+    boolean stubEmbeddings,
+    @NotNull
+    EmbeddingModel embeddingsModel
 ) {
 }

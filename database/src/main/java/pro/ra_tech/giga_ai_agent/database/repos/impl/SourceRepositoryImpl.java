@@ -6,27 +6,23 @@ import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.stereotype.Repository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateSourceData;
 import pro.ra_tech.giga_ai_agent.database.repos.model.SourceData;
+import pro.ra_tech.giga_ai_agent.database.repos.model.SourceWithTagsDto;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DatabaseFailure;
 
 import java.util.List;
 
-@Repository
 @RequiredArgsConstructor
 @Slf4j
-public class SourceRepositoryImpl implements SourceRepository {
+public class SourceRepositoryImpl extends BaseRepository implements SourceRepository {
     private final JdbcClient jdbc;
 
-    private AppFailure toFailure(Throwable throwable) {
-        return new DatabaseFailure(
-                DatabaseFailure.Code.SOURCE_REPOSITORY_FAILURE,
-                getClass().getName(),
-                throwable
-        );
+    @Override
+    protected DatabaseFailure.Code failureCode() {
+        return DatabaseFailure.Code.SOURCE_REPOSITORY_FAILURE;
     }
 
     private long joinWithTags(long id, List<Long> tags) {
@@ -58,7 +54,33 @@ public class SourceRepositoryImpl implements SourceRepository {
         )
                 .map(id -> joinWithTags(id, data.tags()))
                 .toEither()
-                .map(id -> new SourceData(id, data.name(), data.tags()))
+                .bimap(this::toFailure, id -> new SourceData(id, data.name(), data.tags()));
+    }
+
+    @Override
+    @Timed(
+            value = "repository.call",
+            extraTags = {"repository.name", "source", "repository.method", "list"},
+            histogram = true,
+            percentiles = {0.90, 0.95, 0.99}
+    )
+    public Either<AppFailure, List<SourceWithTagsDto>> list(long offset, int limit) {
+        return Try.of(
+                () -> jdbc.sql(
+                        "SELECT s.id as id, s.name as name, s.description as description, " +
+                                "COALESCE(json_agg(t.name ORDER BY t.id ASC) " +
+                                "FILTER (WHERE t.id IS NOT NULL), '[]'::json) as tags, s.hfs_doc_id as \"hfsDocId\" " +
+                                "FROM sources s " +
+                                "LEFT JOIN sources_tags_join st ON s.id = st.source_id " +
+                                "LEFT JOIN tags t ON st.tag_id = t.id " +
+                                "GROUP BY s.id ORDER BY s.id ASC limit :limit OFFSET :offset"
+                )
+                        .param("limit", limit)
+                        .param("offset", offset)
+                        .query(SourceWithTagsDto.class)
+                        .list()
+        )
+                .toEither()
                 .mapLeft(this::toFailure);
     }
 }

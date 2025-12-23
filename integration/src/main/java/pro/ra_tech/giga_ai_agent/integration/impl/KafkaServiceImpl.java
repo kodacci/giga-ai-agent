@@ -12,6 +12,7 @@ import pro.ra_tech.giga_ai_agent.failure.IntegrationFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.kafka.model.ChunkProcessingTask;
+import pro.ra_tech.giga_ai_agent.integration.kafka.model.EmbeddingRecalculationTask;
 import pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask;
 import pro.ra_tech.giga_ai_agent.integration.util.KafkaSendMonitoringDto;
 
@@ -21,8 +22,10 @@ public class KafkaServiceImpl implements KafkaService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final String documentProcessingTopic;
     private final String chunkProcessingTopic;
+    private final String embeddingsRecalculationTopic;
     private final KafkaSendMonitoringDto docMonitoring;
     private final KafkaSendMonitoringDto chunkMonitoring;
+    private final KafkaSendMonitoringDto embeddingsRecalcMonitoring;
 
     private AppFailure toFailure(Throwable cause) {
         return new IntegrationFailure(
@@ -68,5 +71,14 @@ public class KafkaServiceImpl implements KafkaService {
         return send(chunkProcessingTopic, task, resultHandler, chunkMonitoring)
                 .peekLeft(failure -> log.error("Error sending chunk processing task to kafka: ", failure.getCause()))
                 .peekLeft(failure -> chunkMonitoring.sendErrorCounter().increment());
+    }
+
+    @Override
+    public Either<AppFailure, Void> enqueueEmbeddingRecalculation(EmbeddingRecalculationTask task, KafkaSendResultHandler resultHandler) {
+        log.info("Sending embedding for recalculation task {} to topic {}", task.taskId(), "");
+
+        return send(embeddingsRecalculationTopic, task, resultHandler, embeddingsRecalcMonitoring)
+                .peekLeft(failure -> log.error("Error sending embeddings recalculation task to kafka: ", failure.getCause()))
+                .peekLeft(failure -> embeddingsRecalcMonitoring.sendErrorCounter().increment());
     }
 }
