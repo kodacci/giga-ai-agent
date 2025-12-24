@@ -111,6 +111,32 @@ pipeline {
             }
         }
 
+        stage('Analise with sonarqube') {
+            when {
+                branch 'main'
+            }
+
+            steps {
+                withSonarQubeEnv('Sonar RA-Tech') {
+                    withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
+                        sh './mvnw --global-settings \$GLOBAL_MVN_SETTINGS sonar:sonar -DskipTests'
+                    }
+                }
+            }
+        }
+
+        stage('Quality gate') {
+            when {
+                branch 'main'
+            }
+
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Deploy to Nexus Snapshots') {
             when {
                 not {

@@ -117,8 +117,7 @@ public class EmbeddingRepositoryImpl implements EmbeddingRepository {
                         .update()
         )
                 .toEither()
-                .mapLeft(this::toFailure)
-                .map(res -> res > 0);
+                .bimap(this::toFailure, res -> res > 0);
     }
 
     @Override
