@@ -17,7 +17,7 @@ public class PgObjectToStringListConverter implements Converter<PGobject, List<S
     private final JsonMapper jsonMapper;
 
     @Override
-    public List<String> convert(PGobject source) {
+    public @Nullable List<String> convert(PGobject source) {
         log.info("Converting PGobject with type {} and value {} to List<String>", source.getType(), source.getValue());
         if (source.getValue() == null) {
             return null;
