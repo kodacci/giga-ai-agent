@@ -69,8 +69,8 @@ public class TagRepositoryImpl implements TagRepository {
     )
     public Either<AppFailure, Boolean> exists(String name) {
         return Try.of(
-                () -> !jdbc.sql("SELECT 1 from tags WHERE name = :name")
-                        .param(name)
+                () -> !jdbc.sql("SELECT id FROM tags WHERE name = :name LIMIT 1")
+                        .param("name", name)
                         .query()
                         .listOfRows()
                         .isEmpty()

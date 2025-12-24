@@ -26,7 +26,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @Slf4j
 @DisplayName("Document processing tasks repository test suit")
-public class DocProcessingRepositoryImplIT implements DatabaseIT {
+public class DocProcessingRepositoryIT implements DatabaseIT {
     @Container
     private static final PostgreSQLContainer pgContainer = new PostgreSQLContainer(
             DockerImageName.parse(Constants.PG_VECTOR_DOCKER_IMAGE_NAME)

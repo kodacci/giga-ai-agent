@@ -13,12 +13,12 @@ public class DatabaseFailure extends AbstractFailure {
 
     @Override
     public String getCode() {
-        return DETAIL;
+        return code.toString();
     }
 
     @Override
     public String getDetail() {
-        return code.toString();
+        return DETAIL;
     }
 
     @RequiredArgsConstructor
