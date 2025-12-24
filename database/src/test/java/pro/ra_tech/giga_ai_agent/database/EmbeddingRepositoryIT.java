@@ -30,7 +30,7 @@ import java.util.Random;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Slf4j
-public class EmbeddingRepositoryIT implements DatabaseIT {
+class EmbeddingRepositoryIT implements DatabaseIT {
     @Container
     private static final PostgreSQLContainer pgContainer = new PostgreSQLContainer(
             DockerImageName.parse(Constants.PG_VECTOR_DOCKER_IMAGE_NAME)

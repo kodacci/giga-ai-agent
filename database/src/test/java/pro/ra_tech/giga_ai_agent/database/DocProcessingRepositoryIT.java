@@ -26,7 +26,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @Slf4j
 @DisplayName("Document processing tasks repository test suit")
-public class DocProcessingRepositoryIT implements DatabaseIT {
+class DocProcessingRepositoryIT implements DatabaseIT {
     @Container
     private static final PostgreSQLContainer pgContainer = new PostgreSQLContainer(
             DockerImageName.parse(Constants.PG_VECTOR_DOCKER_IMAGE_NAME)
@@ -84,7 +84,13 @@ public class DocProcessingRepositoryIT implements DatabaseIT {
 
     @Test
     void shouldUpdateTaskStatus() {
+        val res = repo.create(new CreateDocProcessingTaskData(sourceId, "testHfsId"))
+                .flatMap(id -> repo.updateTaskStatus(id, DocProcessingTaskStatus.STARTED).map(count -> id))
+                .flatMap(repo::findById)
+                .peekLeft(failure -> log.error("Error updating task status", failure.getCause()));
 
+        assertThat(res.isRight()).isTrue();
+        assertThat(res.get().status()).isEqualTo(DocProcessingTaskStatus.STARTED);
     }
 
     @Test

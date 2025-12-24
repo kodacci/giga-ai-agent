@@ -24,7 +24,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @DisplayName("Sources API test")
 @Slf4j
-public class SourcesApiIT extends AbstractApiIT {
+class SourcesApiIT extends AbstractApiIT {
     private static final String SOURCES_API_URL = "/api/v1/sources";
 
     @Container

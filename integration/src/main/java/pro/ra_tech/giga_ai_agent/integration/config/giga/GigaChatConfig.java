@@ -29,6 +29,10 @@ public class GigaChatConfig extends BaseIntegrationConfig {
     private static final String GIGA_CHAT_SERVICE = "giga-chat";
     private static final String GIGA_AUTH_SERVICE = "giga-auth";
     private static final String GIGA_AUTH_AUTHENTICATE = "authenticate";
+    private static final String GIGA_CHAT_SERVICE_GET_MODELS = "get-models";
+    private static final String GIGA_CHAT_SERVICE_CHAT_COMPLETIONS = "chat-completions";
+    private static final String GIGA_CHAT_SERVICE_GET_BALANCE = "get-balance";
+    private static final String GIGA_CHAT_SERVICE_CREATE_EMBEDDINGS = "create-embeddings";
 
     @Bean
     public OkHttpClient gigaHttpClient(GigaChatProps props) {
@@ -87,18 +91,18 @@ public class GigaChatConfig extends BaseIntegrationConfig {
                 gigaApi.create(GigaChatApi.class),
                 props.maxRetries(),
                 props.retryTimeoutMs(),
-                buildTimer(registry, GIGA_CHAT_SERVICE, "get-models"),
-                buildTimer(registry, GIGA_CHAT_SERVICE, "chat-completions"),
-                buildTimer(registry, GIGA_CHAT_SERVICE, "get-balance"),
-                buildTimer(registry, GIGA_CHAT_SERVICE, "create-embeddings"),
-                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, "get-models"),
-                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, "chat-completions"),
-                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, "get-balance"),
-                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, "create-embeddings"),
-                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, "get-models"),
-                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, "chat-completions"),
-                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, "get-balance"),
-                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, "create-embeddings"),
+                buildTimer(registry, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_GET_MODELS),
+                buildTimer(registry, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_CHAT_COMPLETIONS),
+                buildTimer(registry, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_GET_BALANCE),
+                buildTimer(registry, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_CREATE_EMBEDDINGS),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_GET_MODELS),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_CHAT_COMPLETIONS),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_GET_BALANCE),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_CREATE_EMBEDDINGS),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_GET_MODELS),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_CHAT_COMPLETIONS),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_GET_BALANCE),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, GIGA_CHAT_SERVICE, GIGA_CHAT_SERVICE_CREATE_EMBEDDINGS),
                 props.stubEmbeddings()
         );
     }

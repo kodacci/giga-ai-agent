@@ -23,8 +23,8 @@ public class DatabaseConfig {
             JsonMapper jsonMapper
     ) {
         val conversionService = DefaultConversionService.getSharedInstance();
-        if (conversionService instanceof GenericConversionService) {
-            ((GenericConversionService) conversionService).addConverter(new PgObjectToStringListConverter(jsonMapper));
+        if (conversionService instanceof GenericConversionService convService) {
+            convService.addConverter(new PgObjectToStringListConverter(jsonMapper));
         }
         return new SourceRepositoryImpl(jdbc);
     }

@@ -14,14 +14,13 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import pro.ra_tech.giga_ai_agent.database.repos.api.TagRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
-import pro.ra_tech.giga_ai_agent.failure.DatabaseFailure;
 
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @Slf4j
-public class TagRepositoryIT implements DatabaseIT {
+class TagRepositoryIT implements DatabaseIT {
     @Container
     private static final PostgreSQLContainer pgContainer = new PostgreSQLContainer(
             DockerImageName.parse(Constants.PG_VECTOR_DOCKER_IMAGE_NAME)
