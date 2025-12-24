@@ -21,7 +21,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class SourceRepositoryIT implements DatabaseIT {
+class SourceRepositoryIT implements DatabaseIT {
     @Container
     private static final PostgreSQLContainer pgContainer = new PostgreSQLContainer(
             DockerImageName.parse(Constants.PG_VECTOR_DOCKER_IMAGE_NAME)

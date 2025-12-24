@@ -25,7 +25,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class EmbeddingsRecalculationTaskRepositoryIT implements DatabaseIT {
+class EmbeddingsRecalculationTaskRepositoryIT implements DatabaseIT {
     @Container
     private static final PostgreSQLContainer pgContainer = new PostgreSQLContainer(
             DockerImageName.parse("pgvector/pgvector:0.8.1-pg18-trixie")
@@ -80,7 +80,7 @@ public class EmbeddingsRecalculationTaskRepositoryIT implements DatabaseIT {
         val task = result.get();
         assertThat(task).isNotNull();
         assertThat(task.embeddingsCount()).isEqualTo(count);
-        assertThat(task.processedEmbeddingsCount()).isEqualTo(0);
+        assertThat(task.processedEmbeddingsCount()).isZero();
         assertThat(task.sourceId()).isEqualTo(sourceId);
     }
 

@@ -70,6 +70,7 @@
                             <footer>Code coverage report for Giga AI Agent ${project.version}</footer>
                             <excludes>
                                 <exclude>**/core/CoreApplication.java</exclude>
+                                <exclude>**/*/config/*Config.java</exclude>
                             </excludes>
                         </configuration>
                     </execution>

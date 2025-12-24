@@ -102,6 +102,14 @@ pipeline {
                                 sh "./mvnw --global-settings \$GLOBAL_MVN_SETTINGS --log-file \"$logFileName\" verify"
                             }
                         }
+
+                        recordCoverage(
+                                tools: [[parser: 'JACOCO', pattern: 'code-coverage/target/site/jacoco-aggregate/jacoco.xml']],
+                                id: 'giga-ai-agent-jacoco',
+                                name: 'Giga AI Agent JaCoCo Coverage',
+                                sourceCodeRetention: 'LAST_BUILD',
+                                sourceDirectories: [[path: '**/src/main/java']]
+                        )
                     } finally {
                         archiveArtifacts(logFileName)
                         sh "rm \"$logFileName\""
@@ -119,7 +127,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('Sonar RA-Tech') {
                     withMaven(globalMavenSettingsConfig: 'maven-config-ra-tech') {
-                        sh './mvnw --global-settings \$GLOBAL_MVN_SETTINGS sonar:sonar -DskipTests'
+                        sh './mvnw --global-settings \$GLOBAL_MVN_SETTINGS org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -DskipTests'
                     }
                 }
             }
