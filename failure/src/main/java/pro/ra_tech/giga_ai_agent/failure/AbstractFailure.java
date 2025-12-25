@@ -40,7 +40,7 @@ public abstract class AbstractFailure<T> implements AppFailure {
             return "Unknown error";
         }
 
-        val detail = cause.getMessage();
-        return detail == null ? cause.toString() : detail;
+        val details = cause.getMessage();
+        return details == null ? cause.toString() : details;
     }
 }
