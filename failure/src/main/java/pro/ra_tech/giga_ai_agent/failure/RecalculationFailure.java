@@ -3,23 +3,11 @@ package pro.ra_tech.giga_ai_agent.failure;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-public class RecalculationFailure extends AbstractFailure {
+public class RecalculationFailure extends AbstractFailure<RecalculationFailure.Code> {
     private static final String DETAIL = "Embeddings recalculation failure";
-    private final Code code;
 
     public RecalculationFailure(Code code, String source, @Nullable Throwable cause) {
-        super(source, cause);
-        this.code = code;
-    }
-
-    @Override
-    public String getCode() {
-        return code.toString();
-    }
-
-    @Override
-    public String getDetail() {
-        return DETAIL;
+        super(code, DETAIL, source, cause);
     }
 
     @RequiredArgsConstructor

@@ -2,23 +2,11 @@ package pro.ra_tech.giga_ai_agent.failure;
 
 import lombok.RequiredArgsConstructor;
 
-public class DatabaseFailure extends AbstractFailure {
+public class DatabaseFailure extends AbstractFailure<DatabaseFailure.Code> {
     private static final String DETAIL =  "Database access error";
-    private final Code code;
 
     public DatabaseFailure(Code code, String source, Throwable cause) {
-        super(source, cause);
-        this.code = code;
-    }
-
-    @Override
-    public String getCode() {
-        return code.toString();
-    }
-
-    @Override
-    public String getDetail() {
-        return DETAIL;
+        super(code, DETAIL, source, cause);
     }
 
     @RequiredArgsConstructor
