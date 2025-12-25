@@ -20,6 +20,9 @@ import java.util.concurrent.TimeUnit;
 public class TelegramApiConfig extends BaseIntegrationConfig {
     private static final int SEC_TO_MS = 1000;
     private static final String TELEGRAM_SERVICE = "telegram";
+    private static final String SEND_MESSAGE_METHOD = "send-message";
+    private static final String GET_ME_METHOD = "get-me";
+    private static final String GET_UPDATES_METHOD = "get-updates";
 
     private TelegramBotApi api(
             TelegramApiProps props,
@@ -45,14 +48,14 @@ public class TelegramApiConfig extends BaseIntegrationConfig {
                 props.maxRetries(),
                 props.updateLimit(),
                 props.updateTimeoutSec(),
-                buildTimer(registry, TELEGRAM_SERVICE, "send-message"),
-                buildTimer(registry, TELEGRAM_SERVICE, "get-me"),
-                buildCounter(registry, ErrorCounterType.STATUS_4XX, TELEGRAM_SERVICE, "send-message"),
-                buildCounter(registry, ErrorCounterType.STATUS_4XX, TELEGRAM_SERVICE, "get-updates"),
-                buildCounter(registry, ErrorCounterType.STATUS_4XX, TELEGRAM_SERVICE, "get-me"),
-                buildCounter(registry, ErrorCounterType.STATUS_5XX, TELEGRAM_SERVICE, "send-message"),
-                buildCounter(registry, ErrorCounterType.STATUS_5XX, TELEGRAM_SERVICE, "get-updates"),
-                buildCounter(registry, ErrorCounterType.STATUS_5XX, TELEGRAM_SERVICE, "get-me")
+                buildTimer(registry, TELEGRAM_SERVICE, SEND_MESSAGE_METHOD),
+                buildTimer(registry, TELEGRAM_SERVICE, GET_ME_METHOD),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, TELEGRAM_SERVICE, SEND_MESSAGE_METHOD),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, TELEGRAM_SERVICE, GET_UPDATES_METHOD),
+                buildCounter(registry, ErrorCounterType.STATUS_4XX, TELEGRAM_SERVICE, GET_ME_METHOD),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, TELEGRAM_SERVICE, SEND_MESSAGE_METHOD),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, TELEGRAM_SERVICE, GET_UPDATES_METHOD),
+                buildCounter(registry, ErrorCounterType.STATUS_5XX, TELEGRAM_SERVICE, GET_ME_METHOD)
         );
     }
 }
