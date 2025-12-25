@@ -3,28 +3,15 @@ package pro.ra_tech.giga_ai_agent.failure;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-public class IntegrationFailure extends AbstractFailure {
+public class IntegrationFailure extends AbstractFailure<IntegrationFailure.Code> {
     private static final String DETAIL = "Integration service API call error";
-    private final Code code;
 
     public IntegrationFailure(Code code, String source, @Nullable String message) {
-        super(source, message);
-        this.code = code;
+        super(code, DETAIL, source, message);
     }
 
     public IntegrationFailure(Code code, String source, Throwable cause) {
-        super(source, cause);
-        this.code = code;
-    }
-
-    @Override
-    public String getCode() {
-        return code.toString();
-    }
-
-    @Override
-    public String getDetail() {
-        return DETAIL;
+        super(code, DETAIL, source, cause);
     }
 
     @RequiredArgsConstructor

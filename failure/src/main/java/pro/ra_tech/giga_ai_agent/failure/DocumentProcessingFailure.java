@@ -3,23 +3,11 @@ package pro.ra_tech.giga_ai_agent.failure;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-public class DocumentProcessingFailure extends AbstractFailure {
+public class DocumentProcessingFailure extends AbstractFailure<DocumentProcessingFailure.Code> {
     private static final String DETAIL = "Document processing failure";
-    private final Code code;
 
     public DocumentProcessingFailure(Code code, String source, @Nullable Throwable cause) {
-        super(source, cause);
-        this.code = code;
-    }
-
-    @Override
-    public String getCode() {
-        return code.toString();
-    }
-
-    @Override
-    public String getDetail() {
-        return DETAIL;
+        super(code, DETAIL, source, cause);
     }
 
     @RequiredArgsConstructor
