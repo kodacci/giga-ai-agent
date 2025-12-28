@@ -13,4 +13,11 @@
     <artifactId>giga-ai-agent-failure</artifactId>
     <version>${revision}</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

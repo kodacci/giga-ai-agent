@@ -5,7 +5,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum DocumentType {
-    PDF("PDF");
+    PDF("PDF"),
+    TXT("TXT");
 
     private final String value;
 
@@ -18,6 +19,8 @@ public enum DocumentType {
     public static DocumentType of(String value) {
         if (PDF.toString().equals(value)) {
             return PDF;
+        } else if (TXT.toString().equals(value)) {
+            return TXT;
         }
 
         throw new IllegalArgumentException(value + " is invalid enum value for " + DocumentType.class.getName());

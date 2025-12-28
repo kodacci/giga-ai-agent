@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.DocProcessingTaskStatus;
+import pro.ra_tech.giga_ai_agent.domain.api.DocumentService;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
+import pro.ra_tech.giga_ai_agent.domain.api.TxtService;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.HfsService;
@@ -27,6 +29,7 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
     private final String baseFolder;
     private final HfsService hfsService;
     private final PdfService pdfService;
+    private final TxtService txtService;
     private final KafkaService kafka;
     private final DocProcessingTaskRepository taskRepo;
     private final EmbeddingService embeddingService;
@@ -89,9 +92,14 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
     public void onDocumentProcessingTask(DocumentProcessingTask task) {
         log.info("Handling document processing task: {}", task);
 
+        final DocumentService service = switch (task.documentType()) {
+            case PDF -> pdfService;
+            case TXT -> txtService;
+        };
+
         taskRepo.updateTaskStatus(task.taskId(), DocProcessingTaskStatus.STARTED)
                 .flatMap(rows -> hfsService.downloadFile(baseFolder, task.hfsDocumentId()))
-                .flatMap(pdfService::splitToChunks)
+                .flatMap(service::splitToChunks)
                 .peek(chunks -> log.info("Got {} chunks for task {}", chunks.size(), task.taskId()))
                 .flatMap(chunks -> taskRepo.updateTaskChunksCount(task.taskId(), chunks.size()).map(count -> chunks))
                 .peek(chunks -> enqueueChunks(task.taskId(), task.sourceId(), task.hfsDocumentId(), chunks))

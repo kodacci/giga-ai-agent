@@ -3,7 +3,12 @@ package pro.ra_tech.giga_ai_agent.core.controllers;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
 import java.net.URI;
@@ -37,7 +42,7 @@ public abstract class BaseController {
                     return new ResponseEntity<>(
                             toProblemDetail(failure),
                             headers,
-                            HttpStatus.INTERNAL_SERVER_ERROR
+                            failure.getHttpStatus()
                     );
                 },
                 data -> new ResponseEntity<>(data, HttpStatus.OK)

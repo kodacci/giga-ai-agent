@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.jspecify.annotations.Nullable;
+import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractFailure<T> implements AppFailure {
@@ -42,5 +43,10 @@ public abstract class AbstractFailure<T> implements AppFailure {
 
         val details = cause.getMessage();
         return details == null ? cause.toString() : details;
+    }
+
+    @Override
+    public HttpStatus getHttpStatus() {
+        return HttpStatus.INTERNAL_SERVER_ERROR;
     }
 }

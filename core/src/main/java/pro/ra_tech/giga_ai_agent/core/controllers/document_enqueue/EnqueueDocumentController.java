@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pro.ra_tech.giga_ai_agent.core.controllers.BaseController;
 import pro.ra_tech.giga_ai_agent.core.controllers.document_enqueue.dto.EnqueueDocumentRequest;
-import pro.ra_tech.giga_ai_agent.core.services.api.DocumentService;
+import pro.ra_tech.giga_ai_agent.core.services.api.DocumentApiService;
 
 @RestController
 @RequestMapping(
@@ -22,7 +22,7 @@ import pro.ra_tech.giga_ai_agent.core.services.api.DocumentService;
 @RequiredArgsConstructor
 @Slf4j
 public class EnqueueDocumentController extends BaseController implements EnqueueDocumentApi {
-    private final DocumentService service;
+    private final DocumentApiService service;
 
     @Override
     @PostMapping("/pdf")
@@ -32,12 +32,18 @@ public class EnqueueDocumentController extends BaseController implements Enqueue
     ) {
         log.info("Enqueueing document {}", pdf.getOriginalFilename());
 
-        return toResponse(service.enqueuePdf(pdf, request));
+        return toResponse(service.enqueueDocument(pdf, request));
     }
 
     @Override
     @GetMapping(value = "/tasks/{taskId}/status", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<Object> getTaskStatus(@PathVariable("taskId") @Positive @NotNull Long taskId) {
         return toResponse(service.getTaskStatus(taskId));
+    }
+
+    @Override
+    @PostMapping("")
+    public ResponseEntity<Object> enqueueDocument(MultipartFile document, EnqueueDocumentRequest request) {
+        return toResponse(service.enqueueDocument(document, request));
     }
 }
