@@ -5,7 +5,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum DocumentType {
-    PDF("PDF");
+    PDF("PDF"),
+    TXT("TXT");
 
     private final String value;
 
@@ -16,10 +17,10 @@ public enum DocumentType {
 
     @JsonCreator
     public static DocumentType of(String value) {
-        if (PDF.toString().equals(value)) {
-            return PDF;
-        }
-
-        throw new IllegalArgumentException(value + " is invalid enum value for " + DocumentType.class.getName());
+        return switch(value) {
+            case "PDF" -> PDF;
+            case "TXT" -> TXT;
+            default -> throw new IllegalArgumentException(value + " is invalid enum value for " + DocumentType.class.getName());
+        };
     }
 }

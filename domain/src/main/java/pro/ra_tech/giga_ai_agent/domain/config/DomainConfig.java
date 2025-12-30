@@ -150,6 +150,7 @@ public class DomainConfig {
             HfsProps hfsProps,
             HfsService hfsService,
             PdfService pdfService,
+            TxtService txtService,
             KafkaService kafkaService,
             DocProcessingTaskRepository taskRepo,
             EmbeddingService embeddingService
@@ -158,6 +159,7 @@ public class DomainConfig {
                 hfsProps.baseFolder(),
                 hfsService,
                 pdfService,
+                txtService,
                 kafkaService,
                 taskRepo,
                 embeddingService

@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,5 +52,27 @@ public interface EnqueueDocumentApi {
     )
     ResponseEntity<Object> getTaskStatus(
             @PathVariable("taskId") @Positive @NotNull Long taskId
+    );
+
+    @Operation(summary = "Enqueue document for processing with AI model")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Successfully enqueued document for processing",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = EnqueueDocumentResponse.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "415",
+            description = "Unsupported multipart file media type",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    ResponseEntity<Object> enqueueDocument(
+            @Valid @RequestPart("file") @NotNull MultipartFile document,
+            @Valid @RequestPart("metadata") @NotNull EnqueueDocumentRequest request
     );
 }

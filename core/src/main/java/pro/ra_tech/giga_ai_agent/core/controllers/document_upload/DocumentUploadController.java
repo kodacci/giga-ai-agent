@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import pro.ra_tech.giga_ai_agent.core.controllers.BaseController;
 import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.DocumentMetadata;
-import pro.ra_tech.giga_ai_agent.core.services.api.DocumentService;
+import pro.ra_tech.giga_ai_agent.core.services.api.DocumentApiService;
 
 @RestController
 @RequestMapping(
@@ -24,7 +24,7 @@ import pro.ra_tech.giga_ai_agent.core.services.api.DocumentService;
 @RequiredArgsConstructor
 @Slf4j
 public class DocumentUploadController extends BaseController implements DocumentsUploadApi {
-    private final DocumentService service;
+    private final DocumentApiService service;
 
     @Override
     @PostMapping("/pdf")

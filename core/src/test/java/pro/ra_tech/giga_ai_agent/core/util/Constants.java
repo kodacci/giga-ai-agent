@@ -1,0 +1,9 @@
+package pro.ra_tech.giga_ai_agent.core.util;
+
+public class Constants {
+    public static final String PG_VECTOR_DOCKER_IMAGE_NAME = "pgvector/pgvector:0.8.1-pg18-trixie";
+    public static final int PG_VECTOR_DOCKER_PORT = 5432;
+    public static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+
+    private Constants() {}
+}

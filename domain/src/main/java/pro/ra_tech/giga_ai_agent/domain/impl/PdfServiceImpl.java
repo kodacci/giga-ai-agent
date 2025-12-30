@@ -1,11 +1,8 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
 import io.micrometer.core.annotation.Timed;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.pdfbox.Loader;
@@ -14,10 +11,6 @@ import org.springframework.stereotype.Service;
 import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
-import pro.ra_tech.giga_ai_agent.database.repos.model.CreateDocProcessingTaskData;
-import pro.ra_tech.giga_ai_agent.database.repos.model.CreateSourceData;
-import pro.ra_tech.giga_ai_agent.database.repos.model.DocProcessingTaskStatus;
-import pro.ra_tech.giga_ai_agent.database.repos.model.TagData;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.api.PdfService;
 import pro.ra_tech.giga_ai_agent.domain.api.TagService;
@@ -28,38 +21,32 @@ import pro.ra_tech.giga_ai_agent.domain.model.PdfProcessingInfo;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.HfsService;
-import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.api.LlmTextProcessorService;
 import pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsProps;
-import pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentProcessingTask;
 import pro.ra_tech.giga_ai_agent.integration.kafka.model.DocumentType;
 
-import java.text.DecimalFormat;
 import java.util.List;
-import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class PdfServiceImpl implements PdfService {
-    private final LlmTextProcessorService llmService;
-    private final EmbeddingService embeddingService;
-    private final HfsService hfsService;
-    private final KafkaService kafkaService;
-    private final HfsProps hfsProps;
-    private final DecimalFormat format = new DecimalFormat("###,###,###");
-    private final DocProcessingTaskRepository taskRepo;
-    private final SourceRepository sourceRepo;
-    private final TagService tagsService;
-    private final Transactional trx;
+public class PdfServiceImpl extends BaseDocumentService implements PdfService {
+    public PdfServiceImpl(
+            LlmTextProcessorService llmService,
+            EmbeddingService embeddingService,
+            HfsService hfsService,
+            KafkaService kafkaService,
+            HfsProps hfsProps,
+            DocProcessingTaskRepository taskRepo,
+            SourceRepository sourceRepo,
+            TagService tagsService,
+            Transactional trx
+    ) {
+        super(llmService, embeddingService, hfsService, kafkaService, hfsProps, taskRepo, sourceRepo, tagsService, trx);
+    }
 
     private AppFailure toFailure(Throwable cause) {
-        return new DocumentProcessingFailure(
-                DocumentProcessingFailure.Code.PDF_PROCESSING_FAILURE,
-                getClass().getName(),
-                cause
-        );
+        return toFailure(DocumentProcessingFailure.Code.PDF_PROCESSING_FAILURE, cause);
     }
 
     @Override
@@ -84,46 +71,6 @@ public class PdfServiceImpl implements PdfService {
                 .map(PdfProcessingInfo::new);
     }
 
-    private record SendResultHandler(
-            String documentName,
-            long taskId
-    ) implements KafkaSendResultHandler {
-        @Override
-        public void handleSuccess() {
-            log.info("Successfully enqueued document {} to Kafka, task {}", documentName, taskId);
-        }
-
-        @Override
-        public void handleError(Throwable cause) {
-            log.error(
-                    "Error enqueueing document {} to Kafka, task {}, error: {}",
-                    documentName,
-                    taskId,
-                    cause
-            );
-        }
-    }
-
-    private CreateSourceData toCreateSourceData(InputDocumentMetadata meta, List<TagData> tags, String hfsId) {
-        return new CreateSourceData(
-                meta.name(),
-                meta.description(),
-                tags.stream().map(TagData::id).toList(),
-                hfsId
-        );
-    }
-
-    private Either<AppFailure, Tuple2<Long, Long>> createSourceAndTask(InputDocumentMetadata meta, String hfsId) {
-        return trx.execute(status ->
-                tagsService.mergeAndSave(meta.tags())
-                        .flatMap(tags -> sourceRepo.create(toCreateSourceData(meta, tags, hfsId)))
-                        .flatMap(
-                                source -> taskRepo.create(new CreateDocProcessingTaskData(source.id(), hfsId))
-                                        .map(taskId -> Tuple.of(taskId, source.id()))
-                        )
-        );
-    }
-
     @Override
     @Timed(
             value = "business.process.call",
@@ -131,27 +78,11 @@ public class PdfServiceImpl implements PdfService {
             histogram = true,
             percentiles = {0.90, 0.95, 0.99}
     )
-    public Either<AppFailure, EnqueueDocumentInfo> enqueuePdf(
+    public Either<AppFailure, EnqueueDocumentInfo> enqueue(
             byte[] contents,
             InputDocumentMetadata meta
     ) {
-        val hfsId = UUID.randomUUID().toString();
-
-        return hfsService.uploadFile(hfsProps.baseFolder(), hfsId, contents)
-                .flatMap(nothing -> hfsService.comment(hfsProps.baseFolder(), hfsId, meta.name()))
-                .peek(nothing -> log.info("Saved document {} to HFS with id {}", meta.name(), hfsId))
-                .flatMap(nothing -> createSourceAndTask(meta, hfsId))
-                .peek(taskAndSource -> log.info("Created task&source {} for document {} processing", taskAndSource, meta.name()))
-                .flatMap(taskAndSource -> kafkaService.enqueueDocumentProcessing(
-                        new DocumentProcessingTask(taskAndSource._1(), taskAndSource._2(), hfsId, DocumentType.PDF),
-                        new SendResultHandler(meta.name(), taskAndSource._1())
-                    ).map(nothing -> taskAndSource._1())
-                )
-                .peek(taskId -> log.info("Enqueued document {} with task {}", meta.name(), taskId))
-                .flatMap(taskId ->
-                        taskRepo.updateTaskStatus(taskId, DocProcessingTaskStatus.ENQUEUED).map(count -> taskId)
-                )
-                .map(taskId -> new EnqueueDocumentInfo(taskId, hfsId));
+        return enqueue(contents, meta, DocumentType.PDF);
     }
 
     @Override

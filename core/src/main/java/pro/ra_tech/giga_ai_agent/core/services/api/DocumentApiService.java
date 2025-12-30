@@ -9,8 +9,9 @@ import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.DocumentMe
 import pro.ra_tech.giga_ai_agent.core.controllers.document_upload.dto.PdfUploadResponse;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 
-public interface DocumentService {
+public interface DocumentApiService {
     Either<AppFailure, PdfUploadResponse> handlePdf(MultipartFile file, DocumentMetadata metadata);
-    Either<AppFailure, EnqueueDocumentResponse> enqueuePdf(MultipartFile file, EnqueueDocumentRequest request);
+    Either<AppFailure, EnqueueDocumentResponse> enqueueDocument(MultipartFile file, EnqueueDocumentRequest request);
     Either<AppFailure, DocumentProcessingTaskStatusResponse> getTaskStatus(long taskId);
+
 }
