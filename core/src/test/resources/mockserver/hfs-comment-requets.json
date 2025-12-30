@@ -1,0 +1,4 @@
+{
+  "comment": "TestDocument",
+  "uri": "hfs-test/${json-unit.regex}^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+}

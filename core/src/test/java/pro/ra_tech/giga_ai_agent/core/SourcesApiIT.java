@@ -15,6 +15,7 @@ import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import pro.ra_tech.giga_ai_agent.core.controllers.sources.dto.ListSourcesResponse;
+import pro.ra_tech.giga_ai_agent.core.util.Constants;
 import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateSourceData;
 
@@ -78,10 +79,10 @@ class SourcesApiIT extends AbstractApiIT {
                     assertThat(body.sources()).isNotNull().isNotEmpty();
                     assertThat(body.sources().size()).isEqualTo(2);
 
-                    assertThat(body.sources().get(0).name()).isEqualTo("test1");
-                    assertThat(body.sources().get(0).description()).isEqualTo("test1");
-                    assertThat(body.sources().get(0).tags()).isEqualTo(List.of());
-                    assertThat(body.sources().get(0).hfsDocId()).isEqualTo("hfsId1");
+                    assertThat(body.sources().getFirst().name()).isEqualTo("test1");
+                    assertThat(body.sources().getFirst().description()).isEqualTo("test1");
+                    assertThat(body.sources().getFirst().tags()).isEqualTo(List.of());
+                    assertThat(body.sources().getFirst().hfsDocId()).isEqualTo("hfsId1");
 
                     assertThat(body.sources().get(1).name()).isEqualTo("test2");
                     assertThat(body.sources().get(1).description()).isEqualTo("test2");

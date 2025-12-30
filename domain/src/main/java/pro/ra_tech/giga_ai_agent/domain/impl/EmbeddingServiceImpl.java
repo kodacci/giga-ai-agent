@@ -105,9 +105,9 @@ public class EmbeddingServiceImpl extends BaseEmbeddingService implements Embedd
             );
 
             if (result.isLeft()) {
-                val cause = result.getLeft().getCause();
-                if (!(cause instanceof BaseRestService.RestApiException) ||
-                        ((BaseRestService.RestApiException) cause).getHttpCode() != TOO_MANY_TOKENS_HTTP_STATUS) {
+                val ex = result.getLeft().getCause();
+                if (!(ex instanceof BaseRestService.RestApiException cause) ||
+                        (cause.getHttpCode() != TOO_MANY_TOKENS_HTTP_STATUS)) {
                     return result.peekLeft(failure -> log.error("Error getting embeddings vector"))
                             .map(res -> vectors);
                 }

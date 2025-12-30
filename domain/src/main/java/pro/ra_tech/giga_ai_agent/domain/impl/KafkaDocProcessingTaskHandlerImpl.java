@@ -99,11 +99,12 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
 
         taskRepo.updateTaskStatus(task.taskId(), DocProcessingTaskStatus.STARTED)
                 .flatMap(rows -> hfsService.downloadFile(baseFolder, task.hfsDocumentId()))
+                .peek(bytes -> log.info("Got bytes form HFS: {}, {}, {}, size: {}", bytes[0], bytes[1], bytes[2], bytes.length))
                 .flatMap(service::splitToChunks)
                 .peek(chunks -> log.info("Got {} chunks for task {}", chunks.size(), task.taskId()))
                 .flatMap(chunks -> taskRepo.updateTaskChunksCount(task.taskId(), chunks.size()).map(count -> chunks))
                 .peek(chunks -> enqueueChunks(task.taskId(), task.sourceId(), task.hfsDocumentId(), chunks))
-                .peekLeft(failure -> log.error("Error processing task {}", task.taskId(), failure.getCause()))
+                .peekLeft(failure -> log.error("Error processing task {}: {}", task.taskId(), failure.getMessage()))
                 .peekLeft(failure -> setErrorStatus(task.taskId()));
     }
 
@@ -149,7 +150,7 @@ public class KafkaDocProcessingTaskHandlerImpl implements KafkaDocProcessingTask
                                             .peekLeft(ff ->
                                                     log.error("Error setting task error status:", ff.getCause())
                                             );
-                            log.error("Error processing task {}, chunk {}:", task.taskId(), task.chunkIdx(), failure.getCause());
+                            log.error("Error processing task {}, chunk {}: {}", task.taskId(), task.chunkIdx(), failure.getMessage());
 
                             return null;
                         },

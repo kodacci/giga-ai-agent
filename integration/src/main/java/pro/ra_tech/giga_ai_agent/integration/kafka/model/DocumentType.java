@@ -17,12 +17,10 @@ public enum DocumentType {
 
     @JsonCreator
     public static DocumentType of(String value) {
-        if (PDF.toString().equals(value)) {
-            return PDF;
-        } else if (TXT.toString().equals(value)) {
-            return TXT;
-        }
-
-        throw new IllegalArgumentException(value + " is invalid enum value for " + DocumentType.class.getName());
+        return switch(value) {
+            case "PDF" -> PDF;
+            case "TXT" -> TXT;
+            default -> throw new IllegalArgumentException(value + " is invalid enum value for " + DocumentType.class.getName());
+        };
     }
 }
