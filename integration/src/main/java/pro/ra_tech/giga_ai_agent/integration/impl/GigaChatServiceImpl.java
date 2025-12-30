@@ -38,7 +38,7 @@ import java.util.stream.DoubleStream;
 
 @Slf4j
 public class GigaChatServiceImpl extends BaseRestService implements GigaChatService {
-    private static final int STUB_VECTOR_SIZE = 1024;
+    private static final int STUB_VECTOR_SIZE = 2560;
 
     private final GigaAuthService authService;
     private final GigaChatApi gigaApi;

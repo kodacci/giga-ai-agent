@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 13
+      author: Andrey Ryabtsev
+      comment: Increase embeddings vector size
+      changes:
+        - modifyDataType:
+            tableName: embeddings
+            columnName: vector_data
+            newDataType: vector(2560)
