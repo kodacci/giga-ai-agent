@@ -4,6 +4,8 @@ databaseChangeLog:
       author: Andrey Ryabtsev
       comment: Increase embeddings vector size
       changes:
+        - sql:
+            sql: UPDATE embeddings SET vector_data = NULL
         - modifyDataType:
             tableName: embeddings
             columnName: vector_data

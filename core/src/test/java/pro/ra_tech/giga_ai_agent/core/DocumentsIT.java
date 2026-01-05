@@ -35,6 +35,7 @@ import pro.ra_tech.giga_ai_agent.core.util.Constants;
 import pro.ra_tech.giga_ai_agent.core.util.TestUtils;
 import pro.ra_tech.giga_ai_agent.database.repos.api.DocProcessingTaskRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.DocProcessingTaskStatus;
+import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
 
 import java.time.Duration;
@@ -90,6 +91,8 @@ class DocumentsIT extends AbstractApiIT {
     private JdbcClient jdbc;
     @Autowired
     private GigaChatProps gigaChatProps;
+    @Autowired
+    private GigaAuthService gigaAuthService;
 
     @BeforeEach
     void beforeEach() {
@@ -242,6 +245,8 @@ class DocumentsIT extends AbstractApiIT {
         Awaitility.setDefaultPollInterval(100, TimeUnit.MILLISECONDS);
         Awaitility.setDefaultPollDelay(Duration.ZERO);
         Awaitility.setDefaultTimeout(Duration.ofSeconds(30));
+
+        await().until(() -> gigaAuthService.getAuthHeader().isRight());
 
         rest.post()
                 .uri(DOCUMENTS_API_PATH + "/enqueue")
