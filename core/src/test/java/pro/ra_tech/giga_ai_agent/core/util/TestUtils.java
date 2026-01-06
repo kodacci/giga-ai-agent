@@ -2,12 +2,16 @@ package pro.ra_tech.giga_ai_agent.core.util;
 
 import lombok.SneakyThrows;
 import lombok.val;
+import org.awaitility.Awaitility;
 import org.mockserver.integration.ClientAndServer;
+import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
@@ -43,5 +47,12 @@ public class TestUtils {
                         .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
                         .withBody("{ \"access_token\": \"TOP_SECRET_TOKEN\", \"expires_at\": " + exp + " }")
         );
+    }
+
+    public static void setupAwaitilityAndGigaAuth(GigaAuthService authService) {
+        Awaitility.setDefaultPollInterval(100, TimeUnit.MILLISECONDS);
+        Awaitility.setDefaultPollDelay(Duration.ZERO);
+        Awaitility.setDefaultTimeout(Duration.ofSeconds(30));
+        await().until(() -> authService.getAuthHeader().isRight());
     }
 }

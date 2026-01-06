@@ -230,11 +230,7 @@ class DocumentsIT extends AbstractApiIT {
         );
         body.add("metadata", request);
 
-        Awaitility.setDefaultPollInterval(100, TimeUnit.MILLISECONDS);
-        Awaitility.setDefaultPollDelay(Duration.ZERO);
-        Awaitility.setDefaultTimeout(Duration.ofSeconds(30));
-
-        await().until(() -> gigaAuthService.getAuthHeader().isRight());
+        TestUtils.setupAwaitilityAndGigaAuth(gigaAuthService);
 
         rest.post()
                 .uri(DOCUMENTS_API_PATH + "/enqueue")

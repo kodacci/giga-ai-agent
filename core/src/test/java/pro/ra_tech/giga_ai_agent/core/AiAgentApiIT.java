@@ -94,10 +94,7 @@ class AiAgentApiIT extends AbstractApiIT {
         val rqUid = UUID.randomUUID().toString();
         setupGigaApi(mockServerClient, rqUid);
 
-        Awaitility.setDefaultPollInterval(100, TimeUnit.MILLISECONDS);
-        Awaitility.setDefaultPollDelay(Duration.ZERO);
-        Awaitility.setDefaultTimeout(Duration.ofSeconds(30));
-        await().until(() -> authService.getAuthHeader().isRight());
+        TestUtils.setupAwaitilityAndGigaAuth(authService);
 
         rest.post()
                 .uri(AI_MODEL_API_PREFIX + "/ask")
