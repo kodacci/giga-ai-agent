@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Random;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static pro.ra_tech.giga_ai_agent.database.Constants.PG_VECTOR_DIMENSIONS;
 
 @Slf4j
 class EmbeddingRepositoryIT implements DatabaseIT {
@@ -72,7 +73,7 @@ class EmbeddingRepositoryIT implements DatabaseIT {
     }
 
     private List<Double> generateEmbedding() {
-        return new Random().doubles().limit(1024).boxed().toList();
+        return new Random().doubles().limit(PG_VECTOR_DIMENSIONS).boxed().toList();
     }
 
     private Map<String, @Nullable Object> findEmbedding(long id) {

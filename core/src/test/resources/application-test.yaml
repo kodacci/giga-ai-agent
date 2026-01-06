@@ -22,7 +22,7 @@ app:
     retry-timeout-ms: 1000
     client-id: test
     auth-key: test
-    auth-retry-timeout-ms: 100
+    auth-retry-timeout-ms: 1000
     embeddings-inputs-max-count: 3
     stub-embeddings: false
     embeddings-model: EmbeddingsGigaR
@@ -37,7 +37,7 @@ app:
     bot:
       enabled: false
       updates-queue-capacity: 100
-      ai-model-type: GIGA_CHAT
+      ai-model-type: GIGA_CHAT_2_MAX
       updates-handlers-count: 3
   llm-text-processor:
     base-url: http://localhost:${mockServerPort:10035}

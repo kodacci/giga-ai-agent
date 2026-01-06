@@ -1,0 +1,7 @@
+{
+  "model": "GigaChat-2-Max",
+  "messages": [{
+    "role": "user",
+    "content": "Зачем нужен язык программирования Java?"
+  }]
+}
