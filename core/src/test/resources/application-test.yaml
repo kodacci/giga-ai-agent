@@ -37,7 +37,7 @@ app:
     bot:
       enabled: false
       updates-queue-capacity: 100
-      ai-model-type: GIGA_CHAT
+      ai-model-type: GIGA_CHAT_2_MAX
       updates-handlers-count: 3
   llm-text-processor:
     base-url: http://localhost:${mockServerPort:10035}

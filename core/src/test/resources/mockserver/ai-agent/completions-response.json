@@ -1,0 +1,17 @@
+{
+  "choices": [{
+    "message": {
+      "role": "assistant",
+      "content": "Чтобы писать программы"
+    }
+  }],
+  "created": 1767684131,
+  "model": "GigaChat-2-Max",
+  "usage": {
+    "prompt_tokens": 100,
+    "completion_tokens": 100,
+    "precached_prompt_tokens": 0,
+    "total_tokens": 200
+  },
+  "object": "object"
+}

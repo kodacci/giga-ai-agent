@@ -149,19 +149,7 @@ class DocumentsIT extends AbstractApiIT {
     }
 
     private void setupGigaApi(ClientAndServer client) {
-        val exp = OffsetDateTime.now().plus(Duration.ofHours(1)).toEpochSecond()*1000;
-
-        client.when(
-                request()
-                        .withMethod("POST")
-                        .withContentType(org.mockserver.model.MediaType.APPLICATION_FORM_URLENCODED)
-                        .withPath("/api/v2/oauth")
-        ).respond(
-                response()
-                        .withStatusCode(200)
-                        .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
-                        .withBody("{ \"access_token\": \"TOP_SECRET_TOKEN\", \"expires_at\": " + exp + " }")
-        );
+        TestUtils.setupGigaApiAuth(client);
 
         // Embedding 1
         for (int i = 1; i <= 3; ++i) {
