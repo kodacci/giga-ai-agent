@@ -27,7 +27,6 @@ import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
 
-import static java.awt.SystemColor.text;
 import static pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageEntityType.MENTION;
 import static pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.TelegramChatType.PRIVATE;
 
@@ -81,7 +80,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
 
     private String toUsageMessage(AiModelUsage usage) {
         return String.format(
-                "*Потрачено*: \nВходящее сообщение - %d\nНа генерацию моделью - %d\nНа кэш - %d\n\n*Итого* - %d токенов",
+                "*Потрачено*: %nВходящее сообщение - %d%nНа генерацию моделью - %d%nНа кэш - %d%n%n*Итого* - %d токенов",
                 usage.promptTokens(),
                 usage.completionTokens(),
                 usage.precachedPromptTokens(),
@@ -162,10 +161,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
                 .peekLeft(failure -> log.error("Error while asking model and sending answer", failure.getCause()));
     }
 
-    @Override
-    public void run() {
-        log.info("Started bot updates handler");
-
+    private String getBotName() {
         val name = botService.getMe().fold(
                 failure -> {
                     log.error("Error getting bot info: {}", failure.getMessage());
@@ -175,6 +171,37 @@ public class TelegramBotUpdatesHandler implements Runnable {
         );
 
         log.info("Received bot name: {}", name);
+
+        return name;
+    }
+
+    private void handleUpdate(BotUpdate update, String name) {
+        val message = update.message();
+        if (message == null) {
+            return;
+        }
+
+        val user = Optional.ofNullable(update.user()).map(TelegramUser::userName).orElse(null);
+        if (message.chat().type() == PRIVATE) {
+            sendResponse(message, message.text(), user);
+            return;
+        } else {
+            log.info("Request not in private chat");
+        }
+
+        val prompt = findPrompt(message, name);
+        if(!prompt.isEmpty()) {
+            sendResponse(message, prompt, user);
+        } else {
+            log.info("Prompt after name {} is empty, skipping", name);
+        }
+    }
+
+    @Override
+    public void run() {
+        log.info("Started bot updates handler");
+
+        var name = getBotName();
 
         for (;;) {
             try {
@@ -187,25 +214,12 @@ public class TelegramBotUpdatesHandler implements Runnable {
                         Optional.ofNullable(update.message()).map(TelegramMessage::text).orElse("")
                 );
 
-                log.info("Update object: {}", update);
-
-                val message = update.message();
-                if (message != null) {
-                    val user = Optional.ofNullable(update.user()).map(TelegramUser::userName).orElse(null);
-                    if (message.chat().type() == PRIVATE) {
-                        sendResponse(message, message.text(), user);
-                        continue;
-                    } else {
-                        log.info("Request not in private chat");
-                    }
-
-                    val prompt = findPrompt(message, name);
-                    if(!prompt.isEmpty()) {
-                        sendResponse(message, prompt, user);
-                    } else {
-                        log.info("Prompt after name {} is empty, skipping", name);
-                    }
+                if (name.isEmpty()) {
+                    name = getBotName();
                 }
+
+                log.info("Update object: {}", update);
+                handleUpdate(update, name);
             } catch (InterruptedException ex) {
                 log.info("Interrupting bot updates handler");
                 Thread.currentThread().interrupt();
