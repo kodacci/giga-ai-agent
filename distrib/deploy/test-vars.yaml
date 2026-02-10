@@ -22,7 +22,7 @@ egress:
 
 core:
   requests:
-    cpu: 200
+    cpu: 300m
     memory: 700Mi
   limits:
     cpu: 1
