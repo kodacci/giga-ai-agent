@@ -62,7 +62,7 @@
 		<findbugs.jsr305.version>3.0.2</findbugs.jsr305.version>
 		<mockito.version>5.8.0</mockito.version>
 		<http.client5.version>5.2.1</http.client5.version>
-		<log4j.version>2.24.0</log4j.version>
+		<log4j.version>2.25.3</log4j.version>
 		<aspectj.version>1.9.22.1</aspectj.version>
 		<retrofit.version>3.0.0</retrofit.version>
 		<ok.http.version>5.3.2</ok.http.version>
@@ -72,8 +72,8 @@
 		<hikaricp.version>6.3.0</hikaricp.version>
 		<liquibase.version>5.0.1</liquibase.version>
 		<pgvector.version>0.1.6</pgvector.version>
-        <spring.kafka.version>4.0.1</spring.kafka.version>
-        <micrometer.version>1.16.1</micrometer.version>
+        <spring.kafka.version>4.0.2</spring.kafka.version>
+        <micrometer.version>1.16.3</micrometer.version>
         <testcontainers.version>2.0.3</testcontainers.version>
         <junit.version>6.0.1</junit.version>
         <assertj.version>3.27.6</assertj.version>
