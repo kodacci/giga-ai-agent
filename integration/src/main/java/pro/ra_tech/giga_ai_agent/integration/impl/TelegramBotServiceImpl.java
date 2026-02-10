@@ -127,7 +127,7 @@ public class TelegramBotServiceImpl extends BaseRestService implements TelegramB
         )
                 .peek(res -> {
                     if (!res.isEmpty()) {
-                        offset = res.get(res.size() - 1).updateId() + 1;
+                        offset = res.getLast().updateId() + 1;
                         log.info("Setting offset for updates at {}", offset);
                     }
                 })
