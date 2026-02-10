@@ -6,72 +6,72 @@ db_port: 5555
 egress_tcp_port: 9999
 
 egress:
-  limits:
-    cpu: 150m
-    memory: 128Mi
   requests:
-    cpu: 150m
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
     memory: 128Mi
   vault:
     requests:
-      cpu: 150m
-      memory: 128Mi
+      cpu: 25m
+      memory: 64Mi
     limits:
       cpu: 300m
       memory: 128Mi
 
 core:
   requests:
-    cpu: 1
-    memory: 2Gi
+    cpu: 300m
+    memory: 700Mi
   limits:
     cpu: 1
     memory: 2Gi
 
   istio:
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 50m
+      memory: 64Mi
     limits:
       cpu: 100m
       memory: 128Mi
 
   fluentbit:
     requests:
-      cpu: 100m
+      cpu: 50m
       memory: 256Mi
     limits:
       cpu: 200m
-      memory: 256Mi
+      memory: 512Mi
 
   vault:
     requests:
-      cpu: 150m
-      memory: 128Mi
+      cpu: 25m
+      memory: 64Mi
     limits:
       cpu: 300m
       memory: 128Mi
 
 db_migrate:
   requests:
-    cpu: 500m
-    memory: 400Mi
+    cpu: 200m
+    memory: 256Mi
   limits:
     cpu: 500m
-    memory: 400Mi
+    memory: 512Mi
 
   istio:
     requests:
       cpu: 50m
-      memory: 128Mi
+      memory: 64Mi
     limits:
-      cpu: 50m
+      cpu: 200m
       memory: 128Mi
 
   vault:
     requests:
-      cpu: 150m
-      memory: 128Mi
+      cpu: 25m
+      memory: 64Mi
     limits:
       cpu: 300m
       memory: 128Mi

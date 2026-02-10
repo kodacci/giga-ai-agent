@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM eclipse-temurin:21.0.8_9-jre
+FROM docker-registry.ra-tech.pro/pro.ra-tech/docker-base/eclipse-jre-25-curl:noble
 
 LABEL authors="Andrey Ryabtsev"
 
