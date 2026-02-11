@@ -65,7 +65,6 @@
         <dependency>
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
-            <version>${vavr.version}</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>

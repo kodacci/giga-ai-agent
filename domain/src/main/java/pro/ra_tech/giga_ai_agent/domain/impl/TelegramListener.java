@@ -17,13 +17,13 @@ public class TelegramListener implements Runnable {
     private final TelegramBotService service;
     private final BlockingQueue<BotUpdate> botUpdatesQueue;
 
-    private boolean exit = false;
-
     @Override
     public void run() {
         log.info("Started telegram listener");
 
-        while (!exit) {
+        boolean[] exit = { false };
+
+        while (!exit[0]) {
             service.getUpdates()
                     .peek(updates -> {
                         log.debug("Got {} new updates", updates.size());
@@ -37,8 +37,8 @@ public class TelegramListener implements Runnable {
                         log.info("Error getting bot updates:", failure.getCause());
                         try {
                             Thread.sleep(SLEEP_MS_ON_ERROR);
-                        } catch (InterruptedException e) {
-                            exit = true;
+                        } catch (InterruptedException _) {
+                            exit[0] = true;
                         }
                     });
         }
