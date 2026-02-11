@@ -72,7 +72,8 @@ public abstract class BaseRestService {
             val message = body == null ? "Unknown error" : body.string();
             log.error("API request error with code: {} and body: {}", response.code(), message);
             throw new RestApiException(String.format("Bad response with code %d, body: %s", response.code(), message), response.code());
-        } catch (IOException e) {
+        } catch (IOException ex) {
+            log.error("Error reading response body:", ex);
             throw new RestApiException("Bad response with code " + response.code(), response.code());
         }
     }

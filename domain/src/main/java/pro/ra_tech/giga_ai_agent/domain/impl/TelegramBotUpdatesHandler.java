@@ -220,7 +220,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
 
                 log.info("Update object: {}", update);
                 handleUpdate(update, name);
-            } catch (InterruptedException ex) {
+            } catch (InterruptedException _) {
                 log.info("Interrupting bot updates handler");
                 Thread.currentThread().interrupt();
                 return;
