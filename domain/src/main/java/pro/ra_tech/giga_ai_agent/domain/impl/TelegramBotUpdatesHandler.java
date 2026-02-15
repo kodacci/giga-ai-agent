@@ -72,7 +72,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
         res.choices().stream()
                 .filter(choice -> choice.message() != null)
                 .forEach(
-                        choice -> botService.sendMessage(chatId, choice.message().content(), replyTo, MessageParseMode.MARKDOWNV2)
+                        choice -> botService.sendMessage(chatId, choice.message().content(), replyTo, MessageParseMode.MARKDOWN)
                                 .peekLeft(failure -> log.error("Error sending reply: {}", failure.getMessage()))
                 );
 
@@ -121,7 +121,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
         val replyTo = message.messageId();
         log.info("Asking AI model rq: {}, session: {}, with: {}", id, user, prompt);
 
-        botService.sendMessage(chatId, "Ассистент-библиотекарь задумался \uD83E\uDD14", replyTo, MessageParseMode.MARKDOWNV2)
+        botService.sendMessage(chatId, "Ассистент-библиотекарь задумался \uD83E\uDD14", replyTo, MessageParseMode.MARKDOWN)
                 .peekLeft(failure -> log.error("Error sending informing message: {}", failure.getMessage()));
 
         gigaService.createEmbeddings(List.of(prompt), embeddingModel)
@@ -152,14 +152,14 @@ public class TelegramBotUpdatesHandler implements Runnable {
                                 chatId,
                                 "*Использовались источники*:\n\uD83D\uDCDA" + String.join(", \n\uD83D\uDCDA", ctx.getUsedSources()),
                                 null,
-                                MessageParseMode.MARKDOWNV2
+                                MessageParseMode.MARKDOWN
                         );
                     }
                 })
-                .flatMap(usage -> botService.sendMessage(chatId, toUsageMessage(usage), null, MessageParseMode.MARKDOWNV2))
+                .flatMap(usage -> botService.sendMessage(chatId, toUsageMessage(usage), null, MessageParseMode.MARKDOWN))
                 .flatMap(sent -> gigaService.getBalance(null))
                 .map(this::toBalanceMessage)
-                .map(text -> text.isBlank() ? null : botService.sendMessage(chatId, text, null, MessageParseMode.MARKDOWNV2))
+                .map(text -> text.isBlank() ? null : botService.sendMessage(chatId, text, null, MessageParseMode.MARKDOWN))
                 .peekLeft(failure -> log.error("Error while asking model and sending answer", failure.getCause()));
     }
 
