@@ -39,6 +39,11 @@
       "name": "app.kafka",
       "description": "Application Kafka integration configuration",
       "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.kafka.KafkaProps"
+    },
+    {
+      "name": "app.ai-agent",
+      "description": "Application AI agent configuration",
+      "sourceType": "pro.ra_tech.giga_ai_agent.domain.config.AiAgentProps"
     }
   ],
   "properties": [
@@ -293,6 +298,12 @@
       "name": "app.kafka.consumer-thread-pool-size",
       "description": "Kafka consumer thread pool size",
       "type": "java.lang.Integer"
+    },
+
+    {
+      "name": "app.ai-agent.prompt-base",
+      "description": "Base prompt for AI agent",
+      "type": "java.lang.String"
     }
   ],
   "hints": [

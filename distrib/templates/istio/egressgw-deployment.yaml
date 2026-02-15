@@ -121,8 +121,8 @@ spec:
               cpu: {{ egress.limits.cpu }}
               memory: {{ egress.limits.memory }}
             requests:
-              cpu: {{ egress.limits.cpu }}
-              memory: {{ egress.limits.memory }}
+              cpu: {{ egress.requests.cpu }}
+              memory: {{ egress.requests.memory }}
           ports:
             - containerPort: {{ egress_tcp_port }}
               protocol: TCP

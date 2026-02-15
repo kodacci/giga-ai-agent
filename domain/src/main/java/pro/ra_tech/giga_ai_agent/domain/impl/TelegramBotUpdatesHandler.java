@@ -46,6 +46,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
     private final EmbeddingRepository embeddingRepo;
     private final EmbeddingModel embeddingModel;
     private final SourceRepository sourceRepo;
+    private final String promptBase;
 
     private final DecimalFormat balanceFormatter = new DecimalFormat("###,###,###");
 
@@ -137,6 +138,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
                 .flatMap(embeddings -> gigaService.askModel(
                         id,
                         aiModelType,
+                        promptBase,
                         prompt,
                         user,
                         embeddings.stream()
