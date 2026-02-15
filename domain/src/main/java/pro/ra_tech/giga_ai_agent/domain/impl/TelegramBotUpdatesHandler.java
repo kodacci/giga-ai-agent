@@ -72,7 +72,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
         res.choices().stream()
                 .filter(choice -> choice.message() != null)
                 .forEach(
-                        choice -> botService.sendMessage(chatId, choice.message().content(), replyTo)
+                        choice -> botService.sendMessage(chatId, choice.message().content(), replyTo, MessageParseMode.MARKDOWN)
                                 .peekLeft(failure -> log.error("Error sending reply: {}", failure.getMessage()))
                 );
 
