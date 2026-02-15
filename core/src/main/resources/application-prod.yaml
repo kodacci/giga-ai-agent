@@ -14,7 +14,7 @@ spring:
 
 app:
   ai-agent:
-    prompt-base: {AI_AGENT_PROMPT_BASE}
+    prompt-base: ${AI_AGENT_PROMPT_BASE}
   giga-chat:
     auth-api-base-url: ${GIGA_CHAT_AUTH_API_BASE_URL}
     api-base-url: ${GIGA_CHAT_API_BASE_URL}
