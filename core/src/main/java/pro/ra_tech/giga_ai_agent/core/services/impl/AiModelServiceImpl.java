@@ -13,6 +13,7 @@ import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.GetAiModelsRespon
 import pro.ra_tech.giga_ai_agent.core.services.api.AiModelService;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingPersistentData;
+import pro.ra_tech.giga_ai_agent.domain.config.AiAgentProps;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
@@ -27,7 +28,8 @@ import java.util.List;
 public class AiModelServiceImpl implements AiModelService {
     private final GigaChatService gigaService;
     private final EmbeddingRepository embeddingRepo;
-    private final GigaChatProps props;
+    private final GigaChatProps gigaChatProps;
+    private final AiAgentProps aiAgentProps;
 
     private Either<AppFailure, AskAiModelResponse> askWithEmbeddings(
             String rqUid,
@@ -35,7 +37,7 @@ public class AiModelServiceImpl implements AiModelService {
             String prompt,
             @Nullable String sessionId
     ) {
-        return gigaService.createEmbeddings(List.of(prompt), props.embeddingsModel())
+        return gigaService.createEmbeddings(List.of(prompt), gigaChatProps.embeddingsModel())
                 .peek(res -> log.info("Created embedding for prompt: {}", res))
                 .flatMap(res -> embeddingRepo.vectorSearch(
                         res.data()
@@ -48,6 +50,7 @@ public class AiModelServiceImpl implements AiModelService {
                 .flatMap(embeddings -> gigaService.askModel(
                         rqUid,
                         model,
+                        aiAgentProps.promptBase(),
                         prompt,
                         sessionId,
                         embeddings.stream()
@@ -72,13 +75,13 @@ public class AiModelServiceImpl implements AiModelService {
             return askWithEmbeddings(rqUid, data.model(), data.prompt(), sessionId);
         }
 
-        return gigaService.askModel(rqUid, data.model(), data.prompt(), sessionId, data.context())
+        return gigaService.askModel(rqUid, data.model(), "", data.prompt(), sessionId, data.context())
                 .map(AskAiModelResponse::of);
     }
 
     @Override
     public Either<AppFailure, CreateEmbeddingResponse> createEmbedding(CreateEmbeddingRequest request) {
-        return gigaService.createEmbeddings(List.of(request.text()), props.embeddingsModel())
+        return gigaService.createEmbeddings(List.of(request.text()), gigaChatProps.embeddingsModel())
                 .map(CreateEmbeddingResponse::of);
     }
 }

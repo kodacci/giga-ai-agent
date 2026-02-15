@@ -142,16 +142,10 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                 .peekLeft(failure -> log.error("Error getting models list:", failure.getCause()));
     }
 
-    private List<AiAskMessage> toContextMessages(@Nullable List<String> context) {
+    private List<AiAskMessage> toContextMessages(String promptBase, @Nullable List<String> context) {
         return Optional.ofNullable(context)
                 .map(ctx -> String.join("\n", ctx))
-                .map(ctx -> String.format(
-                        """
-                                Ты должен ответить на вопрос пользователя с использованием предоставленных данных. \
-                                Если не знаешь ответ, ничего не выдумывай.
-                                Вот необходимые данные - контекст для ответа:
-                                %s""", ctx
-                ))
+                .map(ctx -> String.format("%s%n%s", promptBase, ctx))
                 .map(ctx -> new AiAskMessage(AiRole.SYSTEM, ctx, null, null))
                 .map(List::of)
                 .orElse(List.of());
@@ -162,13 +156,14 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
     public Either<AppFailure, AiModelAnswerResponse> askModel(
             String rqUid,
             AiModelType model,
+            String promptBase,
             String prompt,
             @Nullable String sessionId,
             @Nullable List<String> context
     ) {
         log.info("Asking model {} with prompt: `{}`", model, prompt);
 
-        val messages = new ArrayList<>(toContextMessages(context));
+        val messages = new ArrayList<>(toContextMessages(promptBase, context));
         messages.add(
                 new AiAskMessage(
                         AiRole.USER,

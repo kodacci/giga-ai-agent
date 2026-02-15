@@ -14,6 +14,8 @@ spring:
       minimum-idle: 1
 
 app:
+  ai-agent:
+    prompt-base: "Ты должен максимально развернуто ответить на вопрос пользователя с использованием предоставленных данных.\\nОтвечай как эксперт в предметной области запроса.\\nЕсли не знаешь ответ, ничего не выдумывай.\\nВот необходимые данные - контекст для ответа:"
   giga-chat:
     auth-api-base-url: http://localhost:${mockServerPort:10035}
     api-base-url: http://localhost:${mockServerPort:10035}

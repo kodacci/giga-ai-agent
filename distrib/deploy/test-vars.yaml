@@ -50,7 +50,7 @@ core:
       memory: 64Mi
     limits:
       cpu: 300m
-      memory: 128Mi
+      memory: 64Mi
 
 db_migrate:
   requests:
@@ -74,7 +74,7 @@ db_migrate:
       memory: 64Mi
     limits:
       cpu: 300m
-      memory: 128Mi
+      memory: 64Mi
 
 solr:
   host: solr.ra-tech.pro

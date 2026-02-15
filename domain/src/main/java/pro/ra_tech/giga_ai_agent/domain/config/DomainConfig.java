@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
 @Configuration
-@EnableConfigurationProperties(TelegramBotProps.class)
+@EnableConfigurationProperties({TelegramBotProps.class, AiAgentProps.class})
 @ComponentScan("pro.ra_tech.giga_ai_agent.domain.impl")
 @EnableScheduling
 public class DomainConfig {
@@ -72,7 +72,8 @@ public class DomainConfig {
             GigaChatService gigaChatService,
             EmbeddingRepository embeddingRepository,
             GigaChatProps gigaChatProps,
-            SourceRepository sourceRepo
+            SourceRepository sourceRepo,
+            AiAgentProps aiAgentProps
     ) {
         val executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(props.updatesHandlersCount());
@@ -88,7 +89,8 @@ public class DomainConfig {
                         props.aiModelType(),
                         embeddingRepository,
                         gigaChatProps.embeddingsModel(),
-                        sourceRepo
+                        sourceRepo,
+                        aiAgentProps.promptBase()
                 )));
 
         return executor;

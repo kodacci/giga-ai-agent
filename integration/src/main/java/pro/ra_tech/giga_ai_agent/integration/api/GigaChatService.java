@@ -14,6 +14,7 @@ public interface GigaChatService {
     Either<AppFailure, AiModelAnswerResponse> askModel(
             String rqUid,
             AiModelType model,
+            String promptBase,
             String prompt,
             @Nullable String sessionId,
             @Nullable List<String> context
