@@ -90,7 +90,7 @@ giga:
     host: gigachat.devices.sberbank.ru
 telegram:
   api:
-    host: api.telegram.org
+    host: telegram.ra-tech.pro
 yandex:
   gpt:
     auth:
