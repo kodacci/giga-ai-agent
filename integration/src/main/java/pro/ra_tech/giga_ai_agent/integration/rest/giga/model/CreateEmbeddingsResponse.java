@@ -7,6 +7,6 @@ import java.util.List;
 public record CreateEmbeddingsResponse(
         @JsonProperty("object") String object,
         @JsonProperty("data") List<EmbeddingData> data,
-        @JsonProperty("model") EmbeddingModel model
+        @JsonProperty("model") GigaEmbeddingModel model
 ) {
 }

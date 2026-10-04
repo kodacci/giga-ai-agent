@@ -1,4 +1,4 @@
-package pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto;
+package pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;

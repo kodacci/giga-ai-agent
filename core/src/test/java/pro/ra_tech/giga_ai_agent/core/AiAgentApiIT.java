@@ -2,7 +2,6 @@ package pro.ra_tech.giga_ai_agent.core;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockserver.integration.ClientAndServer;
@@ -20,18 +19,16 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AiModelUsage;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelRequest;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelResponse;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.AiModelUsage;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.AskAiModelRequest;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.AskAiModelResponse;
 import pro.ra_tech.giga_ai_agent.core.util.Constants;
 import pro.ra_tech.giga_ai_agent.core.util.TestUtils;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaAuthService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;

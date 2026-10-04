@@ -22,7 +22,7 @@ import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiRole;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsRequest;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
-import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GigaEmbeddingModel;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingUsage;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetAiModelsResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
@@ -232,12 +232,12 @@ public class GigaChatServiceImpl extends BaseRestService implements GigaChatServ
                 ))
                 .toJavaList();
 
-        return new CreateEmbeddingsResponse("list", data, EmbeddingModel.EMBEDDINGS);
+        return new CreateEmbeddingsResponse("list", data, GigaEmbeddingModel.EMBEDDINGS);
     }
 
     @Override
     @Synchronized("mutex")
-    public Either<AppFailure, CreateEmbeddingsResponse> createEmbeddings(List<String> input, EmbeddingModel model) {
+    public Either<AppFailure, CreateEmbeddingsResponse> createEmbeddings(List<String> input, GigaEmbeddingModel model) {
         log.info("Creating {} new embeddings with model {} for {} inputs", stubEmbeddings ? "stub" : "real", model, input.size());
 
         if (stubEmbeddings) {

@@ -13,7 +13,7 @@ import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelAnswerRespon
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelUsage;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
-import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GigaEmbeddingModel;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GetBalanceResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.MessageParseMode;
@@ -44,7 +44,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
     private final GigaChatService gigaService;
     private final AiModelType aiModelType;
     private final EmbeddingRepository embeddingRepo;
-    private final EmbeddingModel embeddingModel;
+    private final GigaEmbeddingModel embeddingModel;
     private final SourceRepository sourceRepo;
     private final String promptBase;
 
@@ -95,7 +95,7 @@ public class TelegramBotUpdatesHandler implements Runnable {
         return res.balance().stream()
                 .filter(balance ->
                         balance.usage().equals(aiModelType.getBalanceName()) ||
-                                balance.usage().equals(EmbeddingModel.EMBEDDINGS.getBalanceName())
+                                balance.usage().equals(GigaEmbeddingModel.EMBEDDINGS.getBalanceName())
                 )
                 .map(balance -> String.format(
                         "*Баланс модели %s:* %s токенов",

@@ -18,6 +18,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
 import pro.ra_tech.giga_ai_agent.integration.kafka.model.EmbeddingRecalculationTask;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GigaEmbeddingModel;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -25,7 +26,7 @@ import java.util.stream.LongStream;
 
 @Slf4j
 @Service
-public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingService implements EmbeddingsRecalculationService {
+public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingUtilMiddleware implements EmbeddingsRecalculationService {
     private static final int EMBEDDINGS_LIMIT = 100;
 
     public static class EmptyEmbeddingException extends RuntimeException {
@@ -136,7 +137,7 @@ public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingService imp
                 .flatMap(count -> enqueueAll(count, sourceId));
     }
 
-    public EmbeddingModel toEmbeddingModel(pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel model) {
+    public EmbeddingModel toEmbeddingModel(GigaEmbeddingModel model) {
         return switch (model) {
             case EMBEDDINGS -> EmbeddingModel.EMBEDDINGS;
             case EMBEDDINGS_2 -> EmbeddingModel.EMBEDDINGS2;

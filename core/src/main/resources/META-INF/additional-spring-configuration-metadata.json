@@ -44,6 +44,11 @@
       "name": "app.ai-agent",
       "description": "Application AI agent configuration",
       "sourceType": "pro.ra_tech.giga_ai_agent.domain.config.AiAgentProps"
+    },
+    {
+      "name" : "app.cloud-ru",
+      "description": "Application AI agent cloud.ru configuration",
+      "sourceType": "pro.ra_tech.giga_ai_agent.integration.config.cloud_ru.CloudRuProps"
     }
   ],
   "properties": [
@@ -72,6 +77,7 @@
       "type": "java.lang.String",
       "description": "Application node name monitoring common tag"
     },
+
     {
       "name": "app.giga-chat.auth-api-base-url",
       "description": "Giga Chat API auth base URL",
@@ -127,6 +133,7 @@
       "description": "Use giga chat embeddings model",
       "type": "pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel"
     },
+
     {
       "name": "app.telegram.api.rest-api-base-url",
       "description": "Telegram bot API rest base URL",
@@ -177,6 +184,7 @@
       "description": "Telegram bot enabled",
       "type": "java.lang.Boolean"
     },
+
     {
       "name": "app.llm-text-processor.base-url",
       "description": "LLM text processor REST base url",
@@ -233,6 +241,7 @@
       "description": "Yandex cloud catalog id with AI model capabilities",
       "type": "java.lang.String"
     },
+
     {
       "name": "app.hfs.api-base-url",
       "description": "HFS file server API base URL",
@@ -304,6 +313,22 @@
       "name": "app.ai-agent.prompt-base",
       "description": "Base prompt for AI agent",
       "type": "java.lang.String"
+    },
+
+    {
+      "name": "app.cloud-ru.model-api-base-url",
+      "description": "Cloud.ru AI models API base url",
+      "type": "java.lang.String"
+    },
+    {
+      "name" : "app.cloud-ru.model-api-key",
+      "description": "Cloud.ru AI models API key",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "app.cloud-ru.embedding-model",
+      "description": "Cloud.ru embedding AI model",
+      "type": "package pro.ra_tech.giga_ai_agent.integration.rest.cloud_ru.model.CloudRuEmbeddingModel"
     }
   ],
   "hints": [
@@ -346,6 +371,23 @@
         {
           "value": "GIGA_EMBEDDINGS_3B_2025_09",
           "description": "GIGA Embeddings model, september 2025 update"
+        }
+      ]
+    },
+    {
+      "name": "app.cloud-ru.embedding-model",
+      "values": [
+        {
+          "value": "QWEN3_EMBEDDING_0_6B"
+        },
+        {
+          "value": "QWEN3_VL_EMBEDDING_2B"
+        },
+        {
+          "value": "QWEN3_VL_EMBEDDING_8B"
+        },
+        {
+          "value": "BGE_M3"
         }
       ]
     }

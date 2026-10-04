@@ -1,16 +1,16 @@
-package pro.ra_tech.giga_ai_agent.core.services.impl;
+package pro.ra_tech.giga_ai_agent.core.services.impl.giga;
 
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelRequest;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelResponse;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.CreateEmbeddingRequest;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.CreateEmbeddingResponse;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.GetAiModelsResponse;
-import pro.ra_tech.giga_ai_agent.core.services.api.AiModelService;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.AskAiModelRequest;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.AskAiModelResponse;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.CreateEmbeddingRequest;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.CreateEmbeddingResponse;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.GetAiModelsResponse;
+import pro.ra_tech.giga_ai_agent.core.services.api.giga.AiModelService;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingPersistentData;
 import pro.ra_tech.giga_ai_agent.domain.config.AiAgentProps;
@@ -23,7 +23,7 @@ import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
 import java.util.List;
 
 @Slf4j
-@Service
+@Service("gigaAiModelService")
 @RequiredArgsConstructor
 public class AiModelServiceImpl implements AiModelService {
     private final GigaChatService gigaService;

@@ -2,7 +2,6 @@ package pro.ra_tech.giga_ai_agent.domain.impl;
 
 import io.vavr.control.Either;
 import io.vavr.control.Try;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
@@ -10,46 +9,42 @@ import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.TagRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateEmbeddingData;
-import pro.ra_tech.giga_ai_agent.database.repos.model.CreateSourceData;
-import pro.ra_tech.giga_ai_agent.database.repos.model.TagData;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
-import pro.ra_tech.giga_ai_agent.domain.model.DocumentData;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.impl.BaseRestService;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsResponse;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingData;
-import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GigaEmbeddingModel;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingUsage;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Slf4j
-@RequiredArgsConstructor
-public class EmbeddingServiceImpl extends BaseEmbeddingService implements EmbeddingService {
+public class GigaEmbeddingServiceImpl extends BaseEmbeddingService implements EmbeddingService {
     private static final int TOO_MANY_TOKENS_HTTP_STATUS = 413;
 
-    private final Transactional trx;
-    private final TagRepository tagRepo;
-    private final SourceRepository sourceRepo;
-    private final EmbeddingRepository embeddingRepo;
     private final GigaChatService gigaChatService;
     private final int gigaInputMaxSize;
-    private final EmbeddingModel embeddingModel;
+    private final GigaEmbeddingModel embeddingModel;
 
-    private Either<AppFailure, List<TagData>> saveAllTags(List<TagData> known, List<String> all) {
-        val unknown = all.stream()
-                .filter(name -> known.stream().noneMatch(tag -> tag.name().equals(name)))
-                .toList();
-
-        return tagRepo.create(unknown).map(
-                created -> Stream.concat(created.stream(), known.stream()).toList()
-        );
+    public GigaEmbeddingServiceImpl(
+            Transactional trx,
+            TagRepository tagRepo,
+            SourceRepository sourceRepo,
+            EmbeddingRepository embeddingRepo,
+            GigaChatService gigaChatService,
+            int gigaInputMaxSize,
+            GigaEmbeddingModel embeddingModel
+    ) {
+        super(trx, tagRepo, sourceRepo, embeddingRepo);
+        this.gigaChatService = gigaChatService;
+        this.gigaInputMaxSize = gigaInputMaxSize;
+        this.embeddingModel = embeddingModel;
     }
 
     private AppFailure toFailure(Throwable cause) {
@@ -86,7 +81,8 @@ public class EmbeddingServiceImpl extends BaseEmbeddingService implements Embedd
                 .sum();
     }
 
-    private Either<AppFailure, List<List<Double>>> createGigaEmbeddings(List<String> chunks) {
+    @Override
+    protected Either<AppFailure, List<List<Double>>> createEmbeddings(List<String> chunks) {
         val vectors = new ArrayList<List<Double>>(chunks.size());
         IntStream.range(0, chunks.size()).forEach(idx -> vectors.add(null));
 
@@ -125,7 +121,7 @@ public class EmbeddingServiceImpl extends BaseEmbeddingService implements Embedd
 
             return createEmbeddingsFromChunk(chunks, chunks.size() - tailSize, chunks.size(), vectors)
                     .peek(res -> log.info("Total cost: {}", cost.get() + sumUsage(res)))
-                    .peekLeft(failure -> log.error("Error vectorising last chunk", failure.getCause()))
+                    .peekLeft(failure -> log.error("Error vectorizing last chunk", failure.getCause()))
                     .fold(
                             failure -> Either.right(vectors),
                             res -> Either.right(vectors)
@@ -133,34 +129,6 @@ public class EmbeddingServiceImpl extends BaseEmbeddingService implements Embedd
         }
 
         return Either.right(vectors);
-    }
-
-    private List<CreateEmbeddingData> toEmbeddingsData(long sourceId, List<List<Double>> vectors, List<String> chunks) {
-        return IntStream.range(0, chunks.size())
-                .boxed()
-                .map(idx -> new CreateEmbeddingData(sourceId, vectors.get(idx), chunks.get(idx)))
-                .toList();
-    }
-
-    @Override
-    public Either<AppFailure, Integer> createEmbeddings(DocumentData data) {
-        return trx.execute(
-                status -> tagRepo.findByNames(data.tags())
-                        .flatMap(found -> saveAllTags(found, data.tags()))
-                        .map(tags -> tags.stream().map(TagData::id).toList())
-                        .flatMap(tags -> sourceRepo.create(new CreateSourceData(
-                                data.sourceName(),
-                                data.sourceDescription(),
-                                tags,
-                                null
-                        )))
-                        .flatMap(
-                                source -> createGigaEmbeddings(data.chunks())
-                                        .map(vectors -> toEmbeddingsData(source.id(), vectors, data.chunks()))
-                        )
-                        .flatMap(embeddingRepo::createEmbeddings)
-        )
-                .map(List::size);
     }
 
     private Either<AppFailure, CreateEmbeddingData> toEmbeddingData(long sourceId, CreateEmbeddingsResponse res, String text) {
@@ -174,8 +142,8 @@ public class EmbeddingServiceImpl extends BaseEmbeddingService implements Embedd
         return gigaChatService.createEmbeddings(List.of(text), embeddingModel)
                 .peek(this::logEmbeddingResponse)
                 .flatMap(res -> toEmbeddingData(sourceId, res, text))
-                .flatMap(embeddingRepo::createEmbedding)
-                .peek(data -> log.info("Created embedding in db"))
+                .flatMap(data -> getEmbeddingRepo().createEmbedding(data))
+                .peek(data -> log.info("Created Giga Chat embedding in db"))
                 .map(data -> null);
     }
 }

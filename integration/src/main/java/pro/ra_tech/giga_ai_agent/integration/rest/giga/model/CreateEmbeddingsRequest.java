@@ -7,7 +7,7 @@ import java.util.List;
 
 @Builder
 public record CreateEmbeddingsRequest(
-        @JsonProperty("model") EmbeddingModel model,
+        @JsonProperty("model") GigaEmbeddingModel model,
         @JsonProperty("input") List<String> input
 ) {
 }

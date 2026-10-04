@@ -108,3 +108,6 @@ kafka:
       host: kafka-1.ra-tech.pro
       port: 9093
       egress_port: 9092
+cloud_ru:
+  models:
+    host: foundation-models.api.cloud.ru

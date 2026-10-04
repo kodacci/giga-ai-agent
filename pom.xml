@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.1.0-M1</version>
+		<version>4.1.1</version>
 	</parent>
 
 	<groupId>pro.ra-tech.ai</groupId>
@@ -30,7 +30,7 @@
 	<properties>
 		<revision>1.0.0</revision>
 		<java.version>25</java.version>
-		<spring.boot.version>4.1.0-M1</spring.boot.version>
+		<spring.boot.version>4.1.1</spring.boot.version>
 		<lombok.version>1.18.42</lombok.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -81,6 +81,7 @@
         <jacoco.version>0.8.14</jacoco.version>
         <mockserver.version>5.15.0</mockserver.version>
         <awaitility.version>4.3.0</awaitility.version>
+		<openapi.java.version>4.75.1</openapi.java.version>
 
 		<!--    Vars    -->
 		<coverage.agent> </coverage.agent>
@@ -275,6 +276,11 @@
                 <artifactId>jspecify</artifactId>
                 <version>${jspecify.version}</version>
             </dependency>
+			<dependency>
+				<groupId>com.openai</groupId>
+				<artifactId>openai-java</artifactId>
+				<version>${openapi.java.version}</version>
+			</dependency>
 
             <!--      TEST      -->
             <dependency>

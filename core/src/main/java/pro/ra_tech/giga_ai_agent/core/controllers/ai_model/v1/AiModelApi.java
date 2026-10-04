@@ -1,4 +1,4 @@
-package pro.ra_tech.giga_ai_agent.core.controllers.ai_model;
+package pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,11 +12,11 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelRequest;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.AskAiModelResponse;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.CreateEmbeddingRequest;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.CreateEmbeddingResponse;
-import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.dto.GetAiModelsResponse;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.AskAiModelRequest;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.AskAiModelResponse;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.CreateEmbeddingRequest;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.CreateEmbeddingResponse;
+import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.GetAiModelsResponse;
 
 @Validated
 @Tag(name = "AiModel")

@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import pro.ra_tech.giga_ai_agent.database.config.DatabaseConfig;
 import pro.ra_tech.giga_ai_agent.domain.config.DomainConfig;
+import pro.ra_tech.giga_ai_agent.integration.config.cloud_ru.CloudRuConfig;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatConfig;
 import pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsConfig;
 import pro.ra_tech.giga_ai_agent.integration.config.kafka.KafkaConfig;
@@ -29,7 +30,8 @@ import pro.ra_tech.giga_ai_agent.integration.config.ya_gpt.YaGptConfig;
         DatabaseConfig.class,
         YaGptConfig.class,
         HfsConfig.class,
-        KafkaConfig.class
+        KafkaConfig.class,
+        CloudRuConfig.class
 })
 @EnableConfigurationProperties(AppMonitoringProps.class)
 @ComponentScan({

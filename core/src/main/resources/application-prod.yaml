@@ -68,3 +68,7 @@ app:
     chunk-processing-topic: ${KAFKA_CHUNK_PROCESSING_TOPIC}
     embeddings-recalculation-topic: ${KAFKA_EMBEDDINGS_RECALCULATION_TOPIC}
     consumer-thread-pool-size: ${KAFKA_CONSUMER_THREAD_POOL_SIZE}
+  cloud-ru:
+    model-api-base-url: ${CLOUD_RU_MODEL_API_BASE_URL}
+    model-api-key: ${CLOUD_RU_MODEL_API_KEY}
+    embedding-model: ${CLOUD_RU_EMBEDDING_MODEL}

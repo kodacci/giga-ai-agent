@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
-import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GigaEmbeddingModel;
 
 @Validated
 @ConfigurationProperties("app.giga-chat")
@@ -21,6 +21,6 @@ public record GigaChatProps (
     int embeddingsInputsMaxCount,
     boolean stubEmbeddings,
     @NotNull
-    EmbeddingModel embeddingsModel
+    GigaEmbeddingModel embeddingsModel
 ) {
 }

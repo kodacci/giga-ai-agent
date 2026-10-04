@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.domain.config;
 
+import com.openai.client.OpenAIClient;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.val;
@@ -22,7 +23,7 @@ import pro.ra_tech.giga_ai_agent.integration.api.*;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
 import pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsProps;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
-import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel;
+import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GigaEmbeddingModel;
 import pro.ra_tech.giga_ai_agent.integration.rest.telegram.model.BotUpdate;
 
 import java.util.Map;
@@ -105,7 +106,7 @@ public class DomainConfig {
             EmbeddingRepository embeddingRepo,
             GigaChatService chatService
     ) {
-        return new EmbeddingServiceImpl(
+        return new GigaEmbeddingServiceImpl(
                 trx,
                 tagRepo,
                 sourceRepo,
@@ -131,7 +132,7 @@ public class DomainConfig {
                 AiModelType.GIGA_CHAT.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT.toString(), new AtomicLong(0)),
                 AiModelType.GIGA_CHAT_PRO.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT_PRO.toString(), new AtomicLong(0)),
                 AiModelType.GIGA_CHAT_MAX.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT_MAX.toString(), new AtomicLong(0)),
-                EmbeddingModel.EMBEDDINGS.getBalanceName(), buildBalanceGauge(registry, EmbeddingModel.EMBEDDINGS.toString(), new AtomicLong(0))
+                GigaEmbeddingModel.EMBEDDINGS.getBalanceName(), buildBalanceGauge(registry, GigaEmbeddingModel.EMBEDDINGS.toString(), new AtomicLong(0))
         );
 
         return new BalanceGaugeService(gigaChatService, aiModelsBalances);
@@ -174,5 +175,16 @@ public class DomainConfig {
             EmbeddingsRecalculationService recalculationService
     ) {
         return new KafkaRecalculationTaskHandlerImpl(taskRepo, recalculationService);
+    }
+
+    @Bean
+    public EmbeddingService cloudRuEmbeddingService(
+            Transactional trx,
+            TagRepository tagRepo,
+            SourceRepository sourceRepo,
+            EmbeddingRepository embeddingRepo,
+            OpenAIClient client
+    ) {
+        return new QwenEmbeddingService(trx, tagRepo, sourceRepo, embeddingRepo, client);
     }
 }

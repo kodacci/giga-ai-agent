@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
-public enum EmbeddingModel {
+public enum GigaEmbeddingModel {
     EMBEDDINGS("Embeddings"),
     EMBEDDINGS_2("Embeddings-2"),
     EMBEDDINGS_GIGA_R("EmbeddingsGigaR"),
@@ -15,7 +15,7 @@ public enum EmbeddingModel {
     @Getter
     private final String balanceName;
 
-    EmbeddingModel(String value) {
+    GigaEmbeddingModel(String value) {
         this.value = value;
         balanceName = value.toLowerCase();
     }
@@ -25,7 +25,7 @@ public enum EmbeddingModel {
     public String toString() { return value; }
 
     @JsonCreator
-    public static EmbeddingModel of(@JsonProperty("model") String model) {
+    public static GigaEmbeddingModel of(@JsonProperty("model") String model) {
         return switch(model) {
             case "Embeddings-2" -> EMBEDDINGS_2;
             case "EmbeddingsGigaR" -> EMBEDDINGS_GIGA_R;

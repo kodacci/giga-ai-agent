@@ -69,3 +69,7 @@ app:
     chunk-processing-topic: giga-ai-agent-recalculation-queue
     embeddings-recalculation-topic: giga-ai-agent-embeddings-recalculation-queue
     consumer-thread-pool-size: 1
+  cloud-ru:
+    model-api-base-url: http://localhost:${mockServerPort:10035}
+    model-api-key: test-key
+    embedding-model: QWEN3_VL_EMBEDDING_8B
