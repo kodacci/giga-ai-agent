@@ -55,7 +55,7 @@
 		<assertj.version>3.27.7</assertj.version>
 		<spring.boot.version>4.0.0</spring.boot.version>
 		<spring.version>6.2.1</spring.version>
-		<springdoc.openapi.version>2.8.13</springdoc.openapi.version>
+		<springdoc.openapi.version>3.1.1</springdoc.openapi.version>
 		<problem.version>0.27.0</problem.version>
 		<vavr.version>1.0.0</vavr.version>
 		<jacoco.maven.plugin.version>0.8.11</jacoco.maven.plugin.version>
@@ -81,7 +81,8 @@
         <jacoco.version>0.8.14</jacoco.version>
         <mockserver.version>5.15.0</mockserver.version>
         <awaitility.version>4.3.0</awaitility.version>
-		<openapi.java.version>4.75.1</openapi.java.version>
+		<openai.java.version>4.75.1</openai.java.version>
+		<swagger.annotations.jakarta.version>2.2.55</swagger.annotations.jakarta.version>
 
 		<!--    Vars    -->
 		<coverage.agent> </coverage.agent>
@@ -150,6 +151,12 @@
 				<groupId>org.springdoc</groupId>
 				<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 				<version>${springdoc.openapi.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>io.swagger.core.v3</groupId>
+						<artifactId>swagger-annotations</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
@@ -279,7 +286,13 @@
 			<dependency>
 				<groupId>com.openai</groupId>
 				<artifactId>openai-java</artifactId>
-				<version>${openapi.java.version}</version>
+				<version>${openai.java.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>io.swagger.core.v3</groupId>
+						<artifactId>swagger-annotations</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 
             <!--      TEST      -->
@@ -315,6 +328,11 @@
                 <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
+			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-annotations-jakarta</artifactId>
+				<version>${swagger.annotations.jakarta.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

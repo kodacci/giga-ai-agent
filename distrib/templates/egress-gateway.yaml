@@ -24,6 +24,7 @@ spec:
         - {{ yandex.gpt.api.host }}
         - {{ hfs.host }}
         - {{ elasticsearch.host }}
+        - {{ cloud_ru.models.host }}
     - port:
         number: {{ egress_tcp_port }}
         name: tcp
