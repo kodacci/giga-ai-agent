@@ -20,6 +20,7 @@ spec:
     - name: yandex-gpt-api
     - name: hfs
     - name: elasticsearch
+    - name: cloud-ru
     {% for server in kafka.bootstrap_servers %}
     - name: giga-ai-agent-kafka-{{ server.id }}
     {% endfor %}

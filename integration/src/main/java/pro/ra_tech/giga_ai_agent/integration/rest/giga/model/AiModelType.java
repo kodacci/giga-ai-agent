@@ -13,7 +13,8 @@ public enum AiModelType {
     GIGA_CHAT_2("GigaChat-2"),
     GIGA_CHAT_2_PRO("GigaChat-2-Pro"),
     GIGA_CHAT_2_PLUS("GigaChat-2-Plus"),
-    GIGA_CHAT_2_MAX("GigaChat-2-Max");
+    GIGA_CHAT_2_MAX("GigaChat-2-Max"),
+    GIGA_CHAT_ULTRA("GigaChat-Ultra");
 
     private final String value;
     @Getter
@@ -38,6 +39,7 @@ public enum AiModelType {
             case "GigaChat-2-Pro" -> GIGA_CHAT_2_PRO;
             case "GigaChat-2-Max" -> GIGA_CHAT_2_MAX;
             case "GigaChat-2-Plus" -> GIGA_CHAT_2_PLUS;
+            case "GigaChat-Ultra" -> GIGA_CHAT_ULTRA;
             default -> GIGA_CHAT_2;
         };
     }
