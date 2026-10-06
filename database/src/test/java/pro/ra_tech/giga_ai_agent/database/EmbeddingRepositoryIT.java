@@ -88,13 +88,13 @@ class EmbeddingRepositoryIT implements DatabaseIT {
     void shouldUpdateVectorData() {
         val update = generateEmbedding();
         val result = repo.createEmbedding(new CreateEmbeddingData(sourceId, generateEmbedding(), "text"))
-                .flatMap(data -> repo.updateVector(data.id(), update, EmbeddingModel.EMBEDDINGS_GIGA_R).map(res -> data.id()))
+                .flatMap(data -> repo.updateVector(data.id(), update, EmbeddingModel.GIGA_EMBEDDINGS_GIGA_R).map(res -> data.id()))
                 .peekLeft(failure -> log.error("Error updating vector data", failure.getCause()));
 
         assertThat(result.isRight()).isTrue();
         val id = result.get();
         val embedding = findEmbedding(id);
-        assertThat(embedding.get("model")).isEqualTo(EmbeddingModel.EMBEDDINGS_GIGA_R.toString());
+        assertThat(embedding.get("model")).isEqualTo(EmbeddingModel.GIGA_EMBEDDINGS_GIGA_R.toString());
         val str = Optional.ofNullable(embedding.get("vector_data")).map(Object::toString).orElse("");
         val vector = new PGvector();
         vector.setValue(str);

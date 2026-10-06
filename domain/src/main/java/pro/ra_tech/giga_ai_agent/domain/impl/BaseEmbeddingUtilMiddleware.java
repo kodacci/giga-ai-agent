@@ -1,5 +1,6 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
+import com.openai.models.embeddings.CreateEmbeddingResponse;
 import lombok.extern.slf4j.Slf4j;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.CreateEmbeddingsResponse;
 
@@ -21,5 +22,13 @@ public abstract class BaseEmbeddingUtilMiddleware {
         }
 
         return res.data().getFirst().embedding();
+    }
+
+    protected List<Double> toVector(CreateEmbeddingResponse res) {
+        return res.data()
+                .stream()
+                .findFirst()
+                .map(embedding -> embedding.embedding().stream().map(Float::doubleValue).toList())
+                .orElse(List.of());
     }
 }

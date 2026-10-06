@@ -59,11 +59,7 @@ public class QwenEmbeddingService extends BaseEmbeddingService {
 
     private EmbeddingResult toEmbeddingResult(CreateEmbeddingResponse response) {
         return new EmbeddingResult(
-                response.data()
-                        .stream()
-                        .findFirst()
-                        .map(embedding -> embedding.embedding().stream().map(Float::doubleValue).toList())
-                        .orElse(List.of()),
+                toVector(response),
                 (int) response.usage().promptTokens()
         );
     }

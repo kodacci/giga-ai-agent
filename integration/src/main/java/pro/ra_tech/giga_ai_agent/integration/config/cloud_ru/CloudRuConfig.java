@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties(CloudRuProps.class)
 public class CloudRuConfig {
-    @Bean
+    @Bean("cloudRuClient")
     public OpenAIClient openAIClient(CloudRuProps props) {
         return new OpenAIOkHttpClient.Builder()
                 .baseUrl(props.modelApiBaseUrl())

@@ -1,9 +1,11 @@
 package pro.ra_tech.giga_ai_agent.domain.impl;
 
 import io.vavr.control.Either;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingsRecalculationTaskRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateRecalculationTaskData;
@@ -13,20 +15,16 @@ import pro.ra_tech.giga_ai_agent.database.repos.model.RecalculationTaskStatus;
 import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingsRecalculationService;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.RecalculationFailure;
-import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaSendResultHandler;
 import pro.ra_tech.giga_ai_agent.integration.api.KafkaService;
-import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
 import pro.ra_tech.giga_ai_agent.integration.kafka.model.EmbeddingRecalculationTask;
-import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GigaEmbeddingModel;
 
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 @Slf4j
-@Service
-public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingUtilMiddleware implements EmbeddingsRecalculationService {
+public abstract class BaseEmbeddingsRecalculationService extends BaseEmbeddingUtilMiddleware implements EmbeddingsRecalculationService {
     private static final int EMBEDDINGS_LIMIT = 100;
 
     public static class EmptyEmbeddingException extends RuntimeException {
@@ -36,25 +34,18 @@ public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingUtilMiddlew
     }
 
     private final EmbeddingsRecalculationTaskRepository taskRepo;
+    @Getter(AccessLevel.PROTECTED)
     private final EmbeddingRepository embeddingRepo;
     private final KafkaService kafkaService;
-    private final GigaChatService gigaService;
-    private final GigaChatProps props;
-    private final EmbeddingModel dbModel;
 
-    public EmbeddingsRecalculationServiceImpl(
+    public BaseEmbeddingsRecalculationService(
             EmbeddingsRecalculationTaskRepository taskRepo,
             EmbeddingRepository embeddingRepo,
-            KafkaService kafkaService,
-            GigaChatService gigaService,
-            GigaChatProps props
+            KafkaService kafkaService
     ) {
         this.taskRepo = taskRepo;
         this.embeddingRepo = embeddingRepo;
         this.kafkaService = kafkaService;
-        this.gigaService = gigaService;
-        this.props = props;
-        this.dbModel = toEmbeddingModel(props.embeddingsModel());
     }
 
     private record SendResultHandler(
@@ -137,15 +128,6 @@ public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingUtilMiddlew
                 .flatMap(count -> enqueueAll(count, sourceId));
     }
 
-    public EmbeddingModel toEmbeddingModel(GigaEmbeddingModel model) {
-        return switch (model) {
-            case EMBEDDINGS -> EmbeddingModel.EMBEDDINGS;
-            case EMBEDDINGS_2 -> EmbeddingModel.EMBEDDINGS2;
-            case EMBEDDINGS_GIGA_R -> EmbeddingModel.EMBEDDINGS_GIGA_R;
-            case GIGA_EMBEDDINGS_3B_2025_09 -> EmbeddingModel.GIGA_EMBEDDINGS_3B_2025_09;
-        };
-    }
-
     private AppFailure toFailure(Throwable cause) {
         return new RecalculationFailure(
                 RecalculationFailure.Code.EMPTY_EMBEDDING_FROM_MODEL_FAILURE,
@@ -154,21 +136,14 @@ public class EmbeddingsRecalculationServiceImpl extends BaseEmbeddingUtilMiddlew
         );
     }
 
-    @Override
-    public Either<AppFailure, Void> recalculateEmbedding(long embeddingId) {
-        return embeddingRepo.findById(embeddingId)
-                .flatMap(found -> gigaService.createEmbeddings(List.of(found.textData()), props.embeddingsModel()))
-                .peek(this::logEmbeddingResponse)
-                .map(this::toVector)
-                .flatMap(vector -> vector.isEmpty()
-                        ? Either.left(toFailure(new EmptyEmbeddingException(embeddingId)))
-                        : Either.right(vector)
-                )
-                .flatMap(vector -> embeddingRepo.updateVector(
-                        embeddingId,
-                        vector,
-                        dbModel
-                ))
-                .map(res -> null);
-    }
+    protected Either<AppFailure, Boolean> checkAndWriteVector(
+            List<Double> vector,
+            long embeddingId,
+            EmbeddingModel model
+    ) {
+        if (CollectionUtils.isEmpty(vector)) {
+            return Either.left(toFailure(new EmptyEmbeddingException(embeddingId)));
+        }
+
+        return embeddingRepo.updateVector(embeddingId, vector, model);    }
 }
