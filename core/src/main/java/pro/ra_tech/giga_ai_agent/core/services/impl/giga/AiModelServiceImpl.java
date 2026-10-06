@@ -13,6 +13,7 @@ import pro.ra_tech.giga_ai_agent.core.controllers.ai_model.v1.dto.GetAiModelsRes
 import pro.ra_tech.giga_ai_agent.core.services.api.giga.AiModelService;
 import pro.ra_tech.giga_ai_agent.database.repos.api.EmbeddingRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingPersistentData;
+import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.config.AiAgentProps;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.integration.api.GigaChatService;
@@ -30,6 +31,7 @@ public class AiModelServiceImpl implements AiModelService {
     private final EmbeddingRepository embeddingRepo;
     private final GigaChatProps gigaChatProps;
     private final AiAgentProps aiAgentProps;
+    private final EmbeddingService gigaEmbeddingService;
 
     private Either<AppFailure, AskAiModelResponse> askWithEmbeddings(
             String rqUid,
@@ -81,7 +83,7 @@ public class AiModelServiceImpl implements AiModelService {
 
     @Override
     public Either<AppFailure, CreateEmbeddingResponse> createEmbedding(CreateEmbeddingRequest request) {
-        return gigaService.createEmbeddings(List.of(request.text()), gigaChatProps.embeddingsModel())
-                .map(CreateEmbeddingResponse::of);
+        return gigaEmbeddingService.getEmbedding(request.text())
+                .map(res -> new CreateEmbeddingResponse(res.vector(), res.tokensUsage()));
     }
 }

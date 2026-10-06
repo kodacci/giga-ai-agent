@@ -33,7 +33,7 @@ import java.util.List;
 public class PdfServiceImpl extends BaseDocumentService implements PdfService {
     public PdfServiceImpl(
             LlmTextProcessorService llmService,
-            EmbeddingService embeddingService,
+            EmbeddingService gigaEmbeddingService,
             HfsService hfsService,
             KafkaService kafkaService,
             HfsProps hfsProps,
@@ -42,7 +42,7 @@ public class PdfServiceImpl extends BaseDocumentService implements PdfService {
             TagService tagsService,
             Transactional trx
     ) {
-        super(llmService, embeddingService, hfsService, kafkaService, hfsProps, taskRepo, sourceRepo, tagsService, trx);
+        super(llmService, gigaEmbeddingService, hfsService, kafkaService, hfsProps, taskRepo, sourceRepo, tagsService, trx);
     }
 
     private AppFailure toFailure(Throwable cause) {

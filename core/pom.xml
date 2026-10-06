@@ -10,7 +10,6 @@
     </parent>
 
     <artifactId>giga-ai-agent-core</artifactId>
-    <version>${revision}</version>
 
     <name>core</name>
     <packaging>jar</packaging>

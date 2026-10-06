@@ -25,7 +25,7 @@ import java.util.List;
 public class TxtServiceImpl extends BaseDocumentService implements TxtService {
     public TxtServiceImpl(
             LlmTextProcessorService llmService,
-            EmbeddingService embeddingService,
+            EmbeddingService gigaEmbeddingService,
             HfsService hfsService,
             KafkaService kafkaService,
             HfsProps hfsProps,
@@ -34,7 +34,7 @@ public class TxtServiceImpl extends BaseDocumentService implements TxtService {
             TagService tagsService,
             Transactional trx
     ) {
-        super(llmService, embeddingService, hfsService, kafkaService, hfsProps, taskRepo, sourceRepo, tagsService, trx);
+        super(llmService, gigaEmbeddingService, hfsService, kafkaService, hfsProps, taskRepo, sourceRepo, tagsService, trx);
     }
 
     @Override

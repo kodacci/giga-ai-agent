@@ -4,6 +4,7 @@ import com.openai.client.OpenAIClient;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,7 @@ import pro.ra_tech.giga_ai_agent.domain.api.*;
 import pro.ra_tech.giga_ai_agent.domain.impl.*;
 import pro.ra_tech.giga_ai_agent.domain.impl.BalanceGaugeService;
 import pro.ra_tech.giga_ai_agent.integration.api.*;
+import pro.ra_tech.giga_ai_agent.integration.config.cloud_ru.CloudRuProps;
 import pro.ra_tech.giga_ai_agent.integration.config.giga.GigaChatProps;
 import pro.ra_tech.giga_ai_agent.integration.config.hfs.HfsProps;
 import pro.ra_tech.giga_ai_agent.integration.rest.giga.model.AiModelType;
@@ -97,7 +99,7 @@ public class DomainConfig {
         return executor;
     }
 
-    @Bean
+    @Bean("gigaEmbeddingService")
     public EmbeddingService embeddingService(
             GigaChatProps gigaProps,
             Transactional trx,
@@ -106,7 +108,7 @@ public class DomainConfig {
             EmbeddingRepository embeddingRepo,
             GigaChatService chatService
     ) {
-        return new GigaEmbeddingServiceImpl(
+        return new GigaEmbeddingService(
                 trx,
                 tagRepo,
                 sourceRepo,
@@ -132,6 +134,7 @@ public class DomainConfig {
                 AiModelType.GIGA_CHAT.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT.toString(), new AtomicLong(0)),
                 AiModelType.GIGA_CHAT_PRO.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT_PRO.toString(), new AtomicLong(0)),
                 AiModelType.GIGA_CHAT_MAX.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT_MAX.toString(), new AtomicLong(0)),
+                AiModelType.GIGA_CHAT_ULTRA.getBalanceName(), buildBalanceGauge(registry, AiModelType.GIGA_CHAT_ULTRA.toString(), new AtomicLong(0)),
                 GigaEmbeddingModel.EMBEDDINGS.getBalanceName(), buildBalanceGauge(registry, GigaEmbeddingModel.EMBEDDINGS.toString(), new AtomicLong(0))
         );
 
@@ -156,7 +159,7 @@ public class DomainConfig {
             TxtService txtService,
             KafkaService kafkaService,
             DocProcessingTaskRepository taskRepo,
-            EmbeddingService embeddingService
+            EmbeddingService gigaEmbeddingService
     ) {
         return new KafkaDocProcessingTaskHandlerImpl(
                 hfsProps.baseFolder(),
@@ -165,7 +168,7 @@ public class DomainConfig {
                 txtService,
                 kafkaService,
                 taskRepo,
-                embeddingService
+                gigaEmbeddingService
         );
     }
 
@@ -177,14 +180,15 @@ public class DomainConfig {
         return new KafkaRecalculationTaskHandlerImpl(taskRepo, recalculationService);
     }
 
-    @Bean
+    @Bean("cloudRuEmbeddingService")
     public EmbeddingService cloudRuEmbeddingService(
             Transactional trx,
             TagRepository tagRepo,
             SourceRepository sourceRepo,
             EmbeddingRepository embeddingRepo,
-            OpenAIClient client
+            OpenAIClient client,
+            CloudRuProps props
     ) {
-        return new QwenEmbeddingService(trx, tagRepo, sourceRepo, embeddingRepo, client);
+        return new QwenEmbeddingService(trx, tagRepo, sourceRepo, embeddingRepo, client, props.embeddingModel());
     }
 }

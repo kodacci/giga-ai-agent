@@ -49,7 +49,7 @@
 		<nxrm3.maven.plugin.version>1.0.6</nxrm3.maven.plugin.version>
 		<maven.wrapper.plugin.version>3.3.4</maven.wrapper.plugin.version>
 		<sonar.maven.plugin.version>5.0.0.4389</sonar.maven.plugin.version>
-        <sonar.jacoco.plugin>1.4.0.4946</sonar.jacoco.plugin>
+        <sonar.jacoco.plugin.version>1.4.0.4946</sonar.jacoco.plugin.version>
 
 		<!--  Third party dependencies  -->
 		<assertj.version>3.27.7</assertj.version>
@@ -437,7 +437,7 @@
 				<plugin>
 					<groupId>org.sonarsource.jacoco</groupId>
 					<artifactId>sonar-jacoco-plugin</artifactId>
-					<version>${sonar.jacoco.plugin}</version>
+					<version>${sonar.jacoco.plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
