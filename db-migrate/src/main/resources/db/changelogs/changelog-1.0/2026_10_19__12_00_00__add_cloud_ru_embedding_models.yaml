@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 14
+      author: Andrey Ryabtsev
+      comment: Adds cloud.ru models to embedding model type
+      changes:
+        - sql:
+            sql: |
+              ALTER TYPE embedding_model ADD VALUE IF NOT EXISTS 'Qwen/Qwen3-Embedding-0.6B';
+              ALTER TYPE embedding_model ADD VALUE IF NOT EXISTS 'Qwen/Qwen3-VL-Embedding-2B';
+              ALTER TYPE embedding_model ADD VALUE IF NOT EXISTS 'Qwen/Qwen3-VL-Embedding-8B';
+              ALTER TYPE embedding_model ADD VALUE IF NOT EXISTS 'BAAI/bge-m3';
+              ALTER TYPE embedding_model ADD VALUE IF NOT EXISTS 'ai-sage/Giga-Embeddings-instruct-3B';
+              ALTER TYPE embedding_model ADD VALUE IF NOT EXISTS 'ai-sage/Giga-Embeddings-instruct-480M';
+      rollback:
+        - empty

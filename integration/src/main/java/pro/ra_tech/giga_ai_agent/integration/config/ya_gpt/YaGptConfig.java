@@ -12,7 +12,6 @@ import org.springframework.scheduling.TaskScheduler;
 import pro.ra_tech.giga_ai_agent.integration.api.AuthService;
 import pro.ra_tech.giga_ai_agent.integration.api.YaGptService;
 import pro.ra_tech.giga_ai_agent.integration.config.BaseIntegrationConfig;
-import pro.ra_tech.giga_ai_agent.integration.config.telegram.TelegramApiProps;
 import pro.ra_tech.giga_ai_agent.integration.impl.YaGptAuthServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.impl.YaGptServiceImpl;
 import pro.ra_tech.giga_ai_agent.integration.rest.ya_gpt.api.AuthApi;

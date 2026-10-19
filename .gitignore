@@ -10,6 +10,9 @@ target/
 *.iml
 *.ipr
 
+### VS Code ###
+.vscode
+
 ### Local spring configs ###
 application-local.yaml
 

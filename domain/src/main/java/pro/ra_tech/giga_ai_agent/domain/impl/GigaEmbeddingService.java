@@ -9,7 +9,6 @@ import pro.ra_tech.giga_ai_agent.database.repos.api.SourceRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.api.TagRepository;
 import pro.ra_tech.giga_ai_agent.database.repos.impl.Transactional;
 import pro.ra_tech.giga_ai_agent.database.repos.model.CreateEmbeddingData;
-import pro.ra_tech.giga_ai_agent.domain.api.EmbeddingService;
 import pro.ra_tech.giga_ai_agent.domain.model.EmbeddingResult;
 import pro.ra_tech.giga_ai_agent.failure.AppFailure;
 import pro.ra_tech.giga_ai_agent.failure.DocumentProcessingFailure;
@@ -26,7 +25,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 @Slf4j
-public class GigaEmbeddingService extends BaseEmbeddingService implements EmbeddingService {
+public class GigaEmbeddingService extends BaseEmbeddingService {
     private static final int TOO_MANY_TOKENS_HTTP_STATUS = 413;
 
     private final GigaChatService gigaChatService;

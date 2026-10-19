@@ -7,7 +7,9 @@ public enum CloudRuEmbeddingModel {
     QWEN3_EMBEDDING_0_6B("Qwen/Qwen3-Embedding-0.6B"),
     QWEN3_VL_EMBEDDING_2B("Qwen/Qwen3-VL-Embedding-2B"),
     QWEN3_VL_EMBEDDING_8B("Qwen/Qwen3-VL-Embedding-8B"),
-    BGE_M3("bge-m3");
+    BGE_M3("BAAI/bge-m3"),
+    GIGA_EMBEDDINGS_INSTRUCT_3B("ai-sage/Giga-Embeddings-instruct-3B"),
+    GIGA_EMBEDDINGS_INSTRUCT_480M("ai-sage/Giga-Embeddings-instruct-480M");
 
     private final String value;
 

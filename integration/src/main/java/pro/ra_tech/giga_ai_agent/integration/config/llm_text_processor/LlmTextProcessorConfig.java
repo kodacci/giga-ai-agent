@@ -1,7 +1,6 @@
 package pro.ra_tech.giga_ai_agent.integration.config.llm_text_processor;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import lombok.val;
 import okhttp3.OkHttpClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

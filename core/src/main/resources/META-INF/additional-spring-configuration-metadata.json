@@ -131,7 +131,7 @@
     {
       "name": "app.giga-chat.embeddings-model",
       "description": "Use giga chat embeddings model",
-      "type": "pro.ra_tech.giga_ai_agent.integration.rest.giga.model.EmbeddingModel"
+      "type": "pro.ra_tech.giga_ai_agent.integration.rest.giga.model.GigaEmbeddingModel"
     },
 
     {
@@ -328,7 +328,7 @@
     {
       "name": "app.cloud-ru.embedding-model",
       "description": "Cloud.ru embedding AI model",
-      "type": "package pro.ra_tech.giga_ai_agent.integration.rest.cloud_ru.model.CloudRuEmbeddingModel"
+      "type": "pro.ra_tech.giga_ai_agent.integration.rest.cloud_ru.model.CloudRuEmbeddingModel"
     }
   ],
   "hints": [
@@ -378,16 +378,28 @@
       "name": "app.cloud-ru.embedding-model",
       "values": [
         {
-          "value": "QWEN3_EMBEDDING_0_6B"
+          "value": "QWEN3_EMBEDDING_0_6B",
+          "description": "Qwen/Qwen3-Embedding-0.6B - lightweight Qwen3 text embeddings model"
         },
         {
-          "value": "QWEN3_VL_EMBEDDING_2B"
+          "value": "QWEN3_VL_EMBEDDING_2B",
+          "description": "Qwen/Qwen3-VL-Embedding-2B - Qwen3 multimodal embeddings model, 2B parameters"
         },
         {
-          "value": "QWEN3_VL_EMBEDDING_8B"
+          "value": "QWEN3_VL_EMBEDDING_8B",
+          "description": "Qwen/Qwen3-VL-Embedding-8B - Qwen3 multimodal embeddings model, 8B parameters"
         },
         {
-          "value": "BGE_M3"
+          "value": "BGE_M3",
+          "description": "BAAI/bge-m3 - multilingual embeddings model"
+        },
+        {
+          "value": "GIGA_EMBEDDINGS_INSTRUCT_3B",
+          "description": "ai-sage/Giga-Embeddings-instruct-3B - Giga instruct embeddings model, 3B parameters"
+        },
+        {
+          "value": "GIGA_EMBEDDINGS_INSTRUCT_480M",
+          "description": "ai-sage/Giga-Embeddings-instruct-480M - lightweight Giga instruct embeddings model, 480M parameters"
         }
       ]
     }

@@ -18,6 +18,8 @@ import pro.ra_tech.giga_ai_agent.integration.rest.cloud_ru.model.CloudRuEmbeddin
 import java.util.List;
 
 import static pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingModel.CLOUD_RU_BGE_M3;
+import static pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingModel.CLOUD_RU_GIGA_EMBEDDINGS_INSTRUCT_3B;
+import static pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingModel.CLOUD_RU_GIGA_EMBEDDINGS_INSTRUCT_480M;
 import static pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingModel.CLOUD_RU_QWEN3_EMBEDDING_0_6B;
 import static pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingModel.CLOUD_RU_QWEN3_VL_EMBEDDING_2B;
 import static pro.ra_tech.giga_ai_agent.database.repos.model.EmbeddingModel.CLOUD_RU_QWEN3_VL_EMBEDDING_8B;
@@ -46,6 +48,8 @@ public class QwenEmbeddingsRecalculationService extends BaseEmbeddingsRecalculat
             case QWEN3_VL_EMBEDDING_2B -> CLOUD_RU_QWEN3_VL_EMBEDDING_2B;
             case QWEN3_VL_EMBEDDING_8B -> CLOUD_RU_QWEN3_VL_EMBEDDING_8B;
             case BGE_M3 -> CLOUD_RU_BGE_M3;
+            case GIGA_EMBEDDINGS_INSTRUCT_3B -> CLOUD_RU_GIGA_EMBEDDINGS_INSTRUCT_3B;
+            case GIGA_EMBEDDINGS_INSTRUCT_480M -> CLOUD_RU_GIGA_EMBEDDINGS_INSTRUCT_480M;
         };
     }
 
